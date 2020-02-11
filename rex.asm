@@ -29,7 +29,7 @@
 .label SPRITE_ADDR = VIC_MEMORY_START + $2000
 
 .pc = $0801 "Basic Upstart"
-:BasicUpstart(start) // Basic start routine
+BasicUpstart(start) // Basic start routine
 
 // -------- Main program ---------
 .pc = $0810 "Program"
@@ -55,7 +55,7 @@ configureC64: {
 
 configureVic2: {
   setVideoMode(STANDARD_TEXT_MODE)
-  setVICBank(VIC_BANK)
+  setVICBank(3 - VIC_BANK)
   configureTextMemory(SCREEN_PAGE_0, CHARGEN)
   // set background & border color
   lda #WHITE
@@ -152,6 +152,10 @@ beginOfChargen:
   // 0-63: letters, symbols, numbers
   #import "fonts/regular/base.asm"
 
+afterOfChargen:
+
+  .print "Import size = " + (afterOfChargen - beginOfChargen)
+
   // 64-128: playfield graphics
 
   // $40 64
@@ -228,3 +232,14 @@ beginOfChargen:
   ch("........")//8
 
 endOfChargen:
+
+// print memory map summary
+
+.macro memSummary(name, address) {
+  .print name + " = " + address + " ($" + toHexString(address, 4) + ")"
+}
+
+memSummary("SCREEN_PAGE_ADDR_0", SCREEN_PAGE_ADDR_0)
+memSummary("SCREEN_PAGE_ADDR_1", SCREEN_PAGE_ADDR_1)
+memSummary("      CHARGEN_ADDR", CHARGEN_ADDR)
+memSummary("       SPRITE_ADDR", SPRITE_ADDR)
