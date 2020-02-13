@@ -11,12 +11,15 @@
 .filenamespace c64lib
 
 // ZERO page
-.label z_x = 2          // $02,$03
-.label z_y = 4          // $04,$05
-.label z_width = 6      // $06
-.label z_height = 7     // $07
-.label z_map = 8        // $08, $09
-.label z_phase = 10     // $0A
+.label z_x = 2                // $02,$03
+.label z_y = 4                // $04,$05
+.label z_width = 6            // $06
+.label z_height = 7           // $07
+.label z_map = 8              // $08, $09
+.label z_phase = 10           // $0A
+.label z_listPtr = 11         // $0B
+.label z_displayListPtr = 12  // $0C,$0D
+
 
 .label VIC_BANK = 3
 .label SCREEN_PAGE_0 = 0
@@ -57,6 +60,7 @@ start:
   jsr unpackData
   jsr initBackground
   jsr showPlayer
+  jsr startCopper
   
 endless:
   jmp endless
@@ -83,12 +87,17 @@ configureVic2: {
 }
 
 prepareScreen: {
+  // clear page 0
   pushParamW(SCREEN_PAGE_ADDR_0)
   lda #32
   jsr fillScreen
-
+  // clear page 1
   pushParamW(SCREEN_PAGE_ADDR_1)
   lda #32
+  jsr fillScreen
+  // set up playfield color to GREY
+  pushParamW(COLOR_RAM)
+  lda #GREY
   jsr fillScreen
 
   rts
@@ -126,12 +135,33 @@ unpackData: {
   rts
 }
 
+startCopper: {
+  lda #<copperList
+  sta z_displayListPtr
+  lda #>copperList
+  sta z_displayListPtr + 1
+
+  startCopper(
+    z_displayListPtr, 
+    z_listPtr, 
+    List().add(c64lib.IRQH_HSCROLL, c64lib.IRQH_JSR, c64lib.IRQH_BORDER_BG_0_COL).lock())
+}
+
  #import "common/lib/sub/copy-large-mem-forward.asm"
  #import "common/lib/sub/fill-screen.asm"
  
 // ------------------- Background ----------------------
 
-//.align $100
+.align $100
+copperList:
+            copperEntry(30, IRQH_BORDER_BG_0_COL, BLUE, 0)
+            copperEntry(40, IRQH_BORDER_BG_0_COL, WHITE, 0)
+  hScroll:  copperEntry(45, IRQH_HSCROLL, 5, 0)
+            copperEntry(50, IRQH_JSR, <scrollBackground, >scrollBackground)
+            copperEntry(255, IRQH_HSCROLL, 0, 0)
+            copperLoop()
+
+.align $100
 tileColors:
   .fill 256, DARK_GREY
 mapOffsetsLo:
@@ -149,7 +179,7 @@ tileDefinition3:
 
 // scrollable background configuration
 .var tilesCfg = Tile2Config()
-.eval tilesCfg.bank = VIC_BANK
+.eval tilesCfg.bank = 3 - VIC_BANK
 .eval tilesCfg.page0 = SCREEN_PAGE_0
 .eval tilesCfg.page1 = SCREEN_PAGE_1
 .eval tilesCfg.startRow = 1
@@ -163,6 +193,7 @@ tileDefinition3:
 .eval tilesCfg.mapOffsetsHi = mapOffsetsHi
 .eval tilesCfg.mapDefinitionPtr = z_map
 .eval tilesCfg.tileDefinition = tileDefinition0
+.eval tilesCfg.lock()
 
 initBackground: {
   // set map definition pointer
@@ -190,7 +221,47 @@ initBackground: {
 }
 
 scrollBackground: {
-  // TODO screen shifting in phases
+  inc BORDER_COL
+
+  lda z_phase
+  beq page0To1
+  cmp #1
+  beq switch0To1
+  cmp #2
+  beq _page1To0
+  cmp #3
+  beq switch1To0
+  switch0To1:
+    lda MEMORY_CONTROL
+    and #00001111
+    ora SCREEN_PAGE_1 << 4
+    sta MEMORY_CONTROL
+    jmp end
+  switch1To0:
+    lda MEMORY_CONTROL
+    and #00001111
+    ora SCREEN_PAGE_0 << 4
+    sta MEMORY_CONTROL
+    jmp end
+  _page1To0: jmp page1To0
+  page0To1:
+    _t2_shiftScreenLeft(tilesCfg, 0, 1)
+    _t2_decodeScreenRight(tilesCfg, 1)
+    jmp end
+  page1To0:
+    _t2_shiftScreenLeft(tilesCfg, 1, 0)
+    _t2_decodeScreenRight(tilesCfg, 0)
+  end:
+    inc z_phase
+    lda z_phase
+    cmp #4
+    bne end2
+      lda #0
+      sta z_phase
+    end2:
+
+  dec BORDER_COL
+
   rts
 }
 
