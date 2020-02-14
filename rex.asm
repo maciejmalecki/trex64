@@ -19,6 +19,8 @@
 .label z_phase = 10           // $0A
 .label z_listPtr = 11         // $0B
 .label z_displayListPtr = 12  // $0C,$0D
+.label z_deltaX = 14          // $0E
+.label z_acc0 = 15            // $0F
 
 
 .label VIC_BANK = 3
@@ -32,6 +34,7 @@
 .label PLAYER_Y = 180
 
 .label TILES_COUNT = 4
+.label MAP_WIDTH = 40
 
 /*
  * VIC memory layout (16kb):
@@ -82,19 +85,20 @@ configureVic2: {
   // set background & border color
   lda #WHITE
   sta BG_COL_0
+  lda #LIGHT_BLUE
   sta BORDER_COL
   rts
 }
 
 prepareScreen: {
   // clear page 0
-  //pushParamW(SCREEN_PAGE_ADDR_0)
-  //lda #32
-  //jsr fillScreen
+  pushParamW(SCREEN_PAGE_ADDR_0)
+  lda #32
+  jsr fillScreen
   // clear page 1
-  //pushParamW(SCREEN_PAGE_ADDR_1)
-  //lda #32
-  //jsr fillScreen
+  pushParamW(SCREEN_PAGE_ADDR_1)
+  lda #32
+  jsr fillScreen
   // set up playfield color to GREY
   pushParamW(COLOR_RAM)
   lda #GREY
@@ -144,7 +148,7 @@ startCopper: {
   startCopper(
     z_displayListPtr, 
     z_listPtr, 
-    List().add(c64lib.IRQH_HSCROLL, c64lib.IRQH_JSR, c64lib.IRQH_BORDER_BG_0_COL).lock())
+    List().add(c64lib.IRQH_HSCROLL, c64lib.IRQH_JSR).lock())
 }
 
  #import "common/lib/sub/copy-large-mem-forward.asm"
@@ -154,11 +158,9 @@ startCopper: {
 
 .align $100
 copperList:
-            copperEntry(30, IRQH_BORDER_BG_0_COL, BLUE, 0)
-            copperEntry(40, IRQH_BORDER_BG_0_COL, WHITE, 0)
-  hScroll:  copperEntry(45, IRQH_HSCROLL, 5, 0)
-            copperEntry(50, IRQH_JSR, <scrollBackground, >scrollBackground)
-            copperEntry(255, IRQH_HSCROLL, 0, 0)
+            copperEntry(0, IRQH_HSCROLL, 0, 0)
+  hScroll:  copperEntry($3A, IRQH_HSCROLL, 5, 0)
+            copperEntry($3F, IRQH_JSR, <scrollBackground, >scrollBackground)
             copperLoop()
 
 .align $100
@@ -202,7 +204,7 @@ initBackground: {
   lda #>mapDefinition
   sta z_map + 1
   // set map dimensions
-  lda #40
+  lda #MAP_WIDTH
   sta z_width
   lda #12
   sta z_height
@@ -212,6 +214,9 @@ initBackground: {
   sta z_x + 1
   sta z_y
   sta z_y + 1
+  // set delta X
+  lda #1
+  sta z_deltaX
   // set phase to 0
   lda #0
   sta z_phase
@@ -223,6 +228,11 @@ initBackground: {
 scrollBackground: {
   inc BORDER_COL
 
+  lda z_deltaX
+  bne checkPhase
+  jmp end2
+
+  checkPhase:
   lda z_phase
   beq page0To1
   cmp #1
@@ -231,6 +241,7 @@ scrollBackground: {
   beq _page1To0
   cmp #3
   beq switch1To0
+  jmp end
   switch0To1:
     lda MEMORY_CONTROL
     and #00001111
@@ -254,11 +265,45 @@ scrollBackground: {
   end:
     inc z_phase
     lda z_phase
-    cmp #4
+    cmp #7
     bne end2
       lda #0
       sta z_phase
     end2:
+
+  lda z_deltaX
+  asl
+  asl
+  asl
+  asl
+  cld
+  clc
+  adc z_x
+  sta z_x
+  lda #0
+  adc z_x + 1
+  sta z_x + 1
+  lda z_x + 1
+  cmp #MAP_WIDTH
+  bmi dontReset
+    lda #0
+    sta z_x + 1
+  dontReset:
+  // set scroll register
+  lda z_x
+  and #%01110000
+  lsr
+  lsr
+  lsr
+  lsr
+  sta z_acc0
+
+  lda #7
+  sec
+  cld
+  sbc z_acc0
+
+  sta hScroll + 2
 
   dec BORDER_COL
 
