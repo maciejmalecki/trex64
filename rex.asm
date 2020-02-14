@@ -88,13 +88,13 @@ configureVic2: {
 
 prepareScreen: {
   // clear page 0
-  pushParamW(SCREEN_PAGE_ADDR_0)
-  lda #32
-  jsr fillScreen
+  //pushParamW(SCREEN_PAGE_ADDR_0)
+  //lda #32
+  //jsr fillScreen
   // clear page 1
-  pushParamW(SCREEN_PAGE_ADDR_1)
-  lda #32
-  jsr fillScreen
+  //pushParamW(SCREEN_PAGE_ADDR_1)
+  //lda #32
+  //jsr fillScreen
   // set up playfield color to GREY
   pushParamW(COLOR_RAM)
   lda #GREY
@@ -179,7 +179,7 @@ tileDefinition3:
 
 // scrollable background configuration
 .var tilesCfg = Tile2Config()
-.eval tilesCfg.bank = 3 - VIC_BANK
+.eval tilesCfg.bank = VIC_BANK
 .eval tilesCfg.page0 = SCREEN_PAGE_0
 .eval tilesCfg.page1 = SCREEN_PAGE_1
 .eval tilesCfg.startRow = 1
@@ -234,13 +234,13 @@ scrollBackground: {
   switch0To1:
     lda MEMORY_CONTROL
     and #00001111
-    ora SCREEN_PAGE_1 << 4
+    ora #(SCREEN_PAGE_1 << 4)
     sta MEMORY_CONTROL
     jmp end
   switch1To0:
     lda MEMORY_CONTROL
     and #00001111
-    ora SCREEN_PAGE_0 << 4
+    ora #(SCREEN_PAGE_0 << 4)
     sta MEMORY_CONTROL
     jmp end
   _page1To0: jmp page1To0
