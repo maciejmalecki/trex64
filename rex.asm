@@ -62,6 +62,7 @@ start:
   jsr configureVic2
   jsr unpackData
   jsr initBackground
+  jsr initDashboard
   jsr showPlayer
   jsr startCopper
   
@@ -151,8 +152,45 @@ startCopper: {
     List().add(c64lib.IRQH_HSCROLL, c64lib.IRQH_JSR).lock())
 }
 
+initDashboard: {
+  pushParamW(dashboard)
+  pushParamW(SCREEN_PAGE_ADDR_0)
+  jsr outText
+  pushParamW(dashboard)
+  pushParamW(SCREEN_PAGE_ADDR_1)
+  jsr outText
+  rts
+}
+
+updateDashboard: {
+  pushParamW(z_x)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 6)
+  jsr outHex
+  pushParamW(z_x + 1)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 8)
+  jsr outHex
+
+  pushParamW(z_x)
+  pushParamW(SCREEN_PAGE_ADDR_1 + 6)
+  jsr outHex
+  pushParamW(z_x + 1)
+  pushParamW(SCREEN_PAGE_ADDR_1 + 8)
+  jsr outHex
+
+  pushParamW(z_phase)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 15)
+  jsr outHex
+
+  pushParamW(z_phase)
+  pushParamW(SCREEN_PAGE_ADDR_1 + 15)
+  jsr outHex
+  rts 
+}
+
  #import "common/lib/sub/copy-large-mem-forward.asm"
  #import "common/lib/sub/fill-screen.asm"
+ #import "text/lib/sub/out-text.asm"
+ #import "text/lib/sub/out-hex.asm"
  
 // ------------------- Background ----------------------
 
@@ -162,6 +200,9 @@ copperList:
   hScroll:  copperEntry($3A, IRQH_HSCROLL, 5, 0)
             copperEntry($3F, IRQH_JSR, <scrollBackground, >scrollBackground)
             copperLoop()
+
+dashboard:
+  .text "xpos:$0000 ph:$00"; .byte $FF
 
 .align $100
 tileColors:
@@ -215,7 +256,7 @@ initBackground: {
   sta z_y
   sta z_y + 1
   // set delta X
-  lda #1
+  lda #(1<<4)
   sta z_deltaX
   // set phase to 0
   lda #0
@@ -265,26 +306,23 @@ scrollBackground: {
   end:
     inc z_phase
     lda z_phase
-    cmp #7
+    cmp #8
     bne end2
       lda #0
       sta z_phase
     end2:
 
-  lda z_deltaX
-  asl
-  asl
-  asl
-  asl
   cld
   clc
-  adc z_x
+  lda z_x
+  adc z_deltaX
   sta z_x
-  lda #0
-  adc z_x + 1
-  sta z_x + 1
+
   lda z_x + 1
-  cmp #MAP_WIDTH
+  adc #0
+  sta z_x + 1
+
+  cmp #(MAP_WIDTH-20)
   bmi dontReset
     lda #0
     sta z_x + 1
@@ -298,14 +336,14 @@ scrollBackground: {
   lsr
   sta z_acc0
 
-  lda #7
   sec
-  cld
+  lda #7
   sbc z_acc0
-
   sta hScroll + 2
 
   dec BORDER_COL
+
+  jsr updateDashboard
 
   rts
 }
@@ -461,6 +499,7 @@ afterOfChargen:
   ch("........")//8
 
 endOfChargen:
+endOfTRex:
 
 // print memory map summary
 
@@ -472,3 +511,5 @@ memSummary("SCREEN_PAGE_ADDR_0", SCREEN_PAGE_ADDR_0)
 memSummary("SCREEN_PAGE_ADDR_1", SCREEN_PAGE_ADDR_1)
 memSummary("      CHARGEN_ADDR", CHARGEN_ADDR)
 memSummary("       SPRITE_ADDR", SPRITE_ADDR)
+
+.print("total size = " + (endOfTRex - start) + " bytes")
