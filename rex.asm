@@ -37,13 +37,40 @@
 .label MAP_WIDTH = 40
 
 /*
- * VIC memory layout (16kb):
- * $0000 ($C000-$C3FF) - SCREEN_PAGE_0
- * $0400 ($C400-$C7FF) - SCREEN_PAGE_1
- * $0800 ($C800-$CFFF) - CHARGEN
- *       ($D000-$DFFF) - I/O space
- * $2000 ($E000)       - sprite data
+   Phase bit map:
+   --------------
+   %PW00000S
+
+   - P page: 0=page0, 1=page1
+   - W wrapping: 0=no wrapping, 1=wrapping detected
+   - S switching pages: 0=no switching, 1=switching
+
+   Usage: 
+     lda #%00000001
+     bit z_phase
+     bmi ... - branch if page1
+     bpl ... - branch if page0
+     bvs ... - branch if X is wrapping
+     bvc ... - branch if X is not wrapping
+     beq ... - branch if not switching pages
+     bne ... - branch if switching pages
  */
+.label PHASE_SHOW_0         = %00000000
+.label PHASE_WRAP_0_TO_1    = %01000000
+.label PHASE_SWITCH_0_TO_1  = %00000001
+.label PHASE_SHOW_1         = %10000000
+.label PHASE_WRAP_1_TO_0    = %11000000
+.label PHASE_SWITCH_1_TO_0  = %10000001
+
+/*
+  VIC memory layout (16kb):
+  - $0000 ($C000-$C3FF) - SCREEN_PAGE_0
+  - $0400 ($C400-$C7FF) - SCREEN_PAGE_1
+  - $0800 ($C800-$CFFF) - CHARGEN
+  -       ($D000-$DFFF) - I/O space
+  - $2000 ($E000)       - sprite data
+ */
+
 .label VIC_MEMORY_START = VIC_BANK * toBytes(16)
 .label SCREEN_PAGE_ADDR_0 = VIC_MEMORY_START + SCREEN_PAGE_0 * toBytes(1)
 .label SCREEN_PAGE_ADDR_1 = VIC_MEMORY_START + SCREEN_PAGE_1 * toBytes(1)
@@ -156,9 +183,15 @@ initDashboard: {
   pushParamW(dashboard)
   pushParamW(SCREEN_PAGE_ADDR_0)
   jsr outText
+
+  pushParamW(page0Mark)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 30)
+  jsr outText
+
   pushParamW(dashboard)
   pushParamW(SCREEN_PAGE_ADDR_1)
   jsr outText
+
   rts
 }
 
@@ -203,6 +236,8 @@ copperList:
 
 dashboard:
   .text "xpos:$0000 ph:$00"; .byte $FF
+page0Mark:
+  .text "#0"; .byte $FF
 
 .align $100
 tileColors:
@@ -259,15 +294,54 @@ initBackground: {
   lda #(1<<4)
   sta z_deltaX
   // set phase to 0
-  lda #0
+  lda #PHASE_SHOW_0
   sta z_phase
   // initialize tile2 system
   tile2Init(tilesCfg)
   rts
 }
 
+incrementX: {
+  lda z_x
+  adc z_deltaX
+  sta z_x
+  rts
+}
+
 scrollBackground: {
+  // debug indicator
   inc BORDER_COL
+
+  // increment X coordinate
+  cld
+  clc
+
+  lda #1
+  bit z_phase
+  bpl page0
+  page1: {
+    bvc notWrapping
+    wrapping: {
+      jsr incrementX
+    }
+    notWrapping: {
+      jsr incrementX
+    }
+  }
+  page0: {
+    bvc notWrapping
+    wrapping: {
+      jsr incrementX
+    }
+    notWrapping: {
+      jsr incrementX
+    }
+  }
+
+  lda z_x + 1
+  adc #0
+  sta z_x + 1
+
 
   lda z_deltaX
   bne checkPhase
@@ -275,38 +349,44 @@ scrollBackground: {
 
   checkPhase:
   lda z_phase
-  beq page0To1
-  cmp #1
+  cmp #6
+  bne !+
+  jmp page0To1
+!:
+  cmp #7
   beq switch0To1
-  cmp #2
-  beq _page1To0
-  cmp #3
-  beq switch1To0
+  cmp #14
+  bne !+
+  jmp page1To0
+!:
+  cmp #15
+  bne !+
+  jmp switch1To0
+!:
   jmp end
   switch0To1:
+    _t2_decodeScreenRight(tilesCfg, 1)
     lda MEMORY_CONTROL
-    and #00001111
+    and #%00001111
     ora #(SCREEN_PAGE_1 << 4)
     sta MEMORY_CONTROL
     jmp end
   switch1To0:
+    _t2_decodeScreenRight(tilesCfg, 0)
     lda MEMORY_CONTROL
-    and #00001111
+    and #%00001111
     ora #(SCREEN_PAGE_0 << 4)
     sta MEMORY_CONTROL
     jmp end
-  _page1To0: jmp page1To0
   page0To1:
     _t2_shiftScreenLeft(tilesCfg, 0, 1)
-    _t2_decodeScreenRight(tilesCfg, 1)
     jmp end
   page1To0:
     _t2_shiftScreenLeft(tilesCfg, 1, 0)
-    _t2_decodeScreenRight(tilesCfg, 0)
   end:
     inc z_phase
     lda z_phase
-    cmp #8
+    cmp #16
     bne end2
       lda #0
       sta z_phase
