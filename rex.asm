@@ -188,6 +188,10 @@ initDashboard: {
   pushParamW(SCREEN_PAGE_ADDR_0 + 30)
   jsr outText
 
+  pushParamW(page1Mark)
+  pushParamW(SCREEN_PAGE_ADDR_1 + 30)
+  jsr outText
+
   pushParamW(dashboard)
   pushParamW(SCREEN_PAGE_ADDR_1)
   jsr outText
@@ -238,6 +242,8 @@ dashboard:
   .text "xpos:$0000 ph:$00"; .byte $FF
 page0Mark:
   .text "#0"; .byte $FF
+page1Mark:
+  .text "#1"; .byte $FF
 
 .align $100
 tileColors:
@@ -308,6 +314,15 @@ incrementX: {
   rts
 }
 
+/*
+  var z_deltaX = 2
+  var z_x = 0
+
+  // invisble copy first
+  // switch pages last
+
+  
+ */
 scrollBackground: {
   // debug indicator
   inc BORDER_COL
@@ -323,20 +338,25 @@ scrollBackground: {
     bvc notWrapping
     wrapping: {
       jsr incrementX
+      jmp next
     }
     notWrapping: {
       jsr incrementX
+      jmp next
     }
   }
   page0: {
     bvc notWrapping
     wrapping: {
       jsr incrementX
+      jmp next
     }
     notWrapping: {
       jsr incrementX
+      jmp next
     }
   }
+  next:
 
   lda z_x + 1
   adc #0
