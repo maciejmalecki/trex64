@@ -42,18 +42,18 @@
    %PW00000S
 
    - P page: 0=page0, 1=page1
-   - W wrapping: 0=no wrapping, 1=wrapping detected
-   - S switching pages: 0=no switching, 1=switching
-
+   - W switching pages: 0=no switching, 1=switching
+   - S scrolling: 0=no scrolling, 1=scrolling
+   
    Usage: 
      lda #%00000001
      bit z_phase
      bmi ... - branch if page1
      bpl ... - branch if page0
-     bvs ... - branch if X is wrapping
-     bvc ... - branch if X is not wrapping
-     beq ... - branch if not switching pages
-     bne ... - branch if switching pages
+     bvc ... - branch if not switching pages
+     bvs ... - branch if switching pages
+     beq ... - branch if scrolling
+     bne ... - branch if is not scrolling
  */
 .label PHASE_SHOW_0         = %00000000
 .label PHASE_WRAP_0_TO_1    = %01000000
@@ -307,22 +307,6 @@ initBackground: {
   rts
 }
 
-incrementX: {
-  lda z_x
-  adc z_deltaX
-  sta z_x
-  rts
-}
-
-/*
-  var z_deltaX = 2
-  var z_x = 0
-
-  // invisble copy first
-  // switch pages last
-
-  
- */
 scrollBackground: {
   // debug indicator
   inc BORDER_COL
@@ -330,59 +314,51 @@ scrollBackground: {
   // increment X coordinate
   cld
   clc
-
-  lda #1
-  bit z_phase
-  bpl page0
-  page1: {
-    bvc notWrapping
-    wrapping: {
-      jsr incrementX
-      jmp next
-    }
-    notWrapping: {
-      jsr incrementX
-      jmp next
-    }
-  }
-  page0: {
-    bvc notWrapping
-    wrapping: {
-      jsr incrementX
-      jmp next
-    }
-    notWrapping: {
-      jsr incrementX
-      jmp next
-    }
-  }
-  next:
-
+  lda z_x
+  adc z_deltaX
+  sta z_x
   lda z_x + 1
   adc #0
   sta z_x + 1
 
-
-  lda z_deltaX
-  bne checkPhase
-  jmp end2
-
-  checkPhase:
-  lda z_phase
-  cmp #6
-  bne !+
-  jmp page0To1
-!:
-  cmp #7
-  beq switch0To1
-  cmp #14
-  bne !+
-  jmp page1To0
-!:
-  cmp #15
-  bne !+
-  jmp switch1To0
-!:
+  // test phase flags
+  lda #1
+  bit z_phase
+  bpl page0
+  page1: { 
+    beq notScrolling
+    // if scrolling
+    lda z_phase
+    and #%11111110
+    sta z_phase
+    jmp page1To0
+    notScrolling: {
+      // if do not switch the page
+      bvc endSwitch
+      // if switch the page
+      and #%00111111
+      sta z_phase
+      jmp switch1To0
+    }
+  }
+  page0: {
+    beq notScrolling
+    // if scrolling
+    lda z_phase
+    and #%11111110
+    sta z_phase
+    jmp page0To1
+    notScrolling: {
+      // if do not switch the page
+      bvc endSwitch
+      // if switch the page
+      and #%00111111
+      ora #%10000000
+      sta z_phase
+      jmp switch0To1
+    }
+  }
+  endSwitch:
   jmp end
   switch0To1:
     _t2_decodeScreenRight(tilesCfg, 1)
@@ -404,24 +380,9 @@ scrollBackground: {
   page1To0:
     _t2_shiftScreenLeft(tilesCfg, 1, 0)
   end:
-    inc z_phase
-    lda z_phase
-    cmp #16
-    bne end2
-      lda #0
-      sta z_phase
-    end2:
 
-  cld
-  clc
-  lda z_x
-  adc z_deltaX
-  sta z_x
-
+  // check if we need to loop the background
   lda z_x + 1
-  adc #0
-  sta z_x + 1
-
   cmp #(MAP_WIDTH-20)
   bmi dontReset
     lda #0
@@ -435,6 +396,19 @@ scrollBackground: {
   lsr
   lsr
   sta z_acc0
+  cmp #%00000111
+  bne notSeven
+    lda z_phase
+    ora #%01000000
+    sta z_phase
+  notSeven:
+  // scroll register
+  lda z_acc0
+  bne notZero
+    lda z_phase
+    ora #%00000001
+    sta z_phase
+  notZero:
 
   sec
   lda #7
@@ -604,7 +578,7 @@ endOfTRex:
 // print memory map summary
 
 .macro memSummary(name, address) {
-  .print name + " = " + address + " ($" + toHexString(address, 4) + ")"
+.print name + " = " + address + " ($" + toHexString(address, 4) + ")"
 }
 
 memSummary("SCREEN_PAGE_ADDR_0", SCREEN_PAGE_ADDR_0)
@@ -612,4 +586,4 @@ memSummary("SCREEN_PAGE_ADDR_1", SCREEN_PAGE_ADDR_1)
 memSummary("      CHARGEN_ADDR", CHARGEN_ADDR)
 memSummary("       SPRITE_ADDR", SPRITE_ADDR)
 
-.print("total size = " + (endOfTRex - start) + " bytes")
+.print ("total size = " + (endOfTRex - start) + " bytes")
