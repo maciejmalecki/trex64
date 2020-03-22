@@ -21,7 +21,9 @@
 .label z_displayListPtr = 12  // $0C,$0D
 .label z_deltaX = 14          // $0E
 .label z_acc0 = 15            // $0F
-
+.label z_keyPressed = 16      // $10
+.label z_mode = 17            // $11
+.label z_delay = 18           // $12
 
 .label VIC_BANK = 3
 .label SCREEN_PAGE_0 = 0
@@ -35,6 +37,8 @@
 
 .label TILES_COUNT = 4
 .label MAP_WIDTH = 40
+
+.label MAX_DELAY = 10
 
 /*
    Phase bit map:
@@ -206,6 +210,9 @@ updateDashboard: {
   pushParamW(z_x + 1)
   pushParamW(SCREEN_PAGE_ADDR_0 + 8)
   jsr outHex
+  pushParamW(z_mode)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 24)
+  jsr outHex
 
   pushParamW(z_x)
   pushParamW(SCREEN_PAGE_ADDR_1 + 6)
@@ -213,6 +220,10 @@ updateDashboard: {
   pushParamW(z_x + 1)
   pushParamW(SCREEN_PAGE_ADDR_1 + 8)
   jsr outHex
+  pushParamW(z_mode)
+  pushParamW(SCREEN_PAGE_ADDR_1 + 24)
+  jsr outHex
+
 
   pushParamW(z_phase)
   pushParamW(SCREEN_PAGE_ADDR_0 + 15)
@@ -222,6 +233,47 @@ updateDashboard: {
   pushParamW(SCREEN_PAGE_ADDR_1 + 15)
   jsr outHex
   rts 
+}
+
+scanKeys: {
+  dec z_delay
+  beq scan
+  jmp skip
+  scan:
+  lda #MAX_DELAY
+  sta z_delay
+
+  // set up data direction
+  lda #$FF
+  sta CIA1_DATA_DIR_A 
+  lda #$00
+  sta CIA1_DATA_DIR_B
+  // scan F7 and SPACE for being pressed
+  lda #%00011000
+  sta CIA1_DATA_PORT_A
+  lda CIA1_DATA_PORT_B
+  sta z_keyPressed
+
+  and #%00001000
+  bne !+
+    lda z_mode
+    eor #1
+    sta z_mode
+  !:
+
+  lda z_keyPressed
+  and #%00010000
+  bne !+ 
+  {
+    lda z_mode
+    beq !+
+      jsr incrementX
+    !:
+  }
+  !:
+
+  skip:
+  rts
 }
 
  #import "common/lib/sub/copy-large-mem-forward.asm"
@@ -239,7 +291,7 @@ copperList:
             copperLoop()
 
 dashboard:
-  .text "xpos:$0000 ph:$00"; .byte $FF
+  .text "xpos:$0000 ph:$00 mode:$00"; .byte $FF
 page0Mark:
   .text "#0"; .byte $FF
 page1Mark:
@@ -302,16 +354,20 @@ initBackground: {
   // set phase to 0
   lda #PHASE_SHOW_0
   sta z_phase
+  // set key mode to 0
+  lda #$00
+  sta z_keyPressed
+  sta z_mode
+  // set max delay
+  lda #MAX_DELAY
+  sta z_delay
+
   // initialize tile2 system
   tile2Init(tilesCfg)
   rts
 }
 
-scrollBackground: {
-  // debug indicator
-  inc BORDER_COL
-
-  // increment X coordinate
+incrementX: {
   cld
   clc
   lda z_x
@@ -320,6 +376,18 @@ scrollBackground: {
   lda z_x + 1
   adc #0
   sta z_x + 1
+  rts
+}
+
+scrollBackground: {
+  // debug indicator
+  inc BORDER_COL
+
+  // increment X coordinate
+  lda z_mode
+  bne !+
+    jsr incrementX
+  !:
 
   // test phase flags
   lda #1
@@ -418,6 +486,7 @@ scrollBackground: {
   dec BORDER_COL
 
   jsr updateDashboard
+  jsr scanKeys
 
   rts
 }
@@ -495,7 +564,7 @@ beginOfChargen:
 
 afterOfChargen:
 
-  .print "Import size = " + (afterOfChargen - beginOfChargen)
+.print "Import size = " + (afterOfChargen - beginOfChargen)
 
   // 64-128: playfield graphics
 
