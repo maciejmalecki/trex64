@@ -236,12 +236,12 @@ updateDashboard: {
 }
 
 scanKeys: {
+  lda z_delay
+  beq scan
   dec z_delay
   beq scan
   jmp skip
   scan:
-  lda #MAX_DELAY
-  sta z_delay
 
   // set up data direction
   lda #$FF
@@ -259,6 +259,8 @@ scanKeys: {
     lda z_mode
     eor #1
     sta z_mode
+    lda #MAX_DELAY
+    sta z_delay
   !:
 
   lda z_keyPressed
@@ -269,6 +271,8 @@ scanKeys: {
     beq !+
       jsr incrementX
     !:
+    lda #MAX_DELAY
+    sta z_delay
   }
   !:
 
