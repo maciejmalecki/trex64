@@ -119,6 +119,10 @@ configureVic2: {
   sta BG_COL_0
   lda #LIGHT_BLUE
   sta BORDER_COL
+  // turn on 38 columns visible
+  lda CONTROL_2
+  and #%11110111
+  sta CONTROL_2
   rts
 }
 
@@ -385,13 +389,7 @@ incrementX: {
 
 scrollBackground: {
   // debug indicator
-  inc BORDER_COL
-
-  // increment X coordinate
-  lda z_mode
-  bne !+
-    jsr incrementX
-  !:
+  // inc BORDER_COL
 
   // test phase flags
   lda #1
@@ -438,6 +436,9 @@ scrollBackground: {
     and #%00001111
     ora #(SCREEN_PAGE_1 << 4)
     sta MEMORY_CONTROL
+    lda CONTROL_2
+    ora #%00000111
+    sta CONTROL_2
     jmp end
   switch1To0:
     _t2_decodeScreenRight(tilesCfg, 0)
@@ -445,6 +446,9 @@ scrollBackground: {
     and #%00001111
     ora #(SCREEN_PAGE_0 << 4)
     sta MEMORY_CONTROL
+    lda CONTROL_2
+    ora #%00000111
+    sta CONTROL_2
     jmp end
   page0To1:
     _t2_shiftScreenLeft(tilesCfg, 0, 1)
@@ -468,13 +472,23 @@ scrollBackground: {
   lsr
   lsr
   sta z_acc0
+
+  // detect page switching phase
   cmp #%00000111
   bne notSeven
     lda z_phase
+    and #%11111110
     ora #%01000000
     sta z_phase
   notSeven:
-  // scroll register
+
+  // increment X coordinate
+  lda z_mode
+  bne !+
+    jsr incrementX
+  !:
+
+  // detect scrolling phase
   lda z_acc0
   bne notZero
     lda z_phase
@@ -487,7 +501,7 @@ scrollBackground: {
   sbc z_acc0
   sta hScroll + 2
 
-  dec BORDER_COL
+  // dec BORDER_COL
 
   jsr updateDashboard
   jsr scanKeys
