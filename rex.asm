@@ -1,3 +1,4 @@
+#define VISUAL_DEBUG
 #import "common/lib/mem.asm"
 #import "common/lib/invoke.asm"
 #import "chipset/lib/sprites.asm"
@@ -9,6 +10,7 @@
 #import "copper64/lib/copper64.asm"
 
 .filenamespace c64lib
+
 
 // ZERO page
 .label z_x = 2                // $02,$03
@@ -292,10 +294,17 @@ scanKeys: {
 // ------------------- Background ----------------------
 
 .align $100
+// here we define layout of raster interrupt handlers
 copperList:
+            // at the top we reset HScroll register to 0
             copperEntry(0, IRQH_HSCROLL, 0, 0)
+            // here we set scroll register to 5, but in fact this value will be modified by scrollBackground routine
   hScroll:  copperEntry($3A, IRQH_HSCROLL, 5, 0)
+            // here we do the actual scrolling
             copperEntry($3F, IRQH_JSR, <scrollBackground, >scrollBackground)
+            // here we do the page switching when it's time for this
+            copperEntry(230, IRQH_JSR, <switchPages, >switchPages)
+            // here we loop and so on, so on, for each frame
             copperLoop()
 
 dashboard:
@@ -388,67 +397,35 @@ incrementX: {
 }
 
 scrollBackground: {
-  // debug indicator
-  // inc BORDER_COL
+
+  debugBorderStart()
+  pha
 
   // test phase flags
   lda #1
   bit z_phase
   bpl page0
+  // we're on page 1
   page1: { 
     beq notScrolling
-    // if scrolling
-    lda z_phase
-    and #%11111110
-    sta z_phase
-    jmp page1To0
-    notScrolling: {
-      // if do not switch the page
-      bvc endSwitch
-      // if switch the page
-      and #%00111111
+      // if scrolling
+      lda z_phase
+      and #%11111110
       sta z_phase
-      jmp switch1To0
-    }
+      jmp page1To0
+    notScrolling:
   }
+  // we're on page 0
   page0: {
     beq notScrolling
-    // if scrolling
-    lda z_phase
-    and #%11111110
-    sta z_phase
-    jmp page0To1
-    notScrolling: {
-      // if do not switch the page
-      bvc endSwitch
-      // if switch the page
-      and #%00111111
-      ora #%10000000
+      // if scrolling
+      lda z_phase
+      and #%11111110
       sta z_phase
-      jmp switch0To1
-    }
+      jmp page0To1
+    notScrolling: 
   }
   endSwitch:
-  jmp end
-  switch0To1:
-    _t2_decodeScreenRight(tilesCfg, 1)
-    lda MEMORY_CONTROL
-    and #%00001111
-    ora #(SCREEN_PAGE_1 << 4)
-    sta MEMORY_CONTROL
-    lda CONTROL_2
-    ora #%00000111
-    sta CONTROL_2
-    jmp end
-  switch1To0:
-    _t2_decodeScreenRight(tilesCfg, 0)
-    lda MEMORY_CONTROL
-    and #%00001111
-    ora #(SCREEN_PAGE_0 << 4)
-    sta MEMORY_CONTROL
-    lda CONTROL_2
-    ora #%00000111
-    sta CONTROL_2
     jmp end
   page0To1:
     _t2_shiftScreenLeft(tilesCfg, 0, 1)
@@ -456,15 +433,67 @@ scrollBackground: {
   page1To0:
     _t2_shiftScreenLeft(tilesCfg, 1, 0)
   end:
+  pla
+    debugBorderEnd()
+  rts
+}
 
-  // check if we need to loop the background
-  lda z_x + 1
-  cmp #(MAP_WIDTH-20)
-  bmi dontReset
-    lda #0
-    sta z_x + 1
-  dontReset:
-  // set scroll register
+switchPages: {
+  debugBorderStart()
+  // preserve registers
+  pha
+  txa
+  pha
+  tya
+  pha
+
+  // test phase
+  lda #1
+  bit z_phase
+  bpl page0
+  // we're on page 1
+  page1: { 
+      // if do not switch the page
+      bvc endSwitch
+      // if switch the page
+      and #%00111111
+      sta z_phase
+      jmp switch1To0
+  }
+  // we're on page 0
+  page0: {
+      // if do not switch the page
+      bvc endSwitch
+      // if switch the page
+      and #%00111111
+      ora #%10000000
+      sta z_phase
+      jmp switch0To1
+  }
+  endSwitch:
+    jmp end
+  switch0To1:
+    _t2_decodeScreenRight(tilesCfg, 1)
+    lda MEMORY_CONTROL
+    and #%00001111
+    ora #(SCREEN_PAGE_1 << 4)
+    sta MEMORY_CONTROL
+   // lda CONTROL_2
+   // ora #%00000111
+   // sta CONTROL_2
+    jmp end
+  switch1To0:
+    _t2_decodeScreenRight(tilesCfg, 0)
+    lda MEMORY_CONTROL
+    and #%00001111
+    ora #(SCREEN_PAGE_0 << 4)
+    sta MEMORY_CONTROL
+   // lda CONTROL_2
+   // ora #%00000111
+   // sta CONTROL_2
+  end:
+
+    // set scroll register
   lda z_x
   and #%01110000
   lsr
@@ -487,6 +516,13 @@ scrollBackground: {
   bne !+
     jsr incrementX
   !:
+  // check if we need to loop the background
+  lda z_x + 1
+  cmp #(MAP_WIDTH-20)
+  bmi dontReset
+    lda #0
+    sta z_x + 1
+  dontReset:
 
   // detect scrolling phase
   lda z_acc0
@@ -501,11 +537,17 @@ scrollBackground: {
   sbc z_acc0
   sta hScroll + 2
 
-  // dec BORDER_COL
-
   jsr updateDashboard
   jsr scanKeys
 
+  // restore registers
+  pla
+  tay
+  pla
+  tax
+  pla
+
+  debugBorderEnd()
   rts
 }
 
