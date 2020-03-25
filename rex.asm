@@ -414,6 +414,7 @@ scrollBackground: {
       sta z_phase
       jmp page1To0
     notScrolling:
+    jmp end
   }
   // we're on page 0
   page0: {
@@ -425,15 +426,15 @@ scrollBackground: {
       jmp page0To1
     notScrolling: 
   }
-  endSwitch:
-    jmp end
+  jmp end
   page0To1:
     _t2_shiftScreenLeft(tilesCfg, 0, 1)
     jmp end
   page1To0:
     _t2_shiftScreenLeft(tilesCfg, 1, 0)
+
   end:
-  pla
+    pla
     debugBorderEnd()
   rts
 }
@@ -478,9 +479,6 @@ switchPages: {
     and #%00001111
     ora #(SCREEN_PAGE_1 << 4)
     sta MEMORY_CONTROL
-   // lda CONTROL_2
-   // ora #%00000111
-   // sta CONTROL_2
     jmp end
   switch1To0:
     _t2_decodeScreenRight(tilesCfg, 0)
@@ -488,9 +486,6 @@ switchPages: {
     and #%00001111
     ora #(SCREEN_PAGE_0 << 4)
     sta MEMORY_CONTROL
-   // lda CONTROL_2
-   // ora #%00000111
-   // sta CONTROL_2
   end:
 
     // set scroll register
