@@ -35,15 +35,22 @@
 .label CHARGEN = 1
 
 // player
-.label PLAYER_SPRITE = 0
-.label PLAYER_COL = DARK_GREY
+.label PLAYER_SPRITE_TOP_OVL = 0
+.label PLAYER_SPRITE_TOP = 1
+.label PLAYER_SPRITE_BOTTOM_OVL = 2
+.label PLAYER_SPRITE_BOTTOM = 3
+.label PLAYER_COL = $0  // overlay color
+.label PLAYER_COL0 = $5 // multi individual
+.label PLAYER_COL1 = $9 // multi color 0
+.label PLAYER_COL2 = $8 // multi color 1
 .label PLAYER_X = 80
-.label PLAYER_Y = 180
+.label PLAYER_Y = 190
+.label PLAYER_BOTTOM_Y = PLAYER_Y + 21
 // animation phases
 .label ANIMATION_WALK = 1
 .label ANIMATION_JUMP_UP = 2
 .label ANIMATION_JUMP_DOWN = 3
-.label ANIMATION_DELAY = 3
+.label ANIMATION_DELAY = 4
 
 .label TILES_COUNT = 4
 .label MAP_WIDTH = 40
@@ -164,20 +171,45 @@ prepareScreen: {
   rts
 }
 
+.macro setSpriteShape(spriteNum, shapeNum) {
+  lda #shapeNum
+  sta SCREEN_PAGE_ADDR_0 + 1024 - 8 + spriteNum
+  sta SCREEN_PAGE_ADDR_1 + 1024 - 8 + spriteNum
+}
+
 showPlayer: {
+  // set X coord
   lda #PLAYER_X
-  sta spriteXReg(PLAYER_SPRITE)
+  sta spriteXReg(PLAYER_SPRITE_TOP)
+  sta spriteXReg(PLAYER_SPRITE_TOP_OVL)
+  sta spriteXReg(PLAYER_SPRITE_BOTTOM)
+  sta spriteXReg(PLAYER_SPRITE_BOTTOM_OVL)
+  // set Y coord
   lda #PLAYER_Y
-  sta spriteYReg(PLAYER_SPRITE)
+  sta spriteYReg(PLAYER_SPRITE_TOP)
+  sta spriteYReg(PLAYER_SPRITE_TOP_OVL)
+  lda #PLAYER_BOTTOM_Y
+  sta spriteYReg(PLAYER_SPRITE_BOTTOM)
+  sta spriteYReg(PLAYER_SPRITE_BOTTOM_OVL)
+  // set colors
   lda #PLAYER_COL
-  sta spriteColorReg(PLAYER_SPRITE)
-  lda #spriteMask(PLAYER_SPRITE)
-  sta SPRITE_EXPAND_X
-  sta SPRITE_EXPAND_Y
+  sta spriteColorReg(PLAYER_SPRITE_TOP_OVL)
+  sta spriteColorReg(PLAYER_SPRITE_BOTTOM_OVL)
+  lda #PLAYER_COL0
+  sta spriteColorReg(PLAYER_SPRITE_TOP)
+  sta spriteColorReg(PLAYER_SPRITE_BOTTOM)
+  lda #%00001010
+  sta SPRITE_COL_MODE
+  lda #PLAYER_COL1
+  sta SPRITE_COL_0
+  lda #PLAYER_COL2
+  sta SPRITE_COL_1
+  lda #$0F
   sta SPRITE_ENABLE
-  lda #128
-  sta SCREEN_PAGE_ADDR_0 + 1024 - 8
-  sta SCREEN_PAGE_ADDR_1 + 1024 - 8
+  setSpriteShape(PLAYER_SPRITE_TOP, 128)
+  setSpriteShape(PLAYER_SPRITE_TOP_OVL, 129)
+  setSpriteShape(PLAYER_SPRITE_BOTTOM, 130)
+  setSpriteShape(PLAYER_SPRITE_BOTTOM_OVL, 131)
   rts
 }
 
@@ -192,16 +224,22 @@ animate: {
   phaseNotChanged:
     // load next phase
     ldx z_animationFrame
-    lda phaseSeqAddr: animWalkLeft, x
-    bne setNextFrame
+    lda animWalkLeftBottomOvl, x
+    bne !+
       // end of animation sequence, wrap to 0
       ldx #0
       stx z_animationFrame
       jmp phaseNotChanged
-    setNextFrame:
+    !:
       // set up correct sprite shape
-      sta SCREEN_PAGE_ADDR_0 + 1024 - 8
-      sta SCREEN_PAGE_ADDR_1 + 1024 - 8
+      sta SCREEN_PAGE_ADDR_0 + 1024 - 8 + PLAYER_SPRITE_BOTTOM_OVL
+      sta SCREEN_PAGE_ADDR_1 + 1024 - 8 + PLAYER_SPRITE_BOTTOM_OVL
+
+    lda animWalkLeftBottom, x
+      // set up correct sprite shape
+      sta SCREEN_PAGE_ADDR_0 + 1024 - 8 + PLAYER_SPRITE_BOTTOM
+      sta SCREEN_PAGE_ADDR_1 + 1024 - 8 + PLAYER_SPRITE_BOTTOM
+
       inx
       stx z_animationFrame
   rts
@@ -613,9 +651,27 @@ mapDefinition: // 40 x 12
 // -- animations --
 animWalkLeft:
   .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 0
+  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 0 + 4
+  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 0 + 8
+  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 0 + 4
+  .byte 0
+animWalkLeftOvl:
   .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 1
+  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 1 + 4
+  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 1 + 8
+  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 1 + 4
+  .byte 0
+animWalkLeftBottom:
   .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 2
+  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 2 + 4
+  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 2 + 8
+  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 2 + 4
+  .byte 0
+animWalkLeftBottomOvl:
   .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 3
+  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 3 + 4
+  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 3 + 8
+  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 3 + 4
   .byte 0
 animJumpUp:
   .byte SPRITE_SHAPES_START + 0
@@ -626,6 +682,9 @@ animJumpDown:
 
 // -- Sprites definition --
 beginOfSprites:
+  #import "dino.asm"
+  
+/*
   sh("................#######.")//1
   sh("...............##.######")//2
   sh("...............#########")//3
@@ -717,6 +776,7 @@ beginOfSprites:
   sh(".........####..####.....")//20
   sh("........................")//21
   .byte 0
+  */
 endOfSprites:
 
 // -- chargen definition --
