@@ -1,4 +1,4 @@
-#define VISUAL_DEBUG
+//#define VISUAL_DEBUG
 #import "common/lib/mem.asm"
 #import "common/lib/invoke.asm"
 #import "chipset/lib/sprites.asm"
@@ -26,21 +26,31 @@
 .label z_keyPressed = 16      // $10
 .label z_mode = 17            // $11
 .label z_delay = 18           // $12
+.label z_animationPhase = 19  // $13
+.label z_animationFrame = 20  // $14
 
 .label VIC_BANK = 3
 .label SCREEN_PAGE_0 = 0
 .label SCREEN_PAGE_1 = 1
 .label CHARGEN = 1
 
+// player
 .label PLAYER_SPRITE = 0
 .label PLAYER_COL = DARK_GREY
 .label PLAYER_X = 80
 .label PLAYER_Y = 180
+// animation phases
+.label ANIMATION_WALK = 1
+.label ANIMATION_JUMP_UP = 2
+.label ANIMATION_JUMP_DOWN = 3
+.label ANIMATION_DELAY = 3
 
 .label TILES_COUNT = 4
 .label MAP_WIDTH = 40
 
 .label MAX_DELAY = 10
+
+.label SPRITE_SHAPES_START = 128
 
 /*
    Phase bit map:
@@ -94,6 +104,7 @@ start:
   jsr prepareScreen
   jsr configureVic2
   jsr unpackData
+  jsr init
   jsr initBackground
   jsr initDashboard
   jsr showPlayer
@@ -125,6 +136,14 @@ configureVic2: {
   lda CONTROL_2
   and #%11110111
   sta CONTROL_2
+  rts
+}
+
+init: {
+  lda #ANIMATION_WALK
+  sta z_animationPhase
+  lda #0
+  sta z_animationFrame
   rts
 }
 
@@ -160,6 +179,33 @@ showPlayer: {
   sta SCREEN_PAGE_ADDR_0 + 1024 - 8
   sta SCREEN_PAGE_ADDR_1 + 1024 - 8
   rts
+}
+
+animate: {
+  lda z_animationPhase
+  cmp animatePhaseOld
+  beq phaseNotChanged
+    // phase has been changed
+    sta animatePhaseOld
+    ldx #0
+    stx z_animationFrame
+  phaseNotChanged:
+    // load next phase
+    ldx z_animationFrame
+    lda phaseSeqAddr: animWalkLeft, x
+    bne setNextFrame
+      // end of animation sequence, wrap to 0
+      ldx #0
+      stx z_animationFrame
+      jmp phaseNotChanged
+    setNextFrame:
+      // set up correct sprite shape
+      sta SCREEN_PAGE_ADDR_0 + 1024 - 8
+      sta SCREEN_PAGE_ADDR_1 + 1024 - 8
+      inx
+      stx z_animationFrame
+  rts
+  animatePhaseOld: .byte 0
 }
 
 unpackData: {
@@ -534,6 +580,7 @@ switchPages: {
 
   jsr updateDashboard
   jsr scanKeys
+  jsr animate
 
   // restore registers
   pla
@@ -563,6 +610,20 @@ mapDefinition: // 40 x 12
 
 // ------------------- DATA ---------------------------
 
+// -- animations --
+animWalkLeft:
+  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 0
+  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 1
+  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 2
+  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 3
+  .byte 0
+animJumpUp:
+  .byte SPRITE_SHAPES_START + 0
+  .byte 0
+animJumpDown:
+  .byte SPRITE_SHAPES_START + 1
+  .byte 0
+
 // -- Sprites definition --
 beginOfSprites:
   sh("................#######.")//1
@@ -583,8 +644,8 @@ beginOfSprites:
   sh("..#################.....")//16
   sh("...###############......")//17
   sh(".........##....##.......")//18
-  sh(".........##....##.......")//19
-  sh(".........####..##.......")//20
+  sh(".........####..##.......")//19
+  sh("...............##.......")//20
   sh("...............####.....")//21
   .byte 0
 
@@ -607,8 +668,54 @@ beginOfSprites:
   sh("...###############......")//17
   sh(".........##....##.......")//18
   sh(".........##....##.......")//19
-  sh(".........##....####.....")//20
+  sh(".........####..####.....")//20
+  sh("........................")//21
+  .byte 0
+
+  sh("................#######.")//1
+  sh("...............##.######")//2
+  sh("...............#########")//3
+  sh("...............####.....")//4
+  sh("...............#######..")//5
+  sh("...............####.....")//6
+  sh("#..............####.....")//7
+  sh("#.............#####.....")//8
+  sh("##...........#####......")//9
+  sh("##..........##########..")//10
+  sh(".##........########..#..")//11
+  sh(".##.......#########.....")//12
+  sh(".##......##########.....")//13
+  sh(".###....###########.....")//14
+  sh(".###..#############.....")//15
+  sh("..#################.....")//16
+  sh("...###############......")//17
+  sh(".........##....##.......")//18
+  sh(".........##....####.....")//19
+  sh(".........##.............")//20
   sh(".........####...........")//21
+  .byte 0
+
+  sh("................#######.")//1
+  sh("...............##.######")//2
+  sh("...............#########")//3
+  sh("...............####.....")//4
+  sh("...............#######..")//5
+  sh("...............####.....")//6
+  sh("#..............####.....")//7
+  sh("#.............#####.....")//8
+  sh("##...........#####......")//9
+  sh("##..........##########..")//10
+  sh(".##........########..#..")//11
+  sh(".##.......#########.....")//12
+  sh(".##......##########.....")//13
+  sh(".###....###########.....")//14
+  sh(".###..#############.....")//15
+  sh("..#################.....")//16
+  sh("...###############......")//17
+  sh(".........##....##.......")//18
+  sh(".........##....##.......")//19
+  sh(".........####..####.....")//20
+  sh("........................")//21
   .byte 0
 endOfSprites:
 
