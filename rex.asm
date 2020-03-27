@@ -44,7 +44,7 @@
 .label PLAYER_COL1 = $9 // multi color 0
 .label PLAYER_COL2 = $8 // multi color 1
 .label PLAYER_X = 80
-.label PLAYER_Y = 190
+.label PLAYER_Y = 175
 .label PLAYER_BOTTOM_Y = PLAYER_Y + 21
 // animation phases
 .label ANIMATION_WALK = 1
@@ -52,10 +52,10 @@
 .label ANIMATION_JUMP_DOWN = 3
 .label ANIMATION_DELAY = 4
 
-.label TILES_COUNT = 4
+.label TILES_COUNT = 256
 .label MAP_WIDTH = 40
 
-.label MAX_DELAY = 10
+.label MAX_DELAY = 255
 
 .label SPRITE_SHAPES_START = 128
 
@@ -100,6 +100,8 @@
 .label CHARGEN_ADDR = VIC_MEMORY_START + CHARGEN * toBytes(2)
 .label SPRITE_ADDR = VIC_MEMORY_START + $2000
 
+.var tileData = LoadBinary("background/level-1-tiles.bin")
+
 .pc = $0801 "Basic Upstart"
 BasicUpstart(start) // Basic start routine
 
@@ -118,6 +120,9 @@ start:
   jsr startCopper
   
 endless:
+  // scan keyboard and joystick
+  jsr scanKeys
+
   jmp endless
 
 // -------- Subroutines ----------
@@ -131,12 +136,16 @@ configureC64: {
 }
 
 configureVic2: {
-  setVideoMode(STANDARD_TEXT_MODE)
+  setVideoMode(MULTICOLOR_TEXT_MODE)
   setVICBank(3 - VIC_BANK)
   configureTextMemory(SCREEN_PAGE_0, CHARGEN)
   // set background & border color
-  lda #WHITE
+  lda #$06
   sta BG_COL_0
+  lda #LIGHT_GREY
+  sta BG_COL_1
+  lda #LIGHT_BLUE
+  sta BG_COL_2
   lda #LIGHT_BLUE
   sta BORDER_COL
   // turn on 38 columns visible
@@ -165,8 +174,13 @@ prepareScreen: {
   jsr fillScreen
   // set up playfield color to GREY
   pushParamW(COLOR_RAM)
-  lda #GREY
+  lda #13
   jsr fillScreen
+  // hires colors for status bar
+  pushParamW(COLOR_RAM)
+  lda #WHITE
+  ldx #40
+  jsr fillMem
 
   rts
 }
@@ -372,6 +386,7 @@ scanKeys: {
 
  #import "common/lib/sub/copy-large-mem-forward.asm"
  #import "common/lib/sub/fill-screen.asm"
+ #import "common/lib/sub/fill-mem.asm"
  #import "text/lib/sub/out-text.asm"
  #import "text/lib/sub/out-hex.asm"
  
@@ -406,13 +421,13 @@ mapOffsetsLo:
 mapOffsetsHi:
   .fill 256, 0
 tileDefinition0:
-  .byte $45,$45,$45,$40; .fill 256 - TILES_COUNT, 0
+  .fill tileData.getSize() / 4, tileData.get(i*4) + 64
 tileDefinition1:
-  .byte $45,$45,$45,$41; .fill 256 - TILES_COUNT, 0
+  .fill tileData.getSize() / 4, tileData.get(i*4 + 1) + 64
 tileDefinition2:
-  .byte $45,$43,$44,$42; .fill 256 - TILES_COUNT, 0
+  .fill tileData.getSize() / 4, tileData.get(i*4 + 2) + 64
 tileDefinition3:
-  .byte $45,$43,$43,$43; .fill 256 - TILES_COUNT, 0
+  .fill tileData.getSize() / 4, tileData.get(i*4 + 3) + 64
 
 // scrollable background configuration
 .var tilesCfg = Tile2Config()
@@ -617,7 +632,6 @@ switchPages: {
   sta hScroll + 2
 
   jsr updateDashboard
-  jsr scanKeys
   jsr animate
 
   // restore registers
@@ -633,18 +647,7 @@ switchPages: {
 
 // -- map definition --
 mapDefinition: // 40 x 12
-  .fill 40, 0 // 01
-  .fill 40, 0 // 02
-  .fill 40, 0 // 03
-  .fill 40, 0 // 04
-  .fill 40, 0 // 05
-  .fill 40, 0 // 06
-  .fill 40, 0 // 07
-  .fill 40, 0 // 08
-  .fill 40, 0 // 09
-  .byte 1,1,2,1,1,2,3,1,1,2,1,3,1,3,1,2,3,1,2,2,1,3,3,1,3,1,2,1,3,1,1,2,2,1,2,3,3,3,2,1
-  .fill 40, 0 // 11
-  .fill 40, 0 // 12
+  .import binary "background/level-1-map.bin"
 
 // ------------------- DATA ---------------------------
 
@@ -682,186 +685,18 @@ animJumpDown:
 
 // -- Sprites definition --
 beginOfSprites:
-  #import "dino.asm"
-  
-/*
-  sh("................#######.")//1
-  sh("...............##.######")//2
-  sh("...............#########")//3
-  sh("...............####.....")//4
-  sh("...............#######..")//5
-  sh("...............####.....")//6
-  sh("#..............####.....")//7
-  sh("#.............#####.....")//8
-  sh("##...........#####......")//9
-  sh("##..........##########..")//10
-  sh(".##........########..#..")//11
-  sh(".##.......#########.....")//12
-  sh(".##......##########.....")//13
-  sh(".###....###########.....")//14
-  sh(".###..#############.....")//15
-  sh("..#################.....")//16
-  sh("...###############......")//17
-  sh(".........##....##.......")//18
-  sh(".........####..##.......")//19
-  sh("...............##.......")//20
-  sh("...............####.....")//21
-  .byte 0
-
-  sh("................#######.")//1
-  sh("...............##.######")//2
-  sh("...............#########")//3
-  sh("...............####.....")//4
-  sh("...............#######..")//5
-  sh("...............####.....")//6
-  sh("#..............####.....")//7
-  sh("#.............#####.....")//8
-  sh("##...........#####......")//9
-  sh("##..........##########..")//10
-  sh(".##........########..#..")//11
-  sh(".##.......#########.....")//12
-  sh(".##......##########.....")//13
-  sh(".###....###########.....")//14
-  sh(".###..#############.....")//15
-  sh("..#################.....")//16
-  sh("...###############......")//17
-  sh(".........##....##.......")//18
-  sh(".........##....##.......")//19
-  sh(".........####..####.....")//20
-  sh("........................")//21
-  .byte 0
-
-  sh("................#######.")//1
-  sh("...............##.######")//2
-  sh("...............#########")//3
-  sh("...............####.....")//4
-  sh("...............#######..")//5
-  sh("...............####.....")//6
-  sh("#..............####.....")//7
-  sh("#.............#####.....")//8
-  sh("##...........#####......")//9
-  sh("##..........##########..")//10
-  sh(".##........########..#..")//11
-  sh(".##.......#########.....")//12
-  sh(".##......##########.....")//13
-  sh(".###....###########.....")//14
-  sh(".###..#############.....")//15
-  sh("..#################.....")//16
-  sh("...###############......")//17
-  sh(".........##....##.......")//18
-  sh(".........##....####.....")//19
-  sh(".........##.............")//20
-  sh(".........####...........")//21
-  .byte 0
-
-  sh("................#######.")//1
-  sh("...............##.######")//2
-  sh("...............#########")//3
-  sh("...............####.....")//4
-  sh("...............#######..")//5
-  sh("...............####.....")//6
-  sh("#..............####.....")//7
-  sh("#.............#####.....")//8
-  sh("##...........#####......")//9
-  sh("##..........##########..")//10
-  sh(".##........########..#..")//11
-  sh(".##.......#########.....")//12
-  sh(".##......##########.....")//13
-  sh(".###....###########.....")//14
-  sh(".###..#############.....")//15
-  sh("..#################.....")//16
-  sh("...###############......")//17
-  sh(".........##....##.......")//18
-  sh(".........##....##.......")//19
-  sh(".........####..####.....")//20
-  sh("........................")//21
-  .byte 0
-  */
+  #import "sprites/dino.asm"
 endOfSprites:
 
 // -- chargen definition --
 beginOfChargen:
   // 0-63: letters, symbols, numbers
   #import "fonts/regular/base.asm"
-
 afterOfChargen:
 
 .print "Import size = " + (afterOfChargen - beginOfChargen)
-
   // 64-128: playfield graphics
-
-  // $40 64
-  ch("...##...")//1
-  ch("..####..")//2
-  ch(".######.")//3
-  ch("..####..")//4
-  ch(".#######")//5
-  ch("..######")//6
-  ch(".#######")//7
-  ch("..####..")//8
-  // $41 65
-  ch("........")//1
-  ch("..#.....")//2
-  ch(".###....")//3
-  ch(".####...")//4
-  ch("####....")//5
-  ch("###.....")//6
-  ch("##......")//7
-  ch("........")//8
-  // $42 66
-  ch(".######.")//1
-  ch("..####..")//2
-  ch(".######.")//3
-  ch("..####..")//4
-  ch("########")//5
-  ch("..####..")//6
-  ch("..####..")//7
-  ch("........")//8
-  // $43 67
-  ch("........")//1
-  ch("........")//2
-  ch("........")//3
-  ch("........")//4
-  ch("########")//5
-  ch("........")//6
-  ch("........")//7
-  ch("........")//8
-  // $44 68
-  ch("........")//1
-  ch("........")//2
-  ch("........")//3
-  ch("........")//4
-  ch("########")//5
-  ch("...###..")//6
-  ch("..##....")//7
-  ch("..#.....")//8
-  // $45 69
-  ch("........")//1
-  ch("........")//2
-  ch("........")//3
-  ch("........")//4
-  ch("........")//5
-  ch("........")//6
-  ch("........")//7
-  ch("........")//8
-  // $46 70
-  ch("........")//1
-  ch("........")//2
-  ch("........")//3
-  ch("........")//4
-  ch("........")//5
-  ch("........")//6
-  ch("........")//7
-  ch("........")//8
-  // $47 71
-  ch("........")//1
-  ch("........")//2
-  ch("........")//3
-  ch("........")//4
-  ch("........")//5
-  ch("........")//6
-  ch("........")//7
-  ch("........")//8
+  .import binary "background/level-1-charset.bin"
 
 endOfChargen:
 endOfTRex:
