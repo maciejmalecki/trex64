@@ -1,4 +1,4 @@
-//#define VISUAL_DEBUG
+#define VISUAL_DEBUG
 #import "common/lib/mem.asm"
 #import "common/lib/invoke.asm"
 #import "chipset/lib/sprites.asm"
@@ -28,6 +28,7 @@
 .label z_delay = 18           // $12
 .label z_animationPhase = 19  // $13
 .label z_animationFrame = 20  // $14
+//.label z_status0 = 21         // $15
 
 .label VIC_BANK = 3
 .label SCREEN_PAGE_0 = 0
@@ -55,7 +56,7 @@
 .label TILES_COUNT = 256
 .label MAP_WIDTH = 40
 
-.label MAX_DELAY = 255
+.label MAX_DELAY = 10
 
 .label SPRITE_SHAPES_START = 128
 
@@ -121,7 +122,7 @@ start:
   
 endless:
   // scan keyboard and joystick
-  jsr scanKeys
+  // jsr scanKeys
 
   jmp endless
 
@@ -160,6 +161,8 @@ init: {
   sta z_animationPhase
   lda #0
   sta z_animationFrame
+  lda #0
+  //sta z_status0
   rts
 }
 
@@ -174,7 +177,7 @@ prepareScreen: {
   jsr fillScreen
   // set up playfield color to GREY
   pushParamW(COLOR_RAM)
-  lda #13
+  lda #0
   jsr fillScreen
   // hires colors for status bar
   pushParamW(COLOR_RAM)
@@ -384,6 +387,7 @@ scanKeys: {
   rts
 }
 
+// -------------- utility subroutines ------------------
  #import "common/lib/sub/copy-large-mem-forward.asm"
  #import "common/lib/sub/fill-screen.asm"
  #import "common/lib/sub/fill-mem.asm"
@@ -395,16 +399,18 @@ scanKeys: {
 .align $100
 // here we define layout of raster interrupt handlers
 copperList:
-            // at the top we reset HScroll register to 0
-            copperEntry(0, IRQH_HSCROLL, 0, 0)
-            // here we set scroll register to 5, but in fact this value will be modified by scrollBackground routine
-  hScroll:  copperEntry($3A, IRQH_HSCROLL, 5, 0)
-            // here we do the actual scrolling
-            copperEntry($3F, IRQH_JSR, <scrollBackground, >scrollBackground)
-            // here we do the page switching when it's time for this
-            copperEntry(230, IRQH_JSR, <switchPages, >switchPages)
-            // here we loop and so on, so on, for each frame
-            copperLoop()
+    // at the top we reset HScroll register to 0
+    copperEntry(0, IRQH_HSCROLL, 0, 0)
+    // here we set scroll register to 5, but in fact this value will be modified by scrollBackground routine
+  hScroll:
+    copperEntry($3A, IRQH_HSCROLL, 5, 0)
+    // here we do the actual scrolling
+  scrollCode: 
+    copperEntry($3F, IRQH_JSR, <scrollBackground, >scrollBackground)
+    // here we do the page switching when it's time for this
+    copperEntry(250, IRQH_JSR, <switchPages, >switchPages)
+    // here we loop and so on, so on, for each frame
+    copperLoop()
 
 dashboard:
   .text "xpos:$0000 ph:$00 mode:$00"; .byte $FF
@@ -415,7 +421,7 @@ page1Mark:
 
 .align $100
 tileColors:
-  .fill 256, DARK_GREY
+  .import binary "background/level-1-tiles-colors.bin"
 mapOffsetsLo:
   .fill 256, 0
 mapOffsetsHi:
@@ -492,14 +498,13 @@ incrementX: {
   lda z_x + 1
   adc #0
   sta z_x + 1
+  lda #0
+  //sta z_status0
   rts
 }
 
 scrollBackground: {
-
   debugBorderStart()
-  pha
-
   // test phase flags
   lda #1
   bit z_phase
@@ -526,27 +531,46 @@ scrollBackground: {
     notScrolling: 
   }
   jmp end
+  // do the screen shifting
   page0To1:
     _t2_shiftScreenLeft(tilesCfg, 0, 1)
     jmp end
   page1To0:
     _t2_shiftScreenLeft(tilesCfg, 1, 0)
-
   end:
-    pla
-    debugBorderEnd()
+
+  // setup IRQ handler back to scrollColorRam
+  lda #<scrollColorRam
+  sta scrollCode + 2
+  lda #>scrollColorRam
+  sta scrollCode + 3
+  debugBorderEnd()
+  rts
+}
+
+scrollColorRam: {
+  debugBorderStart()
+  // test phase
+  lda #1
+  bit z_phase
+  bvs switching
+  jmp noSwitching
+  switching:
+    _t2_shiftColorRamLeft(tilesCfg, 2)
+    _t2_decodeColorRight(tilesCfg, COLOR_RAM)
+    // setup IRQ handler back to scrollBackground
+    lda #<scrollBackground
+    sta scrollCode + 2
+    lda #>scrollBackground
+    sta scrollCode + 3
+  noSwitching:
+  debugBorderEnd()
   rts
 }
 
 switchPages: {
   debugBorderStart()
-  // preserve registers
-  pha
-  txa
-  pha
-  tya
-  pha
-
+  doSwitching:
   // test phase
   lda #1
   bit z_phase
@@ -573,6 +597,10 @@ switchPages: {
   endSwitch:
     jmp end
   switch0To1:
+    //lda z_status0
+    //bne !+
+    //jmp end
+    !:
     _t2_decodeScreenRight(tilesCfg, 1)
     lda MEMORY_CONTROL
     and #%00001111
@@ -580,6 +608,10 @@ switchPages: {
     sta MEMORY_CONTROL
     jmp end
   switch1To0:
+    //lda z_status0
+    //bne !+
+    //jmp end
+    !:
     _t2_decodeScreenRight(tilesCfg, 0)
     lda MEMORY_CONTROL
     and #%00001111
@@ -587,7 +619,7 @@ switchPages: {
     sta MEMORY_CONTROL
   end:
 
-    // set scroll register
+    // calculate scroll register
   lda z_x
   and #%01110000
   lsr
@@ -597,12 +629,16 @@ switchPages: {
   sta z_acc0
 
   // detect page switching phase
+  //lda z_status0
+  //bne notSeven
   cmp #%00000111
   bne notSeven
     lda z_phase
     and #%11111110
     ora #%01000000
     sta z_phase
+    lda #1
+    //sta z_status0
   notSeven:
 
   // increment X coordinate
@@ -610,6 +646,7 @@ switchPages: {
   bne !+
     jsr incrementX
   !:
+
   // check if we need to loop the background
   lda z_x + 1
   cmp #(MAP_WIDTH-20)
@@ -626,20 +663,15 @@ switchPages: {
     sta z_phase
   notZero:
 
+  // update scroll register for scrollable area
   sec
   lda #7
   sbc z_acc0
   sta hScroll + 2
 
   jsr updateDashboard
+  jsr scanKeys
   jsr animate
-
-  // restore registers
-  pla
-  tay
-  pla
-  tax
-  pla
 
   debugBorderEnd()
   rts
