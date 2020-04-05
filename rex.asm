@@ -28,7 +28,7 @@
 .label z_delay = 18           // $12
 .label z_animationPhase = 19  // $13
 .label z_animationFrame = 20  // $14
-//.label z_status0 = 21         // $15
+.label z_status0 = 21         // $15
 
 .label VIC_BANK = 3
 .label SCREEN_PAGE_0 = 0
@@ -162,7 +162,7 @@ init: {
   lda #0
   sta z_animationFrame
   lda #0
-  //sta z_status0
+  sta z_status0
   rts
 }
 
@@ -296,11 +296,11 @@ initDashboard: {
   jsr outText
 
   pushParamW(page0Mark)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 30)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 37)
   jsr outText
 
   pushParamW(page1Mark)
-  pushParamW(SCREEN_PAGE_ADDR_1 + 30)
+  pushParamW(SCREEN_PAGE_ADDR_1 + 37)
   jsr outText
 
   pushParamW(dashboard)
@@ -320,6 +320,9 @@ updateDashboard: {
   pushParamW(z_mode)
   pushParamW(SCREEN_PAGE_ADDR_0 + 24)
   jsr outHex
+  pushParamW(z_acc0)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 32)
+  jsr outHex
 
   pushParamW(z_x)
   pushParamW(SCREEN_PAGE_ADDR_1 + 6)
@@ -329,6 +332,9 @@ updateDashboard: {
   jsr outHex
   pushParamW(z_mode)
   pushParamW(SCREEN_PAGE_ADDR_1 + 24)
+  jsr outHex
+  pushParamW(z_acc0)
+  pushParamW(SCREEN_PAGE_ADDR_1 + 32)
   jsr outHex
 
 
@@ -413,7 +419,7 @@ copperList:
     copperLoop()
 
 dashboard:
-  .text "xpos:$0000 ph:$00 mode:$00"; .byte $FF
+  .text "xpos:$0000 ph:$00 mode:$00 scr:$00"; .byte $FF
 page0Mark:
   .text "#0"; .byte $FF
 page1Mark:
@@ -499,7 +505,7 @@ incrementX: {
   adc #0
   sta z_x + 1
   lda #0
-  //sta z_status0
+  sta z_status0
   rts
 }
 
@@ -597,10 +603,6 @@ switchPages: {
   endSwitch:
     jmp end
   switch0To1:
-    //lda z_status0
-    //bne !+
-    //jmp end
-    !:
     _t2_decodeScreenRight(tilesCfg, 1)
     lda MEMORY_CONTROL
     and #%00001111
@@ -608,10 +610,6 @@ switchPages: {
     sta MEMORY_CONTROL
     jmp end
   switch1To0:
-    //lda z_status0
-    //bne !+
-    //jmp end
-    !:
     _t2_decodeScreenRight(tilesCfg, 0)
     lda MEMORY_CONTROL
     and #%00001111
@@ -629,8 +627,9 @@ switchPages: {
   sta z_acc0
 
   // detect page switching phase
-  //lda z_status0
-  //bne notSeven
+  lda z_status0
+  bne notSeven
+  lda z_acc0
   cmp #%00000111
   bne notSeven
     lda z_phase
@@ -638,7 +637,7 @@ switchPages: {
     ora #%01000000
     sta z_phase
     lda #1
-    //sta z_status0
+    sta z_status0
   notSeven:
 
   // increment X coordinate
