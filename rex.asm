@@ -28,7 +28,6 @@
 .label z_delay = 18           // $12
 .label z_animationPhase = 19  // $13
 .label z_animationFrame = 20  // $14
-.label z_status0 = 21         // $15
 
 .label VIC_BANK = 3
 .label SCREEN_PAGE_0 = 0
@@ -161,8 +160,6 @@ init: {
   sta z_animationPhase
   lda #0
   sta z_animationFrame
-  lda #0
-  sta z_status0
   rts
 }
 
@@ -504,8 +501,6 @@ incrementX: {
   lda z_x + 1
   adc #0
   sta z_x + 1
-  lda #0
-  sta z_status0
   rts
 }
 
@@ -517,24 +512,19 @@ scrollBackground: {
   bpl page0
   // we're on page 1
   page1: { 
-    beq notScrolling
       // if scrolling
       lda z_phase
       and #%11111110
       sta z_phase
       jmp page1To0
-    notScrolling:
-    jmp end
   }
   // we're on page 0
   page0: {
-    beq notScrolling
       // if scrolling
       lda z_phase
       and #%11111110
       sta z_phase
       jmp page0To1
-    notScrolling: 
   }
   jmp end
   // do the screen shifting
@@ -543,19 +533,19 @@ scrollBackground: {
     jmp end
   page1To0:
     _t2_shiftScreenLeft(tilesCfg, 1, 0)
-  end:
 
-  // setup IRQ handler back to scrollColorRam
-  lda #<scrollColorRam
-  sta scrollCode + 2
-  lda #>scrollColorRam
-  sta scrollCode + 3
-  debugBorderEnd()
-  rts
+  end:
+    // setup IRQ handler back to scrollColorRam
+    lda #<scrollColorRam
+    sta scrollCode + 2
+    lda #>scrollColorRam
+    sta scrollCode + 3
+    debugBorderEnd()
+    rts
 }
 
 scrollColorRam: {
-  debugBorderStart()
+  debugBorderEnd()
   // test phase
   lda #1
   bit z_phase
@@ -570,7 +560,7 @@ scrollColorRam: {
     lda #>scrollBackground
     sta scrollCode + 3
   noSwitching:
-  debugBorderEnd()
+  debugBorderStart()
   rts
 }
 
@@ -617,7 +607,13 @@ switchPages: {
     sta MEMORY_CONTROL
   end:
 
-    // calculate scroll register
+  // increment X coordinate
+  lda z_mode
+  bne !+
+    jsr incrementX
+  !:
+
+  // calculate scroll register
   lda z_x
   and #%01110000
   lsr
@@ -627,8 +623,6 @@ switchPages: {
   sta z_acc0
 
   // detect page switching phase
-  lda z_status0
-  bne notSeven
   lda z_acc0
   cmp #%00000111
   bne notSeven
@@ -636,15 +630,8 @@ switchPages: {
     and #%11111110
     ora #%01000000
     sta z_phase
-    lda #1
-    sta z_status0
   notSeven:
 
-  // increment X coordinate
-  lda z_mode
-  bne !+
-    jsr incrementX
-  !:
 
   // check if we need to loop the background
   lda z_x + 1
@@ -655,12 +642,14 @@ switchPages: {
   dontReset:
 
   // detect scrolling phase
+  /*
   lda z_acc0
   bne notZero
     lda z_phase
     ora #%00000001
     sta z_phase
   notZero:
+  */
 
   // update scroll register for scrollable area
   sec
