@@ -509,6 +509,9 @@ scrollBackground: {
   // test phase flags
   lda #1
   bit z_phase
+  beq scrolling
+    jmp end
+  scrolling:
   bpl page0
   // we're on page 1
   page1: { 
