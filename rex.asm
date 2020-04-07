@@ -535,31 +535,28 @@ scrollBackground: {
     _t2_shiftScreenLeft(tilesCfg, 1, 0)
 
   end:
-    // setup IRQ handler back to scrollColorRam
-    lda #<scrollColorRam
-    sta scrollCode + 2
-    lda #>scrollColorRam
-    sta scrollCode + 3
+    lda #1
+    bit z_phase
+    bvc noSwitching
+      // setup IRQ handler back to scrollColorRam
+      lda #<scrollColorRam
+      sta scrollCode + 2
+      lda #>scrollColorRam
+      sta scrollCode + 3
+    noSwitching:
     debugBorderEnd()
     rts
 }
 
 scrollColorRam: {
   debugBorderEnd()
-  // test phase
-  lda #1
-  bit z_phase
-  bvs switching
-  jmp noSwitching
-  switching:
-    _t2_shiftColorRamLeft(tilesCfg, 2)
-    _t2_decodeColorRight(tilesCfg, COLOR_RAM)
-    // setup IRQ handler back to scrollBackground
-    lda #<scrollBackground
-    sta scrollCode + 2
-    lda #>scrollBackground
-    sta scrollCode + 3
-  noSwitching:
+  _t2_shiftColorRamLeft(tilesCfg, 2)
+  _t2_decodeColorRight(tilesCfg, COLOR_RAM)
+  // setup IRQ handler back to scrollBackground
+  lda #<scrollBackground
+  sta scrollCode + 2
+  lda #>scrollBackground
+  sta scrollCode + 3
   debugBorderStart()
   rts
 }
