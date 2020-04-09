@@ -406,7 +406,7 @@ copperList:
     copperEntry($31, IRQH_HSCROLL, 0, 0)
     // here we set scroll register to 5, but in fact this value will be modified by scrollBackground routine
   hScroll:
-    copperEntry($3A, IRQH_HSCROLL, 5, 0)
+    copperEntry($39, IRQH_HSCROLL, 5, 0)
     // here we do the actual scrolling
   scrollCode: 
     copperEntry($3F, IRQH_JSR, <scrollBackground, >scrollBackground)
