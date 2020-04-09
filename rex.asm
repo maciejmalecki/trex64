@@ -403,7 +403,7 @@ scanKeys: {
 // here we define layout of raster interrupt handlers
 copperList:
     // at the top we reset HScroll register to 0
-    copperEntry(0, IRQH_HSCROLL, 0, 0)
+    copperEntry($31, IRQH_HSCROLL, 0, 0)
     // here we set scroll register to 5, but in fact this value will be modified by scrollBackground routine
   hScroll:
     copperEntry($3A, IRQH_HSCROLL, 5, 0)
@@ -411,7 +411,7 @@ copperList:
   scrollCode: 
     copperEntry($3F, IRQH_JSR, <scrollBackground, >scrollBackground)
     // here we do the page switching when it's time for this
-    copperEntry(250, IRQH_JSR, <switchPages, >switchPages)
+    copperEntry(280, IRQH_JSR, <switchPages, >switchPages)
     // here we loop and so on, so on, for each frame
     copperLoop()
 
@@ -642,14 +642,12 @@ switchPages: {
   dontReset:
 
   // detect scrolling phase
-  /*
   lda z_acc0
   bne notZero
     lda z_phase
     ora #%00000001
     sta z_phase
   notZero:
-  */
 
   // update scroll register for scrollable area
   sec
