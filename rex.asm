@@ -1,4 +1,4 @@
-#define VISUAL_DEBUG
+//#define VISUAL_DEBUG
 #import "common/lib/mem.asm"
 #import "common/lib/invoke.asm"
 #import "chipset/lib/sprites.asm"
@@ -8,6 +8,8 @@
 #import "text/lib/text.asm"
 #import "text/lib/tiles-2x2.asm"
 #import "copper64/lib/copper64.asm"
+
+#import "physics.asm"
 
 .filenamespace c64lib
 
@@ -702,14 +704,8 @@ switchPages: {
 mapDefinition: // 40 x 12
   .import binary "background/level-1-map.bin"
 
-// ------------------- DATA ---------------------------
-
-jumpTable:
-  .label JUMP_TABLE_LENGTH = 18
-  .fill JUMP_TABLE_LENGTH, (JUMP_TABLE_LENGTH / 2)*(JUMP_TABLE_LENGTH / 2) - (JUMP_TABLE_LENGTH / 2 - i)*(JUMP_TABLE_LENGTH / 2 - i)
-  //.byte 0, 5, 10, 12, 13, 12, 10, 5, 0
-  .byte 0
-  .byte $ff
+// ------------------- DATA ---------------
+jumpTable: generateJumpTable()
 
 // -- animations --
 animWalkLeft:
