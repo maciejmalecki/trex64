@@ -28,6 +28,8 @@
 .label z_delay = 18           // $12
 .label z_animationPhase = 19  // $13
 .label z_animationFrame = 20  // $14
+.label z_yPos = 21            // $15
+.label z_jumpFrame = 22       // $16
 
 .label VIC_BANK = 3
 .label SCREEN_PAGE_0 = 0
@@ -160,6 +162,8 @@ init: {
   sta z_animationPhase
   lda #0
   sta z_animationFrame
+  sta z_yPos
+  sta z_jumpFrame
   rts
 }
 
@@ -314,7 +318,7 @@ updateDashboard: {
   pushParamW(z_x + 1)
   pushParamW(SCREEN_PAGE_ADDR_0 + 8)
   jsr outHex
-  pushParamW(z_mode)
+  pushParamW(z_jumpFrame)
   pushParamW(SCREEN_PAGE_ADDR_0 + 24)
   jsr outHex
   pushParamW(z_acc0)
@@ -327,7 +331,7 @@ updateDashboard: {
   pushParamW(z_x + 1)
   pushParamW(SCREEN_PAGE_ADDR_1 + 8)
   jsr outHex
-  pushParamW(z_mode)
+  pushParamW(z_jumpFrame)
   pushParamW(SCREEN_PAGE_ADDR_1 + 24)
   jsr outHex
   pushParamW(z_acc0)
@@ -358,28 +362,22 @@ scanKeys: {
   sta CIA1_DATA_DIR_A 
   lda #$00
   sta CIA1_DATA_DIR_B
-  // scan F7 and SPACE for being pressed
+  // SPACE for being pressed
   lda #%00011000
   sta CIA1_DATA_PORT_A
   lda CIA1_DATA_PORT_B
   sta z_keyPressed
-
-  and #%00001000
-  bne !+
-    lda z_mode
-    eor #1
-    sta z_mode
-    lda #MAX_DELAY
-    sta z_delay
-  !:
 
   lda z_keyPressed
   and #%00010000
   bne !+ 
   {
     lda z_mode
-    beq !+
-      jsr incrementX
+    bne !+
+      lda #1 
+      sta z_mode
+      lda #0
+      sta z_jumpFrame
     !:
     lda #MAX_DELAY
     sta z_delay
@@ -387,6 +385,41 @@ scanKeys: {
   !:
 
   skip:
+  rts
+}
+
+performJump: {
+  lda z_mode
+  beq end
+    ldx z_jumpFrame
+    lda jumpTable, x
+    cmp #$ff
+    bne nextFrame
+      lda #0
+      sta z_mode
+      sta z_yPos
+      sta z_jumpFrame
+      jmp end
+    nextFrame:
+    sta z_yPos
+    inx
+    stx z_jumpFrame
+  end:
+  rts
+}
+
+updateSpriteY: {
+  // set Y coord
+  sec
+  lda #PLAYER_Y
+  sbc z_yPos
+  sta spriteYReg(PLAYER_SPRITE_TOP)
+  sta spriteYReg(PLAYER_SPRITE_TOP_OVL)
+  clc
+  adc #21
+  sta spriteYReg(PLAYER_SPRITE_BOTTOM)
+  sta spriteYReg(PLAYER_SPRITE_BOTTOM_OVL)
+
   rts
 }
 
@@ -608,10 +641,10 @@ switchPages: {
   end:
 
   // increment X coordinate
-  lda z_mode
-  bne !+
+  //lda z_mode
+  //bne !+
     jsr incrementX
-  !:
+  //!:
 
   // calculate scroll register
   lda z_x
@@ -658,6 +691,8 @@ switchPages: {
   jsr updateDashboard
   jsr scanKeys
   jsr animate
+  jsr performJump
+  jsr updateSpriteY
 
   debugBorderEnd()
   rts
@@ -668,6 +703,13 @@ mapDefinition: // 40 x 12
   .import binary "background/level-1-map.bin"
 
 // ------------------- DATA ---------------------------
+
+jumpTable:
+  .label JUMP_TABLE_LENGTH = 18
+  .fill JUMP_TABLE_LENGTH, (JUMP_TABLE_LENGTH / 2)*(JUMP_TABLE_LENGTH / 2) - (JUMP_TABLE_LENGTH / 2 - i)*(JUMP_TABLE_LENGTH / 2 - i)
+  //.byte 0, 5, 10, 12, 13, 12, 10, 5, 0
+  .byte 0
+  .byte $ff
 
 // -- animations --
 animWalkLeft:
