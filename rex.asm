@@ -1,4 +1,4 @@
-//#define VISUAL_DEBUG
+#define VISUAL_DEBUG
 #import "common/lib/mem.asm"
 #import "common/lib/invoke.asm"
 #import "chipset/lib/sprites.asm"
@@ -491,6 +491,8 @@ tileDefinition3:
 .eval tilesCfg.tileDefinition = tileDefinition0
 .eval tilesCfg.lock()
 
+drawTile: drawTile(tilesCfg, SCREEN_PAGE_ADDR_0, COLOR_RAM)
+
 initBackground: {
   // set map definition pointer
   lda #<mapDefinition
@@ -524,6 +526,24 @@ initBackground: {
 
   // initialize tile2 system
   tile2Init(tilesCfg)
+
+  // draw the screen
+  ldx #0
+  ldy #0
+  draw: 
+    debugBorderStart()
+    jsr drawTile
+    debugBorderEnd()
+    inx
+    inx
+    cpx #40
+    bne draw
+    ldx #0
+    iny
+    iny
+    cpy #24
+    bne draw
+
   rts
 }
 
@@ -643,10 +663,7 @@ switchPages: {
   end:
 
   // increment X coordinate
-  //lda z_mode
-  //bne !+
-    jsr incrementX
-  //!:
+  jsr incrementX
 
   // calculate scroll register
   lda z_x
