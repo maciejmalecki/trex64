@@ -531,17 +531,13 @@ initBackground: {
   ldx #0
   ldy #0
   draw: 
-    debugBorderStart()
     jsr drawTile
-    debugBorderEnd()
     inx
-    inx
-    cpx #40
+    cpx #20
     bne draw
     ldx #0
     iny
-    iny
-    cpy #24
+    cpy #12
     bne draw
 
   rts
