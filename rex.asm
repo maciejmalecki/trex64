@@ -134,7 +134,7 @@ configureC64: {
   sei
   configureMemory(RAM_IO_RAM)
   disableNMI()
-  disableCIAInterrupts()
+  disableCIAInterrupts() 
   cli
   rts
 }
@@ -754,6 +754,7 @@ animJumpDown:
 
 // -- Sprites definition --
 beginOfSprites:
+.print "Import size = " + (afterOfChargen - beginOfChargen)
   #import "sprites/dino.asm"
 endOfSprites:
 
@@ -775,6 +776,17 @@ endOfTRex:
 .macro memSummary(name, address) {
 .print name + " = " + address + " ($" + toHexString(address, 4) + ")"
 }
+
+memSummary("       tile colors", tileColors)
+memSummary("      mapOffsetsLo", mapOffsetsLo)
+memSummary("      mapOffsetsHi", mapOffsetsHi)
+
+memSummary("tiles definition 0", tileDefinition0)
+memSummary("tiles definition 1", tileDefinition1)
+memSummary("tiles d     efinition 2", tileDefinition2)
+memSummary("tiles definition 3", tileDefinition3)
+
+memSummary("    map definition", mapDefinition)
 
 memSummary("SCREEN_PAGE_ADDR_0", SCREEN_PAGE_ADDR_0)
 memSummary("SCREEN_PAGE_ADDR_1", SCREEN_PAGE_ADDR_1)
