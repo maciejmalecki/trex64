@@ -112,7 +112,7 @@ configureVic2: {
   // copy level chargen
   pushParamW(levelCfg.CHARSET_ADDRESS)
   pushParamW(CHARGEN_ADDR + (endOfChargen - beginOfChargen))
-  pushParamW(levelCfg.CHARSET_SIZE)
+  pushParamW(levelCfg.CHARSET_SIZE*8)
   jsr copyLargeMemForward
 
   // copy tiles colors
