@@ -727,12 +727,14 @@ animJumpDown:
   .byte 0
 
 // -- Sprites definition --
+.segment Sprites
 beginOfSprites:
   #import "sprites/dino.asm"
 endOfSprites:
 .print "Sprites import size = " + (endOfSprites - beginOfSprites)
 
 // -- chargen definition --
+.segment Charsets
 beginOfChargen:
   // 0-63: letters, symbols, numbers
   #import "fonts/regular/base.asm"
