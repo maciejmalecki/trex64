@@ -110,10 +110,14 @@ configureVic2: {
   sta BORDER_COL
 
   // copy level chargen
+  sei
+  configureMemory(RAM_RAM_RAM)
   pushParamW(levelCfg.CHARSET_ADDRESS)
   pushParamW(CHARGEN_ADDR + (endOfChargen - beginOfChargen))
   pushParamW(levelCfg.CHARSET_SIZE*8)
   jsr copyLargeMemForward
+  configureMemory(RAM_IO_RAM)
+  cli
 
   // copy tiles colors
   pushParamW(levelCfg.TILES_COLORS_ADDRESS)
