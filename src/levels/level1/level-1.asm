@@ -1,13 +1,17 @@
 #import "../../_segments.asm"
+#import "../../_constants.asm"
 .filenamespace level1
 
+.var _charsetData = LoadBinary("level-1-charset.bin")
 .var _tileData = LoadBinary("level-1-tiles.bin")
+.var _tileColorsData = LoadBinary("level-1-tiles-colors.bin")
+.var _mapData = LoadBinary("level-1-map.bin")
 
 // level meta data
-.label MAP_WIDTH = 240
+.label MAP_WIDTH = _mapData.getSize() / c64lib.MAP_HEIGHT
 .label MAP_ADDRESS = _map
 
-.label CHARSET_SIZE = 128
+.label CHARSET_SIZE = _charsetData.getSize()/8
 .label CHARSET_ADDRESS = _charset
 
 .label TILES_SIZE = _tileData.getSize()/4
@@ -21,11 +25,11 @@
 
 // level data
 .segment Charsets
-_charset: .import binary "level-1-charset.bin"
+_charset: .fill _charsetData.getSize(), _charsetData.get(i)
 
 .segment LevelData
-_map: .import binary "level-1-map.bin"
-_colors: .import binary "level-1-tiles-colors.bin"
+_map: .fill _mapData.getSize(), _mapData.get(i)
+_colors: .fill _tileColorsData.getSize(), _tileColorsData.get(i)
 _tiles:
   .fill _tileData.getSize() / 4, _tileData.get(i*4) + 64
   .fill _tileData.getSize() / 4, _tileData.get(i*4 + 1) + 64

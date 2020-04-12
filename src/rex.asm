@@ -10,6 +10,7 @@
 #import "text/lib/tiles-2x2.asm"
 #import "copper64/lib/copper64.asm"
 
+#import "_constants.asm"
 #import "_segments.asm"
 #import "_zero_page.asm"
 #import "_sprites.asm"
@@ -477,7 +478,7 @@ tileDefinition:
 drawTile: drawTile(tilesCfg, SCREEN_PAGE_ADDR_0, COLOR_RAM)
 
 initLevel: {
-  lda #12
+  lda #MAP_HEIGHT
   sta z_height
   
   // set phase to 0
@@ -513,7 +514,7 @@ initLevel: {
     bne draw
     ldx #0
     iny
-    cpy #12
+    cpy #MAP_HEIGHT
     bne draw
 
   rts
