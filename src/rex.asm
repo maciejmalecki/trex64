@@ -1,4 +1,5 @@
 #define VISUAL_DEBUG
+#import "common/lib/common.asm"
 #import "common/lib/mem.asm"
 #import "common/lib/invoke.asm"
 #import "chipset/lib/sprites.asm"
@@ -12,17 +13,13 @@
 #import "_segments.asm"
 #import "_zero_page.asm"
 #import "_sprites.asm"
+#import "_vic_layout.asm"
 
 #import "physics.asm"
 
 .filenamespace c64lib
 
 .file [name="./rex.prg", segments="Code", modify="BasicUpstart", _start=$0810]
-
-.label VIC_BANK = 3
-.label SCREEN_PAGE_0 = 0
-.label SCREEN_PAGE_1 = 1
-.label CHARGEN = 1
 
 .label TILES_COUNT = 256
 .label MAP_WIDTH = 240
@@ -58,21 +55,6 @@
 .label PHASE_WRAP_1_TO_0    = %11000000
 .label PHASE_SWITCH_1_TO_0  = %10000001
 
-/*
-  VIC memory layout (16kb):
-  - $0000 ($C000-$C3FF) - SCREEN_PAGE_0
-  - $0400 ($C400-$C7FF) - SCREEN_PAGE_1
-  - $0800 ($C800-$CFFF) - CHARGEN
-  -       ($D000-$DFFF) - I/O space
-  - $2000 ($E000)       - sprite data
- */
-
-.label VIC_MEMORY_START = VIC_BANK * toBytes(16)
-.label SCREEN_PAGE_ADDR_0 = VIC_MEMORY_START + SCREEN_PAGE_0 * toBytes(1)
-.label SCREEN_PAGE_ADDR_1 = VIC_MEMORY_START + SCREEN_PAGE_1 * toBytes(1)
-.label CHARGEN_ADDR = VIC_MEMORY_START + CHARGEN * toBytes(2)
-.label SPRITE_ADDR = VIC_MEMORY_START + $2000
-
 .var tileData = LoadBinary("levels/level1/level-1-tiles.bin")
 
 // -------- Main program ---------
@@ -88,6 +70,9 @@ start:
   jsr initDashboard
   jsr showPlayer
   jsr startCopper
+
+
+  toBytes(2)
   
 endless:
   // scan keyboard and joystick
