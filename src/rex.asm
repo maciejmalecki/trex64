@@ -15,6 +15,7 @@
 #import "_sprites.asm"
 #import "_vic_layout.asm"
 
+#import "levels/levels.asm"
 #import "physics.asm"
 
 .filenamespace c64lib
@@ -26,6 +27,8 @@
 .label SPRITE_SHAPES_START = 128
 
 .var tileData = LoadBinary("levels/level1/level-1-tiles.bin")
+// levels
+#import "levels/level1/level-1.asm"
 
 
 /*
@@ -218,9 +221,9 @@ unpackData: {
   pushParamW(endOfChargen - beginOfChargen)
   jsr copyLargeMemForward
   // copy level chargen
-  pushParamW(level1Charset)
+  pushParamW(level1.CHARSET_ADDRESS)
   pushParamW(CHARGEN_ADDR + (endOfChargen - beginOfChargen))
-  pushParamW(LVL1_CHARSET_SIZE)
+  pushParamW(level1.CHARSET_SIZE)
   jsr copyLargeMemForward
   // copy sprites
   pushParamW(beginOfSprites)
@@ -445,12 +448,12 @@ drawTile: drawTile(tilesCfg, SCREEN_PAGE_ADDR_0, COLOR_RAM)
 
 initBackground: {
   // set map definition pointer
-  lda #<level1Map
+  lda #<level1.MAP_ADDRESS
   sta z_map
-  lda #>level1Map
+  lda #>level1.MAP_ADDRESS
   sta z_map + 1
   // set map dimensions
-  lda #LVL1_MAP_WIDTH
+  lda #level1.MAP_WIDTH
   sta z_width
   lda #12
   sta z_height
@@ -633,7 +636,7 @@ switchPages: {
 
   // check if we need to loop the background
   lda z_x + 1
-  cmp #(LVL1_MAP_WIDTH-20)
+  cmp #(level1.MAP_WIDTH-20)
   bne dontReset
     lda #0
     sta z_x + 1
@@ -712,8 +715,6 @@ beginOfChargen:
 endOfChargen:
 .print "Chargen import size = " + (endOfChargen - beginOfChargen)
 
-// levels
-#import "levels/level1/level-1.asm"
 
 endOfTRex:
 
