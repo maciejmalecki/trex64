@@ -9,12 +9,15 @@
 #import "text/lib/tiles-2x2.asm"
 #import "copper64/lib/copper64.asm"
 
+#import "_segments.asm"
 #import "_zero_page.asm"
 #import "_sprites.asm"
 
 #import "physics.asm"
 
 .filenamespace c64lib
+
+.file [name="./rex.prg", segments="Code", modify="BasicUpstart", _start=$0810]
 
 .label VIC_BANK = 3
 .label SCREEN_PAGE_0 = 0
@@ -72,11 +75,8 @@
 
 .var tileData = LoadBinary("levels/level1/level-1-tiles.bin")
 
-.pc = $0801 "Basic Upstart"
-BasicUpstart(start) // Basic start routines
-
 // -------- Main program ---------
-.pc = $0810 "Program"
+.segment Code
 
 start:
   jsr configureC64
