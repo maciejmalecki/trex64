@@ -16,7 +16,6 @@
 #import "_sprites.asm"
 #import "_vic_layout.asm"
 
-#import "levels/levels.asm"
 #import "physics.asm"
 
 .filenamespace c64lib
@@ -28,7 +27,7 @@
 .label SPRITE_SHAPES_START = 128
 
 // levels
-#import "levels/level1/level-1.asm"
+#import "levels/level1/data.asm"
 
 
 /*

@@ -2,10 +2,10 @@
 #import "../../_constants.asm"
 .filenamespace level1
 
-.var _charsetData = LoadBinary("level-1-charset.bin")
-.var _tileData = LoadBinary("level-1-tiles.bin")
-.var _tileColorsData = LoadBinary("level-1-tiles-colors.bin")
-.var _mapData = LoadBinary("level-1-map.bin")
+.var _charsetData = LoadBinary("charset.bin")
+.var _tileData = LoadBinary("tiles.bin")
+.var _tileColorsData = LoadBinary("colors.bin")
+.var _mapData = LoadBinary("map.bin")
 
 // level meta data
 .label MAP_WIDTH = _mapData.getSize() / c64lib.MAP_HEIGHT
