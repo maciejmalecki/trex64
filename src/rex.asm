@@ -65,8 +65,8 @@ start:
   jsr prepareScreen
   jsr configureVic2
   jsr unpackData
+  jsr setUpLevel1
   jsr init
-  jsr initBackground
   jsr initDashboard
   jsr showPlayer
   jsr startCopper
@@ -91,21 +91,51 @@ configureVic2: {
   setVideoMode(MULTICOLOR_TEXT_MODE)
   setVICBank(3 - VIC_BANK)
   configureTextMemory(SCREEN_PAGE_0, CHARGEN)
-  // set background & border color
-  lda #$06
-  sta BG_COL_0
-  lda #LIGHT_GREY
-  sta BG_COL_1
-  lda #LIGHT_BLUE
-  sta BG_COL_2
-  lda #LIGHT_BLUE
-  sta BORDER_COL
   // turn on 38 columns visible
   lda CONTROL_2
   and #%11110111
   sta CONTROL_2
   rts
 }
+
+.macro setUpLevel(levelCfg) {
+ // set background & border color
+  lda #levelCfg.BG_COLOR_0
+  sta BG_COL_0
+  lda #levelCfg.BG_COLOR_1
+  sta BG_COL_1
+  lda #levelCfg.BG_COLOR_2
+  sta BG_COL_2
+  lda #levelCfg.BORDER_COLOR
+  sta BORDER_COL
+
+  // copy level chargen
+  pushParamW(levelCfg.CHARSET_ADDRESS)
+  pushParamW(CHARGEN_ADDR + (endOfChargen - beginOfChargen))
+  pushParamW(levelCfg.CHARSET_SIZE)
+  jsr copyLargeMemForward
+
+  // set map definition pointer
+  lda #<levelCfg.MAP_ADDRESS
+  sta z_map
+  lda #>levelCfg.MAP_ADDRESS
+  sta z_map + 1
+
+  // set map width
+  lda #levelCfg.MAP_WIDTH
+  sta z_width
+
+  // set delta X
+  lda #(1<<4)
+  sta z_deltaX
+
+  // do common level stuff
+  jsr initLevel
+
+  rts
+}
+
+setUpLevel1: setUpLevel(level1)
 
 init: {
   lda #ANIMATION_WALK
@@ -219,11 +249,6 @@ unpackData: {
   pushParamW(beginOfChargen)
   pushParamW(CHARGEN_ADDR)
   pushParamW(endOfChargen - beginOfChargen)
-  jsr copyLargeMemForward
-  // copy level chargen
-  pushParamW(level1.CHARSET_ADDRESS)
-  pushParamW(CHARGEN_ADDR + (endOfChargen - beginOfChargen))
-  pushParamW(level1.CHARSET_SIZE)
   jsr copyLargeMemForward
   // copy sprites
   pushParamW(beginOfSprites)
@@ -446,33 +471,26 @@ tileDefinition3:
 
 drawTile: drawTile(tilesCfg, SCREEN_PAGE_ADDR_0, COLOR_RAM)
 
-initBackground: {
-  // set map definition pointer
-  lda #<level1.MAP_ADDRESS
-  sta z_map
-  lda #>level1.MAP_ADDRESS
-  sta z_map + 1
-  // set map dimensions
-  lda #level1.MAP_WIDTH
-  sta z_width
+initLevel: {
   lda #12
   sta z_height
+  
+  // set phase to 0
+  lda #PHASE_SHOW_0
+  sta z_phase
+
   // set [x,y] = [0,0]
   lda #0
   sta z_x
   sta z_x + 1
   sta z_y
   sta z_y + 1
-  // set delta X
-  lda #(1<<4)
-  sta z_deltaX
-  // set phase to 0
-  lda #PHASE_SHOW_0
-  sta z_phase
+  
   // set key mode to 0
   lda #$00
   sta z_keyPressed
   sta z_mode
+  
   // set max delay
   lda #MAX_DELAY
   sta z_delay
