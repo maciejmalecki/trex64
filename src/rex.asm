@@ -19,7 +19,7 @@
 
 .filenamespace c64lib
 
-.file [name="./rex.prg", segments="Code", modify="BasicUpstart", _start=$0810]
+.file [name="./rex.prg", segments="Code, Data", modify="BasicUpstart", _start=$0810]
 
 .label TILES_COUNT = 256
 .label MAP_WIDTH = 240
@@ -70,9 +70,6 @@ start:
   jsr initDashboard
   jsr showPlayer
   jsr startCopper
-
-
-  toBytes(2)
   
 endless:
   // scan keyboard and joystick
@@ -668,6 +665,7 @@ switchPages: {
 mapDefinition: // 40 x 12
   .import binary "levels/level1/level-1-map.bin"
 
+.segment Data
 // ------------------- DATA ---------------
 jumpTable: generateJumpTable()
 
