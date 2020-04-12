@@ -18,10 +18,10 @@
 .label TILES_COLORS_ADDRESS = _colors
 .label TILES_ADDRESS = _tiles
 
-.label BORDER_COLOR = 14
-.label BG_COLOR_0 = 6
-.label BG_COLOR_1 = 15
-.label BG_COLOR_2 = 14
+.label BORDER_COLOR = 11
+.label BG_COLOR_0 = 11
+.label BG_COLOR_1 = 8
+.label BG_COLOR_2 = 10
 
 // level data
 .segment Charsets
