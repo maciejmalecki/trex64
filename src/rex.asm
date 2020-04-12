@@ -115,6 +115,12 @@ configureVic2: {
   pushParamW(levelCfg.CHARSET_SIZE)
   jsr copyLargeMemForward
 
+  // copy tiles colors
+  pushParamW(levelCfg.TILES_COLORS_ADDRESS)
+  pushParamW(tileColors)
+  pushParamW(levelCfg.TILES_SIZE)
+  jsr copyLargeMemForward
+
   // set map definition pointer
   lda #<levelCfg.MAP_ADDRESS
   sta z_map
@@ -437,7 +443,7 @@ page1Mark:
 
 .align $100
 tileColors:
-  .import binary "levels/level1/level-1-tiles-colors.bin"
+  .fill 256, $0
 mapOffsetsLo:
   .fill 256, 0
 mapOffsetsHi:
@@ -490,7 +496,7 @@ initLevel: {
   lda #$00
   sta z_keyPressed
   sta z_mode
-  
+
   // set max delay
   lda #MAX_DELAY
   sta z_delay
