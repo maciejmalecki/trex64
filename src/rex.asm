@@ -26,7 +26,6 @@
 .label MAX_DELAY = 10
 .label SPRITE_SHAPES_START = 128
 
-.var tileData = LoadBinary("levels/level1/level-1-tiles.bin")
 // levels
 #import "levels/level1/level-1.asm"
 
@@ -119,6 +118,12 @@ configureVic2: {
   pushParamW(levelCfg.TILES_COLORS_ADDRESS)
   pushParamW(tileColors)
   pushParamW(levelCfg.TILES_SIZE)
+  jsr copyLargeMemForward
+
+  // copy tiles
+  pushParamW(levelCfg.TILES_ADDRESS)
+  pushParamW(tileDefinition)
+  pushParamW(levelCfg.TILES_SIZE*4)
   jsr copyLargeMemForward
 
   // set map definition pointer
@@ -448,14 +453,8 @@ mapOffsetsLo:
   .fill 256, 0
 mapOffsetsHi:
   .fill 256, 0
-tileDefinition0:
-  .fill tileData.getSize() / 4, tileData.get(i*4) + 64
-tileDefinition1:
-  .fill tileData.getSize() / 4, tileData.get(i*4 + 1) + 64
-tileDefinition2:
-  .fill tileData.getSize() / 4, tileData.get(i*4 + 2) + 64
-tileDefinition3:
-  .fill tileData.getSize() / 4, tileData.get(i*4 + 3) + 64
+tileDefinition:
+  .fill 256*4, $0
 
 // scrollable background configuration
 .var tilesCfg = Tile2Config()
@@ -472,7 +471,7 @@ tileDefinition3:
 .eval tilesCfg.mapOffsetsLo = mapOffsetsLo
 .eval tilesCfg.mapOffsetsHi = mapOffsetsHi
 .eval tilesCfg.mapDefinitionPtr = z_map
-.eval tilesCfg.tileDefinition = tileDefinition0
+.eval tilesCfg.tileDefinition = tileDefinition
 .eval tilesCfg.lock()
 
 drawTile: drawTile(tilesCfg, SCREEN_PAGE_ADDR_0, COLOR_RAM)
@@ -752,10 +751,7 @@ memSummary("       tile colors", tileColors)
 memSummary("      mapOffsetsLo", mapOffsetsLo)
 memSummary("      mapOffsetsHi", mapOffsetsHi)
 
-memSummary("tiles definition 0", tileDefinition0)
-memSummary("tiles definition 1", tileDefinition1)
-memSummary("tiles definition 2", tileDefinition2)
-memSummary("tiles definition 3", tileDefinition3)
+memSummary("tiles definition 0", tileDefinition)
 
 memSummary("SCREEN_PAGE_ADDR_0", SCREEN_PAGE_ADDR_0)
 memSummary("SCREEN_PAGE_ADDR_1", SCREEN_PAGE_ADDR_1)
