@@ -9,52 +9,17 @@
 #import "text/lib/tiles-2x2.asm"
 #import "copper64/lib/copper64.asm"
 
+#import "_zero_page.asm"
+#import "_sprites.asm"
+
 #import "physics.asm"
 
 .filenamespace c64lib
-
-
-// ZERO page
-.label z_x = 2                // $02,$03
-.label z_y = 4                // $04,$05
-.label z_width = 6            // $06
-.label z_height = 7           // $07
-.label z_map = 8              // $08, $09
-.label z_phase = 10           // $0A
-.label z_listPtr = 11         // $0B
-.label z_displayListPtr = 12  // $0C,$0D
-.label z_deltaX = 14          // $0E
-.label z_acc0 = 15            // $0F
-.label z_keyPressed = 16      // $10
-.label z_mode = 17            // $11
-.label z_delay = 18           // $12
-.label z_animationPhase = 19  // $13
-.label z_animationFrame = 20  // $14
-.label z_yPos = 21            // $15
-.label z_jumpFrame = 22       // $16
 
 .label VIC_BANK = 3
 .label SCREEN_PAGE_0 = 0
 .label SCREEN_PAGE_1 = 1
 .label CHARGEN = 1
-
-// player
-.label PLAYER_SPRITE_TOP_OVL = 0
-.label PLAYER_SPRITE_TOP = 1
-.label PLAYER_SPRITE_BOTTOM_OVL = 2
-.label PLAYER_SPRITE_BOTTOM = 3
-.label PLAYER_COL = $0  // overlay color
-.label PLAYER_COL0 = $5 // multi individual
-.label PLAYER_COL1 = $9 // multi color 0
-.label PLAYER_COL2 = $8 // multi color 1
-.label PLAYER_X = 80
-.label PLAYER_Y = 175
-.label PLAYER_BOTTOM_Y = PLAYER_Y + 21
-// animation phases
-.label ANIMATION_WALK = 1
-.label ANIMATION_JUMP_UP = 2
-.label ANIMATION_JUMP_DOWN = 3
-.label ANIMATION_DELAY = 4
 
 .label TILES_COUNT = 256
 .label MAP_WIDTH = 240
