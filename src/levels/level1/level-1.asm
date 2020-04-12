@@ -1,3 +1,5 @@
+#import "../../_segments.asm"
+
 .label LVL1_MAP_WIDTH = 240
 .label LVL1_CHARSET_SIZE = 128
 
