@@ -19,15 +19,14 @@
 
 .filenamespace c64lib
 
-.file [name="./rex.prg", segments="Code, Data", modify="BasicUpstart", _start=$0810]
+.file [name="./rex.prg", segments="Code, Data, Charsets, LevelData, Sprites", modify="BasicUpstart", _start=$0810]
 
 .label TILES_COUNT = 256
-.label MAP_WIDTH = 240
-.label CHARSET_SIZE = 196
-
 .label MAX_DELAY = 10
-
 .label SPRITE_SHAPES_START = 128
+
+.var tileData = LoadBinary("levels/level1/level-1-tiles.bin")
+
 
 /*
    Phase bit map:
@@ -54,8 +53,6 @@
 .label PHASE_SHOW_1         = %10000000
 .label PHASE_WRAP_1_TO_0    = %11000000
 .label PHASE_SWITCH_1_TO_0  = %10000001
-
-.var tileData = LoadBinary("levels/level1/level-1-tiles.bin")
 
 // -------- Main program ---------
 .segment Code
@@ -219,6 +216,11 @@ unpackData: {
   pushParamW(beginOfChargen)
   pushParamW(CHARGEN_ADDR)
   pushParamW(endOfChargen - beginOfChargen)
+  jsr copyLargeMemForward
+  // copy level chargen
+  pushParamW(level1Charset)
+  pushParamW(CHARGEN_ADDR + (endOfChargen - beginOfChargen))
+  pushParamW(LVL1_CHARSET_SIZE)
   jsr copyLargeMemForward
   // copy sprites
   pushParamW(beginOfSprites)
@@ -443,12 +445,12 @@ drawTile: drawTile(tilesCfg, SCREEN_PAGE_ADDR_0, COLOR_RAM)
 
 initBackground: {
   // set map definition pointer
-  lda #<mapDefinition
+  lda #<level1Map
   sta z_map
-  lda #>mapDefinition
+  lda #>level1Map
   sta z_map + 1
   // set map dimensions
-  lda #MAP_WIDTH
+  lda #LVL1_MAP_WIDTH
   sta z_width
   lda #12
   sta z_height
@@ -631,7 +633,7 @@ switchPages: {
 
   // check if we need to loop the background
   lda z_x + 1
-  cmp #(MAP_WIDTH-20)
+  cmp #(LVL1_MAP_WIDTH-20)
   bne dontReset
     lda #0
     sta z_x + 1
@@ -660,10 +662,6 @@ switchPages: {
   debugBorderEnd()
   rts
 }
-
-// -- map definition --
-mapDefinition: // 40 x 12
-  .import binary "levels/level1/level-1-map.bin"
 
 .segment Data
 // ------------------- DATA ---------------
@@ -703,21 +701,20 @@ animJumpDown:
 
 // -- Sprites definition --
 beginOfSprites:
-.print "Import size = " + (afterOfChargen - beginOfChargen)
   #import "sprites/dino.asm"
 endOfSprites:
+.print "Sprites import size = " + (endOfSprites - beginOfSprites)
 
 // -- chargen definition --
 beginOfChargen:
   // 0-63: letters, symbols, numbers
   #import "fonts/regular/base.asm"
-afterOfChargen:
-
-.print "Import size = " + (afterOfChargen - beginOfChargen)
-  // 64-256: playfield graphics
-  .import binary "levels/level1/level-1-charset.bin"
-
 endOfChargen:
+.print "Chargen import size = " + (endOfChargen - beginOfChargen)
+
+// levels
+#import "levels/level1/level-1.asm"
+
 endOfTRex:
 
 // print memory map summary
@@ -734,8 +731,6 @@ memSummary("tiles definition 0", tileDefinition0)
 memSummary("tiles definition 1", tileDefinition1)
 memSummary("tiles definition 2", tileDefinition2)
 memSummary("tiles definition 3", tileDefinition3)
-
-memSummary("    map definition", mapDefinition)
 
 memSummary("SCREEN_PAGE_ADDR_0", SCREEN_PAGE_ADDR_0)
 memSummary("SCREEN_PAGE_ADDR_1", SCREEN_PAGE_ADDR_1)
