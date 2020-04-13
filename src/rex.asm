@@ -175,7 +175,7 @@ prepareScreen: {
   lda #0
   jsr fillScreen
   // hires colors for status bar
-  pushParamW(COLOR_RAM)
+  pushParamW(COLOR_RAM + 24*40)
   lda #WHITE
   ldx #40
   jsr fillMem
@@ -287,19 +287,19 @@ startCopper: {
 
 initDashboard: {
   pushParamW(dashboard)
-  pushParamW(SCREEN_PAGE_ADDR_0)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 24*40)
   jsr outText
 
   pushParamW(page0Mark)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 37)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 37)
   jsr outText
 
   pushParamW(page1Mark)
-  pushParamW(SCREEN_PAGE_ADDR_1 + 37)
+  pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 37)
   jsr outText
 
   pushParamW(dashboard)
-  pushParamW(SCREEN_PAGE_ADDR_1)
+  pushParamW(SCREEN_PAGE_ADDR_1 + 24*40)
   jsr outText
 
   rts
@@ -307,38 +307,38 @@ initDashboard: {
 
 updateDashboard: {
   pushParamW(z_x)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 6)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 6)
   jsr outHex
   pushParamW(z_x + 1)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 8)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 8)
   jsr outHex
   pushParamW(z_jumpFrame)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 24)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 24)
   jsr outHex
   pushParamW(z_acc0)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 32)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 32)
   jsr outHex
 
   pushParamW(z_x)
-  pushParamW(SCREEN_PAGE_ADDR_1 + 6)
+  pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 6)
   jsr outHex
   pushParamW(z_x + 1)
-  pushParamW(SCREEN_PAGE_ADDR_1 + 8)
+  pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 8)
   jsr outHex
   pushParamW(z_jumpFrame)
-  pushParamW(SCREEN_PAGE_ADDR_1 + 24)
+  pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 24)
   jsr outHex
   pushParamW(z_acc0)
-  pushParamW(SCREEN_PAGE_ADDR_1 + 32)
+  pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 32)
   jsr outHex
 
 
   pushParamW(z_phase)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 15)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 15)
   jsr outHex
 
   pushParamW(z_phase)
-  pushParamW(SCREEN_PAGE_ADDR_1 + 15)
+  pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 15)
   jsr outHex
   rts 
 }
@@ -429,16 +429,16 @@ updateSpriteY: {
 .align $100
 // here we define layout of raster interrupt handlers
 copperList:
-    // at the top we reset HScroll register to 0
-    copperEntry($31, IRQH_HSCROLL, 0, 0)
     // here we set scroll register to 5, but in fact this value will be modified by scrollBackground routine
   hScroll:
-    copperEntry($39, IRQH_HSCROLL, 5, 0)
+    copperEntry(50, IRQH_HSCROLL, 5, 0)
     // here we do the actual scrolling
   scrollCode: 
-    copperEntry($3F, IRQH_JSR, <scrollBackground, >scrollBackground)
+    copperEntry(54, IRQH_JSR, <scrollBackground, >scrollBackground)
+    // at the top we reset HScroll register to 0
+    copperEntry(241, IRQH_HSCROLL, 0, 0)
     // here we do the page switching when it's time for this
-    copperEntry(280, IRQH_JSR, <switchPages, >switchPages)
+    copperEntry(245, IRQH_JSR, <switchPages, >switchPages)
     // here we loop and so on, so on, for each frame
     copperLoop()
 
@@ -464,8 +464,8 @@ tileDefinition:
 .eval tilesCfg.bank = VIC_BANK
 .eval tilesCfg.page0 = SCREEN_PAGE_0
 .eval tilesCfg.page1 = SCREEN_PAGE_1
-.eval tilesCfg.startRow = 1
-.eval tilesCfg.endRow = 24
+.eval tilesCfg.startRow = 0
+.eval tilesCfg.endRow = 23
 .eval tilesCfg.x = z_x
 .eval tilesCfg.y = z_y
 .eval tilesCfg.width = z_width
