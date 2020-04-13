@@ -31,8 +31,8 @@ _charset: .fill _charsetData.getSize(), _charsetData.get(i)
 _map: .fill _mapData.getSize(), _mapData.get(i)
 _colors: .fill _tileColorsData.getSize(), _tileColorsData.get(i)
 _tiles:
-  .fill _tileData.getSize() / 4, _tileData.get(i*4) + 64
-  .fill _tileData.getSize() / 4, _tileData.get(i*4 + 1) + 64
-  .fill _tileData.getSize() / 4, _tileData.get(i*4 + 2) + 64
-  .fill _tileData.getSize() / 4, _tileData.get(i*4 + 3) + 64
+  .fill _tileData.getSize() / 4, _tileData.get(i*4) + c64lib.MAP_CHARSET_OFFSET
+  .fill _tileData.getSize() / 4, _tileData.get(i*4 + 1) + c64lib.MAP_CHARSET_OFFSET
+  .fill _tileData.getSize() / 4, _tileData.get(i*4 + 2) + c64lib.MAP_CHARSET_OFFSET
+  .fill _tileData.getSize() / 4, _tileData.get(i*4 + 3) + c64lib.MAP_CHARSET_OFFSET
 
