@@ -73,6 +73,7 @@ endless:
   // scan keyboard and joystick
   // jsr scanKeys
 
+  jsr checkCollisions
   jmp endless
 
 // -------- Subroutines ----------
@@ -312,7 +313,7 @@ updateDashboard: {
   pushParamW(z_x + 1)
   pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 8)
   jsr outHex
-  pushParamW(z_jumpFrame)
+  pushParamW(z_collisionTile)
   pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 24)
   jsr outHex
   pushParamW(z_acc0)
@@ -325,7 +326,7 @@ updateDashboard: {
   pushParamW(z_x + 1)
   pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 8)
   jsr outHex
-  pushParamW(z_jumpFrame)
+  pushParamW(z_collisionTile)
   pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 24)
   jsr outHex
   pushParamW(z_acc0)
@@ -476,6 +477,28 @@ tileDefinition:
 .eval tilesCfg.mapDefinitionPtr = z_map
 .eval tilesCfg.tileDefinition = tileDefinition
 .eval tilesCfg.lock()
+
+checkCollisions: {
+  lda #(PLAYER_X + 12 - 24)
+  lsr
+  lsr
+  lsr
+  tax
+  lda #(PLAYER_Y + 33 - 50)
+  sec
+  sbc z_yPos
+  lsr
+  lsr
+  lsr
+  tay
+  decodeTile(tilesCfg)
+  cmp #192
+  bne !+
+    inc BORDER_COL
+  !:
+  sta z_collisionTile
+  rts
+}
 
 drawTile: drawTile(tilesCfg, SCREEN_PAGE_ADDR_0, COLOR_RAM)
 

@@ -19,3 +19,4 @@
 .label z_animationFrame = 20  // $14
 .label z_yPos = 21            // $15
 .label z_jumpFrame = 22       // $16
+.label z_collisionTile = 23   // $17
