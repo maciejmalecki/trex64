@@ -479,21 +479,23 @@ tileDefinition:
 .eval tilesCfg.lock()
 
 checkCollisions: {
-  lda #(PLAYER_X + 12 - 24)
+  lda #(PLAYER_X + 8 - 24)
+  lsr
   lsr
   lsr
   lsr
   tax
-  lda #(PLAYER_Y + 33 - 50)
+  lda #(PLAYER_Y + 29 - 50)
   sec
   sbc z_yPos
   lsr
   lsr
   lsr
+  lsr
   tay
   decodeTile(tilesCfg)
-  cmp #192
-  bne !+
+  and #%10000000
+  beq !+
     inc BORDER_COL
   !:
   sta z_collisionTile
