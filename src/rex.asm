@@ -65,8 +65,10 @@ start:
   jsr init
   
   // main loop
-  titleScreen:
+  titleScreen: 
     jsr doTitleScreen
+  levelScreen:
+    jsr doLevelScreen
   ingame:
     jsr doIngame
 
@@ -81,6 +83,18 @@ doTitleScreen: {
     beq startIngame
     jmp endlessTitle
   startIngame:
+  rts
+}
+
+doLevelScreen: {
+  jsr configureTitleVic2
+  jsr prepareLevelScreen
+
+  !:
+    jsr scanSpaceHit
+    beq !+
+    jmp !-
+  !:
   rts
 }
 
@@ -246,7 +260,7 @@ prepareTitleScreen: {
   jsr outText
 
   pushParamW(pressAnyKey)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*18 + 15)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*18 + 13)
   jsr outText
 
   rts
@@ -255,7 +269,26 @@ prepareTitleScreen: {
   subTitle: .text "c64  edition"; .byte $ff
   author: .text "by  maciej malecki"; .byte $ff
   originalConcept: .text "based on google chrome easter egg"; .byte $ff
-  pressAnyKey: .text "hit button"; .byte $ff
+  pressAnyKey: .text "hit the button"; .byte $ff
+}
+
+prepareLevelScreen: {
+  lda #32
+  ldx #LIGHT_GRAY
+  jsr clearBothScreens
+
+  pushParamW(entering)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 15)
+  jsr outText
+
+  pushParamW(getReady)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*12 + 15)
+  jsr outText
+
+  rts
+  // private data
+  entering: .text "world  0-0"; .byte $ff
+  getReady: .text "get ready!"; .byte $ff
 }
 
 prepareIngameScreen: {
