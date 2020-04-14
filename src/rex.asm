@@ -191,6 +191,8 @@ prepareScreen: {
 }
 
 showPlayer: {
+  lda #0
+  sta SPRITE_ENABLE
   // set X coord
   lda #PLAYER_X
   sta spriteXReg(PLAYER_SPRITE_TOP)
@@ -223,6 +225,35 @@ showPlayer: {
   setSpriteShape(PLAYER_SPRITE_TOP_OVL, 129)
   setSpriteShape(PLAYER_SPRITE_BOTTOM, 130)
   setSpriteShape(PLAYER_SPRITE_BOTTOM_OVL, 131)
+  rts
+}
+
+showDeath: {
+  lda #0
+  sta SPRITE_ENABLE
+  // set X coord
+  lda #PLAYER_X
+  sta spriteXReg(PLAYER_SPRITE_TOP)
+  sta spriteXReg(PLAYER_SPRITE_TOP_OVL)
+  // set Y coord
+  lda #PLAYER_Y
+  sta spriteYReg(PLAYER_SPRITE_TOP)
+  sta spriteYReg(PLAYER_SPRITE_TOP_OVL)
+  // set colors
+  lda #DEATH_COL
+  sta spriteColorReg(PLAYER_SPRITE_TOP_OVL)
+  lda #DEATH_COL0
+  sta spriteColorReg(PLAYER_SPRITE_TOP)
+  lda #%00000010
+  sta SPRITE_COL_MODE
+  lda #PLAYER_COL1
+  sta SPRITE_COL_0
+  lda #PLAYER_COL2
+  sta SPRITE_COL_1
+  lda #%00000011
+  sta SPRITE_ENABLE
+  setSpriteShape(PLAYER_SPRITE_TOP, 128 + 12)
+  setSpriteShape(PLAYER_SPRITE_TOP_OVL, 128 + 12 + 1)
   rts
 }
 
@@ -496,7 +527,7 @@ checkCollisions: {
   decodeTile(tilesCfg)
   and #%10000000
   beq !+
-    inc BORDER_COL
+    jsr showDeath
   !:
   sta z_collisionTile
   rts
@@ -757,6 +788,7 @@ animJumpDown:
 .segment Sprites
 beginOfSprites:
   #import "sprites/dino.asm"
+  #import "sprites/death.asm"
 endOfSprites:
 .print "Sprites import size = " + (endOfSprites - beginOfSprites)
 
