@@ -59,22 +59,31 @@
 .segment Code
 
 start:
+
   jsr configureC64
-  jsr prepareScreen
-  jsr configureVic2
   jsr unpackData
-  jsr setUpLevel1
   jsr init
+  
+  // title screen
+  jsr configureTitleVic2
+  jsr prepareTitleScreen
+  endlessTitle:
+    jsr scanSpaceHit
+    beq startIngame
+    jmp endlessTitle
+  startIngame:
+
+  // ingame
+  jsr configureIngameVic2
+  jsr prepareIngameScreen
   jsr initDashboard
+  jsr setUpLevel1
   jsr showPlayer
   jsr startCopper
-  
-endless:
-  // scan keyboard and joystick
-  // jsr scanKeys
-
-  jsr checkCollisions
-  jmp endless
+  endlessIngame:
+    // scan keyboard and joystick
+    jsr checkCollisions
+    jmp endlessIngame
 
 // -------- Subroutines ----------
 configureC64: {
@@ -86,7 +95,21 @@ configureC64: {
   rts
 }
 
-configureVic2: {
+configureTitleVic2: {
+  lda #BLACK
+  sta BORDER_COL
+  sta BG_COL_0
+  setVideoMode(STANDARD_TEXT_MODE)
+  setVICBank(3 - VIC_BANK)
+  configureTextMemory(SCREEN_PAGE_0, CHARGEN)
+  // turn on 40 columns visible
+  lda CONTROL_2
+  ora #%00001000
+  sta CONTROL_2
+  rts
+}
+
+configureIngameVic2: {
   setVideoMode(MULTICOLOR_TEXT_MODE)
   setVICBank(3 - VIC_BANK)
   configureTextMemory(SCREEN_PAGE_0, CHARGEN)
@@ -162,19 +185,70 @@ init: {
   rts
 }
 
-prepareScreen: {
+/*
+ * In:  - A char code
+ *      - X color code
+ */
+clearBothScreens: {
+  sta charCode
+  stx colorCode
   // clear page 0
   pushParamW(SCREEN_PAGE_ADDR_0)
-  lda #32
+  lda charCode
   jsr fillScreen
   // clear page 1
   pushParamW(SCREEN_PAGE_ADDR_1)
-  lda #32
+  lda charCode
   jsr fillScreen
   // set up playfield color to GREY
   pushParamW(COLOR_RAM)
-  lda #0
+  lda colorCode
   jsr fillScreen
+
+  rts
+  // private data
+  charCode: .byte $00
+  colorCode: .byte $00
+}
+
+prepareTitleScreen: {
+  lda #32
+  ldx #LIGHT_GRAY
+  jsr clearBothScreens
+
+  pushParamW(title)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*3 + 14)
+  jsr outText
+
+  pushParamW(subTitle)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*5 + 14)
+  jsr outText
+
+  pushParamW(author)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 11)
+  jsr outText
+
+  pushParamW(originalConcept)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*12 + 4)
+  jsr outText
+
+  pushParamW(pressAnyKey)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*18 + 15)
+  jsr outText
+
+  rts
+  // private data
+  title: .text "t-rex runner"; .byte $ff
+  subTitle: .text "c64  edition"; .byte $ff
+  author: .text "by  maciej malecki"; .byte $ff
+  originalConcept: .text "based on google chrome easter egg"; .byte $ff
+  pressAnyKey: .text "hit button"; .byte $ff
+}
+
+prepareIngameScreen: {
+  lda #32
+  ldx #0
+  jsr clearBothScreens
   // hires colors for status bar
   pushParamW(COLOR_RAM + 24*40)
   lda #WHITE
@@ -375,14 +449,7 @@ updateDashboard: {
   rts 
 }
 
-scanKeys: {
-  lda z_delay
-  beq scan
-  dec z_delay
-  beq scan
-  jmp skip
-  scan:
-
+scanSpaceHit: {
   // set up data direction
   lda #$FF
   sta CIA1_DATA_DIR_A 
@@ -396,6 +463,19 @@ scanKeys: {
 
   lda z_keyPressed
   and #%00010000
+  rts
+}
+
+scanKeys: {
+  lda z_delay
+  beq scan
+  dec z_delay
+  beq scan
+  jmp skip
+  scan:
+
+  jsr scanSpaceHit
+
   bne !+ 
   {
     lda z_mode
