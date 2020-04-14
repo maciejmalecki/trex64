@@ -59,12 +59,21 @@
 .segment Code
 
 start:
-
+  // main init
   jsr configureC64
   jsr unpackData
   jsr init
   
-  // title screen
+  // main loop
+  titleScreen:
+    jsr doTitleScreen
+  ingame:
+    jsr doIngame
+
+  jmp titleScreen
+  // end of main loop
+
+doTitleScreen: {
   jsr configureTitleVic2
   jsr prepareTitleScreen
   endlessTitle:
@@ -72,8 +81,10 @@ start:
     beq startIngame
     jmp endlessTitle
   startIngame:
+  rts
+}
 
-  // ingame
+doIngame: {
   jsr configureIngameVic2
   jsr prepareIngameScreen
   jsr initDashboard
@@ -84,6 +95,8 @@ start:
     // scan keyboard and joystick
     jsr checkCollisions
     jmp endlessIngame
+  rts
+}
 
 // -------- Subroutines ----------
 configureC64: {
