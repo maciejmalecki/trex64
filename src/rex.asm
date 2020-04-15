@@ -17,6 +17,7 @@
 #import "_vic_layout.asm"
 
 #import "physics.asm"
+#import "delay_counter.asm"
 
 .filenamespace c64lib
 
@@ -78,23 +79,39 @@ start:
 doTitleScreen: {
   jsr configureTitleVic2
   jsr prepareTitleScreen
+  jsr startTitleCopper
   endlessTitle:
     jsr scanSpaceHit
     beq startIngame
     jmp endlessTitle
   startIngame:
+  jsr wait
+  jsr stopCopper
+  rts
+}
+
+wait: {
+  wait #10
   rts
 }
 
 doLevelScreen: {
+  lda #1
+  sta z_worldCounter
+  lda #1
+  sta z_levelCounter
+
   jsr configureTitleVic2
   jsr prepareLevelScreen
+  jsr startTitleCopper
 
   !:
     jsr scanSpaceHit
     beq !+
     jmp !-
   !:
+  jsr wait
+  jsr stopCopper
   rts
 }
 
@@ -104,7 +121,7 @@ doIngame: {
   jsr initDashboard
   jsr setUpLevel1
   jsr showPlayer
-  jsr startCopper
+  jsr startIngameCopper
   endlessIngame:
     // scan keyboard and joystick
     jsr checkCollisions
@@ -285,6 +302,14 @@ prepareLevelScreen: {
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*12 + 15)
   jsr outText
 
+  pushParamW(z_worldCounter)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 22)
+  jsr outHexNibble
+
+  pushParamW(z_levelCounter)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 24)
+  jsr outHexNibble
+
   rts
   // private data
   entering: .text "world  0-0"; .byte $ff
@@ -425,16 +450,39 @@ unpackData: {
   rts
 }
 
-startCopper: {
-  lda #<copperList
-  sta z_displayListPtr
-  lda #>copperList
-  sta z_displayListPtr + 1
+handleDelay: {
+  handleDelay()
+  rts
+}
 
+startIngameCopper: {
+  lda #<ingameCopperList
+  sta z_displayListPtr
+  lda #>ingameCopperList
+  sta z_displayListPtr + 1
+  jsr startCopper
+  rts
+}
+
+startTitleCopper: {
+  lda #<titleScreenCopperList
+  sta z_displayListPtr
+  lda #>titleScreenCopperList
+  sta z_displayListPtr + 1
+  jsr startCopper
+  rts
+}
+
+startCopper: {
   startCopper(
     z_displayListPtr, 
     z_listPtr, 
     List().add(c64lib.IRQH_HSCROLL, c64lib.IRQH_JSR).lock())
+  rts
+}
+
+stopCopper: {
+  stopCopper()
 }
 
 initDashboard: {
@@ -581,12 +629,13 @@ updateSpriteY: {
  #import "common/lib/sub/fill-mem.asm"
  #import "text/lib/sub/out-text.asm"
  #import "text/lib/sub/out-hex.asm"
+ #import "text/lib/sub/out-hex-nibble.asm"
  
 // ------------------- Background ----------------------
 
 .align $100
 // here we define layout of raster interrupt handlers
-copperList:
+ingameCopperList:
     // here we set scroll register to 5, but in fact this value will be modified by scrollBackground routine
   hScroll:
     copperEntry(50, IRQH_HSCROLL, 5, 0)
@@ -597,6 +646,12 @@ copperList:
     copperEntry(241, IRQH_HSCROLL, 0, 0)
     // here we do the page switching when it's time for this
     copperEntry(245, IRQH_JSR, <switchPages, >switchPages)
+    // here we loop and so on, so on, for each frame
+    copperLoop()
+
+.align $100
+titleScreenCopperList:
+    copperEntry(245, IRQH_JSR, <handleDelay, >handleDelay)
     // here we loop and so on, so on, for each frame
     copperLoop()
 
@@ -869,6 +924,7 @@ switchPages: {
   jsr animate
   jsr performJump
   jsr updateSpriteY
+  jsr handleDelay
 
   debugBorderEnd()
   rts
