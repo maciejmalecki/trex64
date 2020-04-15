@@ -14,6 +14,9 @@
   lda delay
   sta z_delayCounter
   !:
+    nop
+    nop
+    nop
     lda z_delayCounter
   bne !-
 }

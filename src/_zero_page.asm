@@ -24,3 +24,4 @@
 .label z_worldCounter = 25    // $19
 .label z_levelCounter = 26    // $1A
 .label z_gameState = 27       // $1B
+.label z_lives = 28           // $1C

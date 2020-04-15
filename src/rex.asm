@@ -30,6 +30,8 @@
 .label GAME_STATE_KILLED = 2
 .label GAME_STATE_GAME_OVER = 3
 
+.label LIVES = 3
+
 // levels
 #import "levels/level1/data.asm"
 
@@ -67,15 +69,20 @@ start:
   // main init
   jsr configureC64
   jsr unpackData
-  jsr init
   
   // main loop
   titleScreen: 
     jsr doTitleScreen
+    jsr initGame
   levelScreen:
+    lda #GAME_STATE_LIVE
+    sta z_gameState
     jsr doLevelScreen
   ingame:
     jsr doIngame
+    lda z_gameState
+    cmp #GAME_STATE_GAME_OVER
+    bne levelScreen
 
   jmp titleScreen
   // end of main loop
@@ -100,14 +107,10 @@ wait: {
 }
 
 doLevelScreen: {
-  lda #1
-  sta z_worldCounter
-  lda #1
-  sta z_levelCounter
 
   jsr configureTitleVic2
-  jsr prepareLevelScreen
   jsr startTitleCopper
+  jsr prepareLevelScreen
 
   !:
     jsr scanSpaceHit
@@ -134,12 +137,18 @@ doIngame: {
     cmp #GAME_STATE_KILLED
     bne !+
       jsr showDeath
-      wait 255
-      wait 255
-      lda #GAME_STATE_GAME_OVER
+      wait #100
+      // decrement lives
+      dec z_lives
+      bne livesLeft
+        lda #GAME_STATE_GAME_OVER
+        sta z_gameState
+        jmp !+
+      livesLeft:
     !:
-    cmp #GAME_STATE_GAME_OVER
-    bne !+
+    lda z_gameState
+    cmp #GAME_STATE_LIVE
+    beq !+
       jmp gameOver
     !:
 
@@ -149,6 +158,20 @@ doIngame: {
     jsr stopCopper
     jsr hidePlayers
     rts
+}
+
+initGame: {
+  // set up lives count
+  lda #LIVES
+  sta z_lives
+
+  // set up start level
+  lda #1
+  sta z_worldCounter
+  lda #1
+  sta z_levelCounter
+
+  rts
 }
 
 // -------- Subroutines ----------
@@ -240,16 +263,6 @@ configureIngameVic2: {
 }
 
 setUpLevel1: setUpLevel(level1)
-
-init: {
-  lda #ANIMATION_WALK
-  sta z_animationPhase
-  lda #0
-  sta z_animationFrame
-  sta z_yPos
-  sta z_jumpFrame
-  rts
-}
 
 /*
  * In:  - A char code
@@ -518,14 +531,6 @@ initDashboard: {
   pushParamW(SCREEN_PAGE_ADDR_0 + 24*40)
   jsr outText
 
-  pushParamW(page0Mark)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 37)
-  jsr outText
-
-  pushParamW(page1Mark)
-  pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 37)
-  jsr outText
-
   pushParamW(dashboard)
   pushParamW(SCREEN_PAGE_ADDR_1 + 24*40)
   jsr outText
@@ -534,40 +539,14 @@ initDashboard: {
 }
 
 updateDashboard: {
-  pushParamW(z_x)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 6)
-  jsr outHex
-  pushParamW(z_x + 1)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 8)
-  jsr outHex
-  pushParamW(z_gameState)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 24)
-  jsr outHex
-  pushParamW(z_acc0)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 32)
-  jsr outHex
+  pushParamW(z_lives)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 7)
+  jsr outHexNibble
 
-  pushParamW(z_x)
-  pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 6)
-  jsr outHex
-  pushParamW(z_x + 1)
-  pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 8)
-  jsr outHex
-  pushParamW(z_gameState)
-  pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 24)
-  jsr outHex
-  pushParamW(z_acc0)
-  pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 32)
-  jsr outHex
+  pushParamW(z_lives)
+  pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 7)
+  jsr outHexNibble
 
-
-  pushParamW(z_phase)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 15)
-  jsr outHex
-
-  pushParamW(z_phase)
-  pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 15)
-  jsr outHex
   rts 
 }
 
@@ -684,11 +663,7 @@ titleScreenCopperList:
     copperLoop()
 
 dashboard:
-  .text "xpos:$0000 ph:$00 mode:$00 scr:$00"; .byte $FF
-page0Mark:
-  .text "#0"; .byte $FF
-page1Mark:
-  .text "#1"; .byte $FF
+  .text " lives 0         score 000000 hi 000000"; .byte $FF
 
 .align $100
 tileColors:
@@ -759,6 +734,14 @@ initLevel: {
   sta z_x + 1
   sta z_y
   sta z_y + 1
+
+  // init animation
+  lda #ANIMATION_WALK
+  sta z_animationPhase
+  lda #0
+  sta z_animationFrame
+  sta z_yPos
+  sta z_jumpFrame
   
   // set key mode to 0
   lda #$00
