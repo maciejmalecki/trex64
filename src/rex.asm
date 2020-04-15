@@ -26,6 +26,10 @@
 .label MAX_DELAY = 10
 .label SPRITE_SHAPES_START = 128
 
+.label GAME_STATE_LIVE = 1
+.label GAME_STATE_KILLED = 2
+.label GAME_STATE_GAME_OVER = 3
+
 // levels
 #import "levels/level1/data.asm"
 
@@ -78,8 +82,8 @@ start:
 
 doTitleScreen: {
   jsr configureTitleVic2
-  jsr prepareTitleScreen
   jsr startTitleCopper
+  jsr prepareTitleScreen
   endlessTitle:
     jsr scanSpaceHit
     beq startIngame
@@ -122,11 +126,29 @@ doIngame: {
   jsr setUpLevel1
   jsr showPlayer
   jsr startIngameCopper
-  endlessIngame:
-    // scan keyboard and joystick
+  mainLoop:
+    // check death conditions
     jsr checkCollisions
-    jmp endlessIngame
-  rts
+    // check game state
+    lda z_gameState
+    cmp #GAME_STATE_KILLED
+    bne !+
+      jsr showDeath
+      wait 255
+      wait 255
+      lda #GAME_STATE_GAME_OVER
+    !:
+    cmp #GAME_STATE_GAME_OVER
+    bne !+
+      jmp gameOver
+    !:
+
+  jmp mainLoop
+
+  gameOver:
+    jsr stopCopper
+    jsr hidePlayers
+    rts
 }
 
 // -------- Subroutines ----------
@@ -402,6 +424,12 @@ showDeath: {
   rts
 }
 
+hidePlayers: {
+  lda #0
+  sta SPRITE_ENABLE
+  rts
+}
+
 animate: {
   lda z_animationPhase
   cmp animatePhaseOld
@@ -512,7 +540,7 @@ updateDashboard: {
   pushParamW(z_x + 1)
   pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 8)
   jsr outHex
-  pushParamW(z_collisionTile)
+  pushParamW(z_gameState)
   pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 24)
   jsr outHex
   pushParamW(z_acc0)
@@ -525,7 +553,7 @@ updateDashboard: {
   pushParamW(z_x + 1)
   pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 8)
   jsr outHex
-  pushParamW(z_collisionTile)
+  pushParamW(z_gameState)
   pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 24)
   jsr outHex
   pushParamW(z_acc0)
@@ -708,7 +736,8 @@ checkCollisions: {
   decodeTile(tilesCfg)
   and #%10000000
   beq !+
-    jsr showDeath
+    lda #GAME_STATE_KILLED
+    sta z_gameState
   !:
   sta z_collisionTile
   rts
@@ -739,6 +768,10 @@ initLevel: {
   // set max delay
   lda #MAX_DELAY
   sta z_delay
+
+  // set game state
+  lda #GAME_STATE_LIVE
+  sta z_gameState
 
   // initialize tile2 system
   tile2Init(tilesCfg)

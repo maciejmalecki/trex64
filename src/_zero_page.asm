@@ -22,4 +22,5 @@
 .label z_collisionTile = 23   // $17
 .label z_delayCounter = 24    // $18
 .label z_worldCounter = 25    // $19
-.label z_levelCounter = 26    // $20
+.label z_levelCounter = 26    // $1A
+.label z_gameState = 27       // $1B
