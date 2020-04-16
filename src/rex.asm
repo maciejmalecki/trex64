@@ -18,6 +18,7 @@
 
 #import "physics.asm"
 #import "delay_counter.asm"
+#import "score.asm"
 
 .filenamespace c64lib
 
@@ -31,6 +32,11 @@
 .label GAME_STATE_GAME_OVER = 3
 
 .label LIVES = 3
+
+.label X_COLLISION_OFFSET = 8 - 24
+.label Y_COLLISION_OFFSET = 29 - 50
+
+.label SCORE_DELAY = 50
 
 // levels
 #import "levels/level1/data.asm"
@@ -126,12 +132,14 @@ doIngame: {
   jsr configureIngameVic2
   jsr prepareIngameScreen
   jsr initDashboard
+  jsr updateScoreOnDashboard
   jsr setUpLevel1
   jsr showPlayer
   jsr startIngameCopper
   mainLoop:
     // check death conditions
     jsr checkCollisions
+    jsr updateScore
     // check game state
     lda z_gameState
     cmp #GAME_STATE_KILLED
@@ -160,10 +168,25 @@ doIngame: {
     rts
 }
 
+updateScore: {
+  lda z_scoreDelay
+  bne !+
+    setScoreDelay #SCORE_DELAY
+    ldx #0
+    lda #$25
+    jsr addScore
+    jsr updateScoreOnDashboard
+  !:
+  rts
+}
+
 initGame: {
   // set up lives count
   lda #LIVES
   sta z_lives
+
+  // set score to 0
+  resetScore()
 
   // set up start level
   lda #1
@@ -263,6 +286,8 @@ configureIngameVic2: {
 }
 
 setUpLevel1: setUpLevel(level1)
+
+addScore: { addScore(); rts }
 
 /*
  * In:  - A char code
@@ -538,6 +563,20 @@ initDashboard: {
   rts
 }
 
+updateScoreOnDashboard: {
+  .for (var i = 0; i < 3; i++) {
+    pushParamW(z_score + i)
+    pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 27 - i*2)
+    jsr outHex
+  }
+  .for (var i = 0; i < 3; i++) {
+    pushParamW(z_score + i)
+    pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 27 - i*2)
+    jsr outHex
+  }
+  rts
+}
+
 updateDashboard: {
   pushParamW(z_lives)
   pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 7)
@@ -618,6 +657,7 @@ performJump: {
 updateSpriteY: {
   // set Y coord
   sec
+  cld
   lda #PLAYER_Y
   sbc z_yPos
   sta spriteYReg(PLAYER_SPRITE_TOP)
@@ -694,13 +734,14 @@ tileDefinition:
 .eval tilesCfg.lock()
 
 checkCollisions: {
-  lda #(PLAYER_X + 8 - 24)
+  cld
+  lda #(PLAYER_X + X_COLLISION_OFFSET)
   lsr
   lsr
   lsr
   lsr
   tax
-  lda #(PLAYER_Y + 29 - 50)
+  lda #(PLAYER_Y + Y_COLLISION_OFFSET)
   sec
   sbc z_yPos
   lsr
@@ -755,6 +796,9 @@ initLevel: {
   // set game state
   lda #GAME_STATE_LIVE
   sta z_gameState
+
+  // set initial score delay
+  setScoreDelay #SCORE_DELAY
 
   // initialize tile2 system
   tile2Init(tilesCfg)
@@ -931,6 +975,7 @@ switchPages: {
 
   // update scroll register for scrollable area
   sec
+  cld
   lda #7
   sbc z_acc0
   sta hScroll + 2
@@ -941,6 +986,7 @@ switchPages: {
   jsr performJump
   jsr updateSpriteY
   jsr handleDelay
+  decrementScoreDelay()
 
   debugBorderEnd()
   rts

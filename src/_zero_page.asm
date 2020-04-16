@@ -25,3 +25,5 @@
 .label z_levelCounter = 26    // $1A
 .label z_gameState = 27       // $1B
 .label z_lives = 28           // $1C
+.label z_score = 29           // $1D,$1E,$1F
+.label z_scoreDelay = 32      // $20
