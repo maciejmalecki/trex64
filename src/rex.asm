@@ -1,4 +1,4 @@
-//#define VISUAL_DEBUG
+#define VISUAL_DEBUG
 #import "common/lib/common.asm"
 #import "common/lib/mem.asm"
 #import "common/lib/invoke.asm"
@@ -133,7 +133,9 @@ doIngame: {
   jsr prepareIngameScreen
   jsr initDashboard
   jsr updateScoreOnDashboard
-  jsr setUpLevel1
+  jsr setUpWorld1
+  jsr setUpMap1_2
+  jsr initLevel
   jsr showPlayer
   jsr startIngameCopper
   mainLoop:
@@ -232,7 +234,7 @@ configureIngameVic2: {
   rts
 }
 
-.macro setUpLevel(levelCfg) {
+.macro setUpWorld(levelCfg) {
  // set background & border color
   lda #levelCfg.BG_COLOR_0
   sta BG_COL_0
@@ -265,27 +267,31 @@ configureIngameVic2: {
   pushParamW(levelCfg.TILES_SIZE*4)
   jsr copyLargeMemForward
 
+  rts
+}
+
+.macro setUpMap(mapAddress, mapWidth) {
   // set map definition pointer
-  lda #<levelCfg.MAP_ADDRESS
+  lda #<mapAddress
   sta z_map
-  lda #>levelCfg.MAP_ADDRESS
+  lda #>mapAddress
   sta z_map + 1
 
   // set map width
-  lda #levelCfg.MAP_WIDTH
+  lda #mapWidth
   sta z_width
 
   // set delta X
   lda #(1<<4)
   sta z_deltaX
 
-  // do common level stuff
-  jsr initLevel
-
   rts
 }
 
-setUpLevel1: setUpLevel(level1)
+
+setUpWorld1: setUpWorld(level1)
+setUpMap1_1: setUpMap(level1.MAP_1_ADDRESS, level1.MAP_1_WIDTH)
+setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH)
 
 addScore: { addScore(); rts }
 
@@ -959,7 +965,7 @@ switchPages: {
 
   // check if we need to loop the background
   lda z_x + 1
-  cmp #(level1.MAP_WIDTH-20)
+  cmp #(level1.MAP_1_WIDTH-20)
   bne dontReset
     lda #0
     sta z_x + 1

@@ -5,11 +5,15 @@
 .var _charsetData = LoadBinary("charset.bin")
 .var _tileData = LoadBinary("tiles.bin")
 .var _tileColorsData = LoadBinary("colors.bin")
-.var _mapData = LoadBinary("map.bin")
+.var _map1Data = LoadBinary("map-1.bin")
+.var _map2Data = LoadBinary("map-2.bin")
 
 // level meta data
-.label MAP_WIDTH = _mapData.getSize() / c64lib.MAP_HEIGHT
-.label MAP_ADDRESS = _map
+.label MAP_1_WIDTH = _map1Data.getSize() / c64lib.MAP_HEIGHT
+.label MAP_1_ADDRESS = _map1
+
+.label MAP_2_WIDTH = _map2Data.getSize() / c64lib.MAP_HEIGHT
+.label MAP_2_ADDRESS = _map2
 
 .label CHARSET_SIZE = _charsetData.getSize()/8
 .label CHARSET_ADDRESS = _charset
@@ -28,7 +32,8 @@
 _charset: .fill _charsetData.getSize(), _charsetData.get(i)
 
 .segment LevelData
-_map: .fill _mapData.getSize(), _mapData.get(i)
+_map1: .fill _map1Data.getSize(), _map1Data.get(i)
+_map2: .fill _map2Data.getSize(), _map2Data.get(i)
 _colors: .fill _tileColorsData.getSize(), _tileColorsData.get(i)
 _tiles:
   .fill _tileData.getSize() / 4, _tileData.get(i*4) + c64lib.MAP_CHARSET_OFFSET
