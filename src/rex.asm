@@ -1,4 +1,4 @@
-#define VISUAL_DEBUG
+//#define VISUAL_DEBUG
 #import "common/lib/common.asm"
 #import "common/lib/mem.asm"
 #import "common/lib/invoke.asm"
@@ -78,6 +78,7 @@
 // -------- Main program ---------
 .segment Code
 
+// ---- game flow management ----
 start:
   // main init
   jsr configureC64
@@ -177,18 +178,6 @@ doIngame: {
     rts
 }
 
-updateScore: {
-  lda z_scoreDelay
-  bne !+
-    setScoreDelay #SCORE_FOR_PROGRESS_DELAY
-    ldx #>SCORE_FOR_PROGRESS
-    lda #<SCORE_FOR_PROGRESS
-    jsr addScore
-    jsr updateScoreOnDashboard
-  !:
-  rts
-}
-
 initGame: {
   // set up lives count
   lda #LIVES
@@ -206,7 +195,22 @@ initGame: {
   rts
 }
 
-// -------- Subroutines ----------
+// ---- END: game flow ----
+
+updateScore: {
+  lda z_scoreDelay
+  bne !+
+    setScoreDelay #SCORE_FOR_PROGRESS_DELAY
+    ldx #>SCORE_FOR_PROGRESS
+    lda #<SCORE_FOR_PROGRESS
+    jsr addScore
+    jsr updateScoreOnDashboard
+  !:
+  rts
+}
+
+
+// ---- General configuration ----
 configureC64: {
   sei
   configureMemory(RAM_IO_RAM)
@@ -216,6 +220,23 @@ configureC64: {
   rts
 }
 
+unpackData: {
+  // copy chargen
+  pushParamW(beginOfChargen)
+  pushParamW(CHARGEN_ADDR)
+  pushParamW(endOfChargen - beginOfChargen)
+  jsr copyLargeMemForward
+  // copy sprites
+  pushParamW(beginOfSprites)
+  pushParamW(SPRITE_ADDR)
+  pushParamW(endOfSprites - beginOfSprites)
+  jsr copyLargeMemForward
+  
+  rts
+}
+// ---- END: general configuration ----
+
+// ---- graphics configuration ----
 configureTitleVic2: {
   lda #BLACK
   sta BORDER_COL
@@ -241,6 +262,137 @@ configureIngameVic2: {
   rts
 }
 
+/*
+ * In:  - A char code
+ *      - X color code
+ */
+clearBothScreens: {
+  sta charCode
+  stx colorCode
+  // clear page 0
+  pushParamW(SCREEN_PAGE_ADDR_0)
+  lda charCode
+  jsr fillScreen
+  // clear page 1
+  pushParamW(SCREEN_PAGE_ADDR_1)
+  lda charCode
+  jsr fillScreen
+  // set up playfield color to GREY
+  pushParamW(COLOR_RAM)
+  lda colorCode
+  jsr fillScreen
+
+  rts
+  // private data
+  charCode: .byte $00
+  colorCode: .byte $00
+}
+
+prepareTitleScreen: {
+  lda #32
+  ldx #LIGHT_GRAY
+  jsr clearBothScreens
+
+  pushParamW(txt_title)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*3 + 14)
+  jsr outText
+
+  pushParamW(txt_subTitle)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*5 + 14)
+  jsr outText
+
+  pushParamW(txt_author)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 11)
+  jsr outText
+
+  pushParamW(txt_originalConcept)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*12 + 4)
+  jsr outText
+
+  pushParamW(txt_pressAnyKey)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*18 + 13)
+  jsr outText
+
+  rts
+}
+
+prepareLevelScreen: {
+  lda #32
+  ldx #LIGHT_GRAY
+  jsr clearBothScreens
+
+  pushParamW(txt_entering)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 15)
+  jsr outText
+
+  pushParamW(txt_getReady)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*12 + 15)
+  jsr outText
+
+  pushParamW(z_worldCounter)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 22)
+  jsr outHexNibble
+
+  pushParamW(z_levelCounter)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 24)
+  jsr outHexNibble
+
+  rts
+}
+
+prepareIngameScreen: {
+  lda #32
+  ldx #0
+  jsr clearBothScreens
+  // hires colors for status bar
+  pushParamW(COLOR_RAM + 24*40)
+  lda #WHITE
+  ldx #40
+  jsr fillMem
+
+  rts
+}
+
+initDashboard: {
+  pushParamW(txt_dashboard)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 24*40)
+  jsr outText
+
+  pushParamW(txt_dashboard)
+  pushParamW(SCREEN_PAGE_ADDR_1 + 24*40)
+  jsr outText
+
+  rts
+}
+
+updateScoreOnDashboard: {
+  .for (var i = 0; i < 3; i++) {
+    pushParamW(z_score + i)
+    pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 27 - i*2)
+    jsr outHex
+  }
+  .for (var i = 0; i < 3; i++) {
+    pushParamW(z_score + i)
+    pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 27 - i*2)
+    jsr outHex
+  }
+  rts
+}
+
+updateDashboard: {
+  pushParamW(z_lives)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 7)
+  jsr outHexNibble
+
+  pushParamW(z_lives)
+  pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 7)
+  jsr outHexNibble
+
+  rts 
+}
+// ---- END: graphics configuration ----
+
+// ---- level handling ----
 .macro setUpWorld(levelCfg) {
  // set background & border color
   lda #levelCfg.BG_COLOR_0
@@ -301,107 +453,10 @@ setUpMap1_1: setUpMap(level1.MAP_1_ADDRESS, level1.MAP_1_WIDTH)
 setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH)
 
 addScore: { addScore(); rts }
+// ---- END: level handling ----
 
-/*
- * In:  - A char code
- *      - X color code
- */
-clearBothScreens: {
-  sta charCode
-  stx colorCode
-  // clear page 0
-  pushParamW(SCREEN_PAGE_ADDR_0)
-  lda charCode
-  jsr fillScreen
-  // clear page 1
-  pushParamW(SCREEN_PAGE_ADDR_1)
-  lda charCode
-  jsr fillScreen
-  // set up playfield color to GREY
-  pushParamW(COLOR_RAM)
-  lda colorCode
-  jsr fillScreen
 
-  rts
-  // private data
-  charCode: .byte $00
-  colorCode: .byte $00
-}
-
-prepareTitleScreen: {
-  lda #32
-  ldx #LIGHT_GRAY
-  jsr clearBothScreens
-
-  pushParamW(title)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*3 + 14)
-  jsr outText
-
-  pushParamW(subTitle)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*5 + 14)
-  jsr outText
-
-  pushParamW(author)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 11)
-  jsr outText
-
-  pushParamW(originalConcept)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*12 + 4)
-  jsr outText
-
-  pushParamW(pressAnyKey)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*18 + 13)
-  jsr outText
-
-  rts
-  // private data
-  title: .text "t-rex runner"; .byte $ff
-  subTitle: .text "c64  edition"; .byte $ff
-  author: .text "by  maciej malecki"; .byte $ff
-  originalConcept: .text "based on google chrome easter egg"; .byte $ff
-  pressAnyKey: .text "hit the button"; .byte $ff
-}
-
-prepareLevelScreen: {
-  lda #32
-  ldx #LIGHT_GRAY
-  jsr clearBothScreens
-
-  pushParamW(entering)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 15)
-  jsr outText
-
-  pushParamW(getReady)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*12 + 15)
-  jsr outText
-
-  pushParamW(z_worldCounter)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 22)
-  jsr outHexNibble
-
-  pushParamW(z_levelCounter)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 24)
-  jsr outHexNibble
-
-  rts
-  // private data
-  entering: .text "world  0-0"; .byte $ff
-  getReady: .text "get ready!"; .byte $ff
-}
-
-prepareIngameScreen: {
-  lda #32
-  ldx #0
-  jsr clearBothScreens
-  // hires colors for status bar
-  pushParamW(COLOR_RAM + 24*40)
-  lda #WHITE
-  ldx #40
-  jsr fillMem
-
-  rts
-}
-
+// ---- sprite handling ----
 .macro setSpriteShape(spriteNum, shapeNum) {
   lda #shapeNum
   sta SCREEN_PAGE_ADDR_0 + 1024 - 8 + spriteNum
@@ -513,21 +568,7 @@ animate: {
   rts
   animatePhaseOld: .byte 0
 }
-
-unpackData: {
-  // copy chargen
-  pushParamW(beginOfChargen)
-  pushParamW(CHARGEN_ADDR)
-  pushParamW(endOfChargen - beginOfChargen)
-  jsr copyLargeMemForward
-  // copy sprites
-  pushParamW(beginOfSprites)
-  pushParamW(SPRITE_ADDR)
-  pushParamW(endOfSprites - beginOfSprites)
-  jsr copyLargeMemForward
-  
-  rts
-}
+// ---- END: sprite handling ----
 
 handleDelay: {
   handleDelay()
@@ -563,44 +604,6 @@ startCopper: {
 stopCopper: {
   // TODO inconsistency, stopCopper shouldn't do rts inside, fix copper64 lib
   stopCopper()
-}
-
-initDashboard: {
-  pushParamW(dashboard)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 24*40)
-  jsr outText
-
-  pushParamW(dashboard)
-  pushParamW(SCREEN_PAGE_ADDR_1 + 24*40)
-  jsr outText
-
-  rts
-}
-
-updateScoreOnDashboard: {
-  .for (var i = 0; i < 3; i++) {
-    pushParamW(z_score + i)
-    pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 27 - i*2)
-    jsr outHex
-  }
-  .for (var i = 0; i < 3; i++) {
-    pushParamW(z_score + i)
-    pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 27 - i*2)
-    jsr outHex
-  }
-  rts
-}
-
-updateDashboard: {
-  pushParamW(z_lives)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 7)
-  jsr outHexNibble
-
-  pushParamW(z_lives)
-  pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 7)
-  jsr outHexNibble
-
-  rts 
 }
 
 scanSpaceHit: {
@@ -695,6 +698,7 @@ updateSpriteY: {
 // ------------------- Background ----------------------
 
 .align $100
+_copperListStart:
 // here we define layout of raster interrupt handlers
 ingameCopperList:
     // here we set scroll register to 5, but in fact this value will be modified by scrollBackground routine
@@ -710,14 +714,12 @@ ingameCopperList:
     // here we loop and so on, so on, for each frame
     copperLoop()
 
-.align $100
 titleScreenCopperList:
     copperEntry(245, IRQH_JSR, <handleDelay, >handleDelay)
     // here we loop and so on, so on, for each frame
     copperLoop()
-
-dashboard:
-  .text " lives 0         score 000000 hi 000000"; .byte $FF
+_copperListEnd:
+.assert "Copper list must fit into single 256b page.", (_copperListEnd - _copperListStart)<256, true
 
 .align $100
 tileColors:
@@ -729,7 +731,7 @@ mapOffsetsHi:
 tileDefinition:
   .fill 256*4, $0
 
-// scrollable background configuration
+// ---- scrollable background ----
 .var tilesCfg = Tile2Config()
 .eval tilesCfg.bank = VIC_BANK
 .eval tilesCfg.page0 = SCREEN_PAGE_0
@@ -1009,6 +1011,18 @@ switchPages: {
 .segment Data
 // ------------------- DATA ---------------
 jumpTable: generateJumpTable()
+// ---- texts ----
+// title screen
+txt_title: .text "t-rex runner"; .byte $ff
+txt_subTitle: .text "c64  edition"; .byte $ff
+txt_author: .text "by  maciej malecki"; .byte $ff
+txt_originalConcept: .text "based on google chrome easter egg"; .byte $ff
+txt_pressAnyKey: .text "hit the button"; .byte $ff
+// level start screen
+txt_entering: .text "world  0-0"; .byte $ff
+txt_getReady: .text "get ready!"; .byte $ff
+// ingame screen
+txt_dashboard: .text " lives 0         score 000000 hi 000000"; .byte $FF
 
 // -- animations --
 animWalkLeft:
