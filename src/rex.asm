@@ -114,11 +114,6 @@ doTitleScreen: {
   rts
 }
 
-wait: {
-  wait #10
-  rts
-}
-
 doLevelScreen: {
 
   jsr configureTitleVic2
@@ -569,42 +564,7 @@ animate: {
 }
 // ---- END: sprite handling ----
 
-handleDelay: {
-  handleDelay()
-  rts
-}
-
-startIngameCopper: {
-  lda #<ingameCopperList
-  sta z_displayListPtr
-  lda #>ingameCopperList
-  sta z_displayListPtr + 1
-  jsr startCopper
-  rts
-}
-
-startTitleCopper: {
-  lda #<titleScreenCopperList
-  sta z_displayListPtr
-  lda #>titleScreenCopperList
-  sta z_displayListPtr + 1
-  jsr startCopper
-  rts
-}
-
-startCopper: {
-  startCopper(
-    z_displayListPtr, 
-    z_listPtr, 
-    List().add(c64lib.IRQH_HSCROLL, c64lib.IRQH_JSR).lock())
-  rts
-}
-
-stopCopper: {
-  // TODO inconsistency, stopCopper shouldn't do rts inside, fix copper64 lib
-  stopCopper()
-}
-
+// ---- IO handling ----
 scanSpaceHit: {
   // set up data direction
   lda #$FF
@@ -649,7 +609,9 @@ scanKeys: {
   skip:
   rts
 }
+// ---- END: IO handling ----
 
+// ---- Jump handling ----
 performJump: {
   lda z_mode
   beq end
@@ -685,17 +647,62 @@ updateSpriteY: {
 
   rts
 }
+// ---- END: Jump handling ----
 
-// -------------- utility subroutines ------------------
+
+// ---- Utility subroutines ----
  #import "common/lib/sub/copy-large-mem-forward.asm"
  #import "common/lib/sub/fill-screen.asm"
  #import "common/lib/sub/fill-mem.asm"
  #import "text/lib/sub/out-text.asm"
  #import "text/lib/sub/out-hex.asm"
  #import "text/lib/sub/out-hex-nibble.asm"
- 
-// ------------------- Background ----------------------
 
+wait: {
+  wait #10
+  rts
+}
+
+handleDelay: {
+  handleDelay()
+  rts
+}
+// ---- END: Utility subroutines ----
+
+// ---- Copper handling ----
+startIngameCopper: {
+  lda #<ingameCopperList
+  sta z_displayListPtr
+  lda #>ingameCopperList
+  sta z_displayListPtr + 1
+  jsr startCopper
+  rts
+}
+
+startTitleCopper: {
+  lda #<titleScreenCopperList
+  sta z_displayListPtr
+  lda #>titleScreenCopperList
+  sta z_displayListPtr + 1
+  jsr startCopper
+  rts
+}
+
+startCopper: {
+  startCopper(
+    z_displayListPtr, 
+    z_listPtr, 
+    List().add(c64lib.IRQH_HSCROLL, c64lib.IRQH_JSR).lock())
+  rts
+}
+
+stopCopper: {
+  // TODO inconsistency, stopCopper shouldn't do rts inside, fix copper64 lib
+  stopCopper()
+}
+// ---- END: Copper handling ----
+
+// ---- Copper Tables ----
 .align $100
 _copperListStart:
 // here we define layout of raster interrupt handlers
@@ -719,6 +726,7 @@ titleScreenCopperList:
     copperLoop()
 _copperListEnd:
 .assert "Copper list must fit into single 256b page.", (_copperListEnd - _copperListStart)<256, true
+// ---- END: Copper Tables ----
 
 .align $100
 tileColors:
@@ -730,7 +738,7 @@ mapOffsetsHi:
 tileDefinition:
   .fill 256*4, $0
 
-// ---- scrollable background ----
+// ---- Scrollable background handling ----
 .var tilesCfg = Tile2Config()
 .eval tilesCfg.bank = VIC_BANK
 .eval tilesCfg.page0 = SCREEN_PAGE_0
@@ -1006,9 +1014,10 @@ switchPages: {
   debugBorderEnd()
   rts
 }
+// ---- END: Scrollable background handling ----
 
+// ---- DATA ----
 .segment Data
-// ------------------- DATA ---------------
 jumpTable: generateJumpTable()
 // ---- texts ----
 // title screen
@@ -1055,27 +1064,29 @@ animJumpDown:
   .byte SPRITE_SHAPES_START + 1
   .byte 0
 
-// -- Sprites definition --
+// ---- END:DATA ----
+
+// ---- Sprites definition ----
 .segment Sprites
 beginOfSprites:
   #import "sprites/dino.asm"
   #import "sprites/death.asm"
 endOfSprites:
 .print "Sprites import size = " + (endOfSprites - beginOfSprites)
+// ---- END: Sprites definition ----
 
-// -- chargen definition --
+// ---- chargen definition ----
 .segment Charsets
 beginOfChargen:
   // 0-63: letters, symbols, numbers
   #import "fonts/regular/base.asm"
 endOfChargen:
 .print "Chargen import size = " + (endOfChargen - beginOfChargen)
-
-
+// ---- END: chargen definition ----
 endOfTRex:
 
-// print memory map summary
 
+// print memory map summary
 .macro memSummary(name, address) {
 .print name + " = " + address + " ($" + toHexString(address, 4) + ")"
 }
