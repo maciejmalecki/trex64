@@ -1055,12 +1055,15 @@ switchPages: {
   notSeven:
 
 
-  // check if we need to loop the background
+  // check end of level condition
+  clc
+  cld
   lda z_x + 1
-  cmp #(level1.MAP_1_WIDTH-20)
+  adc #20
+  cmp z_width
   bne dontReset
-    lda #0
-    sta z_x + 1
+    lda #GAME_STATE_NEXT_LEVEL
+    sta z_gameState
   dontReset:
 
   // detect scrolling phase
