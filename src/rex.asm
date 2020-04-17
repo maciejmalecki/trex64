@@ -30,13 +30,16 @@
 .label GAME_STATE_LIVE = 1
 .label GAME_STATE_KILLED = 2
 .label GAME_STATE_GAME_OVER = 3
-.label GAME_STATE_NEXT_MAP = 4
-.label GAME_STATE_NEXT_WORLD = 5
+.label GAME_STATE_NEXT_LEVEL = 4
+.label GAME_STATE_GAME_FINISHED = 5
 
 // ---- game parameters ----
 
 // starting amount of lives
 .label LIVES = 3
+// starting level
+.label STARTING_WORLD = 1
+.label STARTING_LEVEL = 1
 // scoring
 .label SCORE_FOR_PROGRESS_DELAY = 50
 .label SCORE_FOR_PROGRESS = $0025
@@ -88,6 +91,14 @@ start:
     jsr doTitleScreen
     jsr initGame
   levelScreen:
+    lda z_gameState
+    cmp #GAME_STATE_NEXT_LEVEL
+    bne sameLevel
+    jsr nextLevel
+    lda z_gameState
+    cmp #GAME_STATE_GAME_FINISHED
+    beq gameFinished
+  sameLevel:
     lda #GAME_STATE_LIVE
     sta z_gameState
     jsr doLevelScreen
@@ -98,6 +109,9 @@ start:
     bne levelScreen
 
   jmp titleScreen
+  gameFinished:
+  jmp titleScreen
+  // TODO do end game screem
   // end of main loop
 
 doTitleScreen: {
@@ -135,8 +149,8 @@ doIngame: {
   jsr prepareIngameScreen
   jsr initDashboard
   jsr updateScoreOnDashboard
-  jsr setUpWorld1
-  jsr setUpMap1_2
+  jsr setUpWorld
+  jsr setUpMap
   jsr initLevel
   jsr showPlayer
   jsr startIngameCopper
@@ -177,14 +191,14 @@ initGame: {
   lda #LIVES
   sta z_lives
 
+  // set up start level
+  lda #STARTING_WORLD
+  sta z_worldCounter
+  lda #STARTING_LEVEL
+  sta z_levelCounter
+
   // set score to 0
   resetScore()
-
-  // set up start level
-  lda #1
-  sta z_worldCounter
-  lda #1
-  sta z_levelCounter
 
   rts
 }
@@ -202,7 +216,7 @@ updateScore: {
   !:
   rts
 }
-
+addScore: { addScore(); rts }
 
 // ---- General configuration ----
 configureC64: {
@@ -387,6 +401,24 @@ updateDashboard: {
 // ---- END: graphics configuration ----
 
 // ---- level handling ----
+nextLevel: {
+  lda #z_worldCounter
+  // cmp #3
+  // cmp #2
+  world1:
+    lda #z_levelCounter
+    cmp #3
+    beq level1_3
+      inc z_levelCounter
+      jmp end
+    level1_3:
+      lda #GAME_STATE_GAME_FINISHED
+      sta z_gameState
+      jmp end
+  end:
+  rts
+}
+
 .macro setUpWorld(levelCfg) {
  // set background & border color
   lda #levelCfg.BG_COLOR_0
@@ -441,12 +473,55 @@ updateDashboard: {
   rts
 }
 
-
 setUpWorld1: setUpWorld(level1)
+/*
+ * Mod: A
+ */
+setUpWorld: {
+  lda z_worldCounter
+  cmp #2
+  beq world2
+  cmp #3
+  beq world3
+  world1:
+    jsr setUpWorld1
+    jmp end
+  world2:
+    jmp end
+  world3:
+  end:
+  rts
+}
+
+/*
+ * Mod: A
+ */
+setUpMap: {
+  lda z_worldCounter
+  cmp #2
+  beq world2
+  cmp #3
+  beq world3
+  world1:
+    lda z_levelCounter
+    cmp #2
+    beq level1_2
+    level1_1:
+      jsr setUpMap1_1
+      jmp end
+    level1_2:
+      jsr setUpMap1_2
+      jmp end
+  world2:
+    jmp end
+  world3:
+  end:
+  rts
+}
+
 setUpMap1_1: setUpMap(level1.MAP_1_ADDRESS, level1.MAP_1_WIDTH)
 setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH)
 
-addScore: { addScore(); rts }
 // ---- END: level handling ----
 
 
