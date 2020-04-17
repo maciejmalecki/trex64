@@ -27,18 +27,25 @@
 .label MAX_DELAY = 10
 .label SPRITE_SHAPES_START = 128
 
+// ---- game state constants ----
 .label GAME_STATE_LIVE = 1
 .label GAME_STATE_KILLED = 2
 .label GAME_STATE_GAME_OVER = 3
+.label GAME_STATE_NEXT_MAP = 4
+.label GAME_STATE_NEXT_WORLD = 5
 
+// ---- game parameters ----
+
+// starting amount of lives
 .label LIVES = 3
-
+// scoring
+.label SCORE_FOR_PROGRESS_DELAY = 50
+.label SCORE_FOR_PROGRESS = $0025
+// collision detection
 .label X_COLLISION_OFFSET = 8 - 24
 .label Y_COLLISION_OFFSET = 29 - 50
 
-.label SCORE_DELAY = 50
-
-// levels
+// ---- levels ----
 #import "levels/level1/data.asm"
 
 
@@ -138,7 +145,7 @@ doIngame: {
   jsr initLevel
   jsr showPlayer
   jsr startIngameCopper
-  mainLoop:
+  mainMapLoop:
     // check death conditions
     jsr checkCollisions
     jsr updateScore
@@ -162,7 +169,7 @@ doIngame: {
       jmp gameOver
     !:
 
-  jmp mainLoop
+  jmp mainMapLoop
 
   gameOver:
     jsr stopCopper
@@ -173,9 +180,9 @@ doIngame: {
 updateScore: {
   lda z_scoreDelay
   bne !+
-    setScoreDelay #SCORE_DELAY
-    ldx #0
-    lda #$25
+    setScoreDelay #SCORE_FOR_PROGRESS_DELAY
+    ldx #>SCORE_FOR_PROGRESS
+    lda #<SCORE_FOR_PROGRESS
     jsr addScore
     jsr updateScoreOnDashboard
   !:
@@ -554,6 +561,7 @@ startCopper: {
 }
 
 stopCopper: {
+  // TODO inconsistency, stopCopper shouldn't do rts inside, fix copper64 lib
   stopCopper()
 }
 
@@ -804,7 +812,7 @@ initLevel: {
   sta z_gameState
 
   // set initial score delay
-  setScoreDelay #SCORE_DELAY
+  setScoreDelay #SCORE_FOR_PROGRESS_DELAY
 
   // initialize tile2 system
   tile2Init(tilesCfg)
