@@ -25,7 +25,6 @@
 .file [name="./rex.prg", segments="Code, Data, Charsets, LevelData, Sprites", modify="BasicUpstart", _start=$0810]
 
 .label MAX_DELAY = 10
-.label SPRITE_SHAPES_START = 128
 
 // ---- game state constants ----
 .label GAME_STATE_LIVE = 1
