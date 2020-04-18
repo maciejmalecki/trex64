@@ -1066,6 +1066,7 @@ switchPages: {
     nextLevel:
       lda #GAME_STATE_NEXT_LEVEL
       sta z_gameState
+      jmp endOfPhase
   endOfIncrementX:
 
   // calculate scroll register
@@ -1113,6 +1114,7 @@ switchPages: {
   lda #7
   sbc z_acc0
   sta hScroll + 2
+  endOfPhase:
 
   jsr updateDashboard
   jsr scanKeys
