@@ -30,8 +30,9 @@
 .label GAME_STATE_LIVE = 1
 .label GAME_STATE_KILLED = 2
 .label GAME_STATE_GAME_OVER = 3
-.label GAME_STATE_NEXT_LEVEL = 4
-.label GAME_STATE_GAME_FINISHED = 5
+.label GAME_STATE_LEVEL_END_SEQUENCE = 4
+.label GAME_STATE_NEXT_LEVEL = 5
+.label GAME_STATE_GAME_FINISHED = 6
 
 // ---- game parameters ----
 
@@ -111,7 +112,7 @@ start:
   jmp titleScreen
   gameFinished:
   jmp titleScreen
-  // TODO do end game screem
+  // TODO do end game screen
   // end of main loop
 
 doTitleScreen: {
@@ -129,10 +130,10 @@ doTitleScreen: {
 }
 
 doLevelScreen: {
-
   jsr configureTitleVic2
   jsr startTitleCopper
   jsr prepareLevelScreen
+  jsr wait
 
   !:
     jsr scanSpaceHit
@@ -175,6 +176,8 @@ doIngame: {
     lda z_gameState
     cmp #GAME_STATE_LIVE
     beq !+
+      cmp #GAME_STATE_LEVEL_END_SEQUENCE
+      beq !+
       jmp gameOver
     !:
 
@@ -218,7 +221,7 @@ updateScore: {
 }
 addScore: { addScore(); rts }
 
-// ---- General configuration ----
+// ---- General configuration ---- 
 configureC64: {
   sei
   configureMemory(RAM_IO_RAM)
@@ -720,6 +723,16 @@ updateSpriteY: {
   sta spriteYReg(PLAYER_SPRITE_BOTTOM)
   sta spriteYReg(PLAYER_SPRITE_BOTTOM_OVL)
 
+  lda z_gameState
+  cmp #GAME_STATE_LEVEL_END_SEQUENCE
+  bne !+
+    lda z_xPos
+    sta spriteXReg(PLAYER_SPRITE_TOP)
+    sta spriteXReg(PLAYER_SPRITE_TOP_OVL)
+    sta spriteXReg(PLAYER_SPRITE_BOTTOM)
+    sta spriteXReg(PLAYER_SPRITE_BOTTOM_OVL)
+  !:
+
   rts
 }
 // ---- END: Jump handling ----
@@ -873,6 +886,10 @@ initLevel: {
   sta z_x + 1
   sta z_y
   sta z_y + 1
+
+  // set xpos
+  lda #PLAYER_X
+  sta z_xPos
 
   // init animation
   lda #ANIMATION_WALK
@@ -1033,7 +1050,23 @@ switchPages: {
   end:
 
   // increment X coordinate
-  jsr incrementX
+  lda z_gameState
+  cmp #GAME_STATE_LIVE
+  bne abnormal
+    jsr incrementX
+    jmp endOfIncrementX
+  abnormal:
+    cmp #GAME_STATE_LEVEL_END_SEQUENCE
+    bne endOfIncrementX
+      lda z_xPos
+      cmp #$ff
+    beq nextLevel
+      inc z_xPos
+      jmp endOfIncrementX
+    nextLevel:
+      lda #GAME_STATE_NEXT_LEVEL
+      sta z_gameState
+  endOfIncrementX:
 
   // calculate scroll register
   lda z_x
@@ -1062,7 +1095,7 @@ switchPages: {
   adc #20
   cmp z_width
   bne dontReset
-    lda #GAME_STATE_NEXT_LEVEL
+    lda #GAME_STATE_LEVEL_END_SEQUENCE
     sta z_gameState
   dontReset:
 

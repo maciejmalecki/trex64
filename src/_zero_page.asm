@@ -27,3 +27,4 @@
 .label z_lives = 28           // $1C
 .label z_score = 29           // $1D,$1E,$1F
 .label z_scoreDelay = 32      // $20
+.label z_xPos = 33            // $21
