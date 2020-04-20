@@ -84,7 +84,7 @@
 // ---- game flow management ----
 start:
   // main init
-  jsr configureC64
+  jsr cfg_configureC64
   jsr unpackData
   
   // main loop
@@ -165,12 +165,12 @@ doIngame: {
     bne !+
       jsr showDeath
       wait #100
-      // decrement lives
+      // decrement lives 
       dec z_lives
       bne livesLeft
         lda #GAME_STATE_GAME_OVER
         sta z_gameState
-        jmp !+
+        jmp displayGameOver
       livesLeft:
     !:
     lda z_gameState
@@ -183,6 +183,10 @@ doIngame: {
 
   jmp mainMapLoop
 
+  displayGameOver:
+    jsr hidePlayers
+    jsr showGameOver
+    wait #200
   gameOver:
     jsr stopCopper
     jsr hidePlayers
@@ -222,7 +226,7 @@ updateScore: {
 addScore: { addScore(); rts }
 
 // ---- General configuration ---- 
-configureC64: {
+cfg_configureC64: {
   sei
   configureMemory(RAM_IO_RAM)
   disableNMI()
@@ -405,11 +409,11 @@ updateDashboard: {
 
 // ---- level handling ----
 nextLevel: {
-  lda #z_worldCounter
+  lda z_worldCounter
   // cmp #3
   // cmp #2
   world1:
-    lda #z_levelCounter
+    lda z_levelCounter
     cmp #3
     beq level1_3
       inc z_levelCounter
@@ -599,6 +603,34 @@ showDeath: {
   sta SPRITE_ENABLE
   setSpriteShape(PLAYER_SPRITE_TOP, 128 + 12)
   setSpriteShape(PLAYER_SPRITE_TOP_OVL, 128 + 12 + 1)
+  rts
+}
+
+showGameOver: {
+  .label _GAME_OVER_X = 130
+  .label _GAME_OVER_Y = 135
+
+  .for(var i = 0; i < 4; i++) {
+    setSpriteShape(4 + i, 128 + 14 + i)
+  }
+  lda #WHITE
+  .for(var i = 0; i < 4; i++) {
+    sta spriteColorReg(4 + i)
+  }
+  lda #_GAME_OVER_Y
+  .for(var i = 0; i < 4; i++) {
+    sta spriteYReg(4 + i)
+  }
+  .for(var i = 0; i < 2; i++) {
+    lda #(_GAME_OVER_X + i*24)
+    sta spriteXReg(4 + i)
+  }
+  .for(var i = 2; i < 4; i++) {
+    lda #(_GAME_OVER_X + 20 + i*24)
+    sta spriteXReg(4 + i)
+  }
+  lda #%11110000
+  sta SPRITE_ENABLE
   rts
 }
 
@@ -1184,6 +1216,7 @@ animJumpDown:
 beginOfSprites:
   #import "sprites/dino.asm"
   #import "sprites/death.asm"
+  #import "sprites/gameover.asm"
 endOfSprites:
 .print "Sprites import size = " + (endOfSprites - beginOfSprites)
 // ---- END: Sprites definition ----
