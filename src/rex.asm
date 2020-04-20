@@ -164,7 +164,6 @@ doIngame: {
     cmp #GAME_STATE_KILLED
     bne !+
       jsr showDeath
-      wait #100
       // decrement lives 
       dec z_lives
       bne livesLeft
@@ -172,6 +171,7 @@ doIngame: {
         sta z_gameState
         jmp displayGameOver
       livesLeft:
+      wait #100
     !:
     lda z_gameState
     cmp #GAME_STATE_LIVE
@@ -629,7 +629,7 @@ showGameOver: {
     lda #(_GAME_OVER_X + 20 + i*24)
     sta spriteXReg(4 + i)
   }
-  lda #%11110000
+  lda #%11110011
   sta SPRITE_ENABLE
   rts
 }
