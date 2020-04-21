@@ -15,7 +15,6 @@
 #import "_zero_page.asm"
 #import "_sprites.asm"
 #import "_vic_layout.asm"
-#import "_physics.asm"
 #import "_delay_counter.asm"
 #import "_score.asm"
 
@@ -23,13 +22,6 @@
 
 .file [name="./rex.prg", segments="Code, Data, Charsets, LevelData, Sprites", modify="BasicUpstart", _start=$0810]
 
-// ---- game state constants ----
-.label GAME_STATE_LIVE = 1
-.label GAME_STATE_KILLED = 2
-.label GAME_STATE_GAME_OVER = 3
-.label GAME_STATE_LEVEL_END_SEQUENCE = 4
-.label GAME_STATE_NEXT_LEVEL = 5
-.label GAME_STATE_GAME_FINISHED = 6
 
 // ---- game parameters ----
 
@@ -121,7 +113,7 @@ doTitleScreen: {
     beq startIngame
     jmp endlessTitle
   startIngame:
-  jsr wait
+  jsr wait10
   jsr stopCopper
   rts
 }
@@ -130,14 +122,14 @@ doLevelScreen: {
   jsr configureTitleVic2
   jsr startTitleCopper
   jsr prepareLevelScreen
-  jsr wait
+  jsr wait10
 
   !:
     jsr scanSpaceHit
     beq !+
     jmp !-
   !:
-  jsr wait
+  jsr wait10
   jsr stopCopper
   rts
 }
@@ -531,59 +523,13 @@ setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH)
 // ---- import modules ----
 #import "sprites.asm"
 #import "io.asm"
+#import "physics.asm"
 // ---- END: import modules ----
 
-// ---- Jump handling ----
-.segment Code
-performJump: {
-  lda z_mode
-  beq end
-    ldx z_jumpFrame
-    lda jumpTable, x
-    cmp #$ff
-    bne nextFrame
-      lda #0
-      sta z_mode
-      sta z_yPos
-      sta z_jumpFrame
-      jmp end
-    nextFrame:
-    sta z_yPos
-    inx
-    stx z_jumpFrame
-  end:
-  rts
-}
-
-updateSpriteY: {
-  // set Y coord
-  sec
-  cld
-  lda #PLAYER_Y
-  sbc z_yPos
-  sta spriteYReg(PLAYER_SPRITE_TOP)
-  sta spriteYReg(PLAYER_SPRITE_TOP_OVL)
-  clc
-  adc #21
-  sta spriteYReg(PLAYER_SPRITE_BOTTOM)
-  sta spriteYReg(PLAYER_SPRITE_BOTTOM_OVL)
-
-  lda z_gameState
-  cmp #GAME_STATE_LEVEL_END_SEQUENCE
-  bne !+
-    lda z_xPos
-    sta spriteXReg(PLAYER_SPRITE_TOP)
-    sta spriteXReg(PLAYER_SPRITE_TOP_OVL)
-    sta spriteXReg(PLAYER_SPRITE_BOTTOM)
-    sta spriteXReg(PLAYER_SPRITE_BOTTOM_OVL)
-  !:
-
-  rts
-}
-// ---- END: Jump handling ----
 
 
 // ---- Utility subroutines ----
+.segment Code
  #import "common/lib/sub/copy-large-mem-forward.asm"
  #import "common/lib/sub/fill-screen.asm"
  #import "common/lib/sub/fill-mem.asm"
@@ -591,7 +537,7 @@ updateSpriteY: {
  #import "text/lib/sub/out-hex.asm"
  #import "text/lib/sub/out-hex-nibble.asm"
 
-wait: {
+wait10: {
   wait #10
   rts
 }
@@ -964,8 +910,8 @@ switchPages: {
   jsr updateDashboard
   jsr scanKeys
   jsr spr_animate
-  jsr performJump
-  jsr updateSpriteY
+  jsr phy_performJump
+  jsr phy_updateSpriteY
   jsr handleDelay
   decrementScoreDelay()
 
@@ -976,7 +922,6 @@ switchPages: {
 
 // ---- DATA ----
 .segment Data
-jumpTable: generateJumpTable()
 // ---- texts ----
 // title screen
 txt_title: .text "t-rex runner"; .byte $ff
