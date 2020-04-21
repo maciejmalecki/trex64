@@ -526,8 +526,6 @@ setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH)
 #import "delays.asm"
 // ---- END: import modules ----
 
-
-
 // ---- Utility subroutines ----
 .segment Code
  #import "common/lib/sub/copy-large-mem-forward.asm"
