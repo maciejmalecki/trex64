@@ -15,16 +15,13 @@
 #import "_zero_page.asm"
 #import "_sprites.asm"
 #import "_vic_layout.asm"
-
-#import "physics.asm"
-#import "delay_counter.asm"
-#import "score.asm"
+#import "_physics.asm"
+#import "_delay_counter.asm"
+#import "_score.asm"
 
 .filenamespace c64lib
 
 .file [name="./rex.prg", segments="Code, Data, Charsets, LevelData, Sprites", modify="BasicUpstart", _start=$0810]
-
-.label MAX_DELAY = 10
 
 // ---- game state constants ----
 .label GAME_STATE_LIVE = 1
@@ -531,60 +528,13 @@ setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH)
 
 // ---- END: level handling ----
 
-
-// ---- sprite handling ----
+// ---- import modules ----
 #import "sprites.asm"
-// ---- END: sprite handling ----
-
-// ---- IO handling ----
-.segment Code
-scanSpaceHit: {
-  // set up data direction
-  lda #$FF
-  sta CIA1_DATA_DIR_A 
-  lda #$00
-  sta CIA1_DATA_DIR_B
-  // SPACE for being pressed
-  lda #%00011000
-  sta CIA1_DATA_PORT_A
-  lda CIA1_DATA_PORT_B
-  sta z_keyPressed
-
-  lda z_keyPressed
-  and #%00010000
-  rts
-}
-
-scanKeys: {
-  lda z_delay
-  beq scan
-  dec z_delay
-  beq scan
-  jmp skip
-  scan:
-
-  jsr scanSpaceHit
-
-  bne !+ 
-  {
-    lda z_mode
-    bne !+
-      lda #1 
-      sta z_mode
-      lda #0
-      sta z_jumpFrame
-    !:
-    lda #MAX_DELAY
-    sta z_delay
-  }
-  !:
-
-  skip:
-  rts
-}
-// ---- END: IO handling ----
+#import "io.asm"
+// ---- END: import modules ----
 
 // ---- Jump handling ----
+.segment Code
 performJump: {
   lda z_mode
   beq end
