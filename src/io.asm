@@ -6,7 +6,7 @@
 .filenamespace c64lib
 
 .segment Code
-scanSpaceHit: {
+io_scanSpaceHit: {
   // set up data direction
   lda #$FF
   sta CIA1_DATA_DIR_A 
@@ -23,7 +23,7 @@ scanSpaceHit: {
   rts
 }
 
-scanKeys: {
+io_scanKeys: {
   lda z_delay
   beq scan
   dec z_delay
@@ -31,7 +31,7 @@ scanKeys: {
   jmp skip
   scan:
 
-  jsr scanSpaceHit
+  jsr io_scanSpaceHit
 
   bne !+ 
   {

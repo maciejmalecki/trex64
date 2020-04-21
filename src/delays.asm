@@ -1,6 +1,6 @@
 #import "_zero_page.asm"
+#import "_segments.asm"
 
-#importonce
 .filenamespace c64lib
 
 /*
@@ -31,4 +31,16 @@
     stx z_delayCounter
   !:
   tax
+}
+
+.segment Code
+
+dly_wait10: {
+  wait #10
+  rts
+}
+
+dly_handleDelay: {
+  handleDelay()
+  rts
 }

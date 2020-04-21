@@ -15,7 +15,6 @@
 #import "_zero_page.asm"
 #import "_sprites.asm"
 #import "_vic_layout.asm"
-#import "_delay_counter.asm"
 #import "_score.asm"
 
 .filenamespace c64lib
@@ -109,11 +108,11 @@ doTitleScreen: {
   jsr startTitleCopper
   jsr prepareTitleScreen
   endlessTitle:
-    jsr scanSpaceHit
+    jsr io_scanSpaceHit
     beq startIngame
     jmp endlessTitle
   startIngame:
-  jsr wait10
+  jsr dly_wait10
   jsr stopCopper
   rts
 }
@@ -122,14 +121,14 @@ doLevelScreen: {
   jsr configureTitleVic2
   jsr startTitleCopper
   jsr prepareLevelScreen
-  jsr wait10
+  jsr dly_wait10
 
   !:
-    jsr scanSpaceHit
+    jsr io_scanSpaceHit
     beq !+
     jmp !-
   !:
-  jsr wait10
+  jsr dly_wait10
   jsr stopCopper
   rts
 }
@@ -524,6 +523,7 @@ setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH)
 #import "sprites.asm"
 #import "io.asm"
 #import "physics.asm"
+#import "delays.asm"
 // ---- END: import modules ----
 
 
@@ -537,15 +537,6 @@ setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH)
  #import "text/lib/sub/out-hex.asm"
  #import "text/lib/sub/out-hex-nibble.asm"
 
-wait10: {
-  wait #10
-  rts
-}
-
-handleDelay: {
-  handleDelay()
-  rts
-}
 // ---- END: Utility subroutines ----
 
 // ---- Copper handling ----
@@ -600,7 +591,7 @@ ingameCopperList:
     copperLoop()
 
 titleScreenCopperList:
-    copperEntry(245, IRQH_JSR, <handleDelay, >handleDelay)
+    copperEntry(245, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
     // here we loop and so on, so on, for each frame
     copperLoop()
 _copperListEnd:
@@ -908,11 +899,11 @@ switchPages: {
   endOfPhase:
 
   jsr updateDashboard
-  jsr scanKeys
+  jsr io_scanKeys
   jsr spr_animate
   jsr phy_performJump
   jsr phy_updateSpriteY
-  jsr handleDelay
+  jsr dly_handleDelay
   decrementScoreDelay()
 
   debugBorderEnd()
