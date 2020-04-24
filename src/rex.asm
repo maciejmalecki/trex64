@@ -23,12 +23,12 @@
 
 
 // ---- game parameters ----
-
+.label INVINCIBLE = 1
 // starting amount of lives
-.label LIVES = 3
+.label LIVES = 5
 // starting level
 .label STARTING_WORLD = 1
-.label STARTING_LEVEL = 1
+.label STARTING_LEVEL = 2
 // scoring
 .label SCORE_FOR_PROGRESS_DELAY = 50
 .label SCORE_FOR_PROGRESS = $0025
@@ -97,10 +97,12 @@ start:
     cmp #GAME_STATE_GAME_OVER
     bne levelScreen
 
-  jmp titleScreen
+    jmp titleScreen
   gameFinished:
-  jmp titleScreen
-  // TODO do end game screen
+    lda #GAME_STATE_LIVE
+    sta z_gameState
+    jsr doEndGameScreen
+    jmp titleScreen
   // end of main loop
 
 doTitleScreen: {
@@ -133,6 +135,22 @@ doLevelScreen: {
   rts
 }
 
+doEndGameScreen: {
+  jsr configureTitleVic2
+  jsr startTitleCopper
+  jsr prepareEndGameScreen
+  jsr dly_wait10
+
+  !:
+    jsr io_scanSpaceHit
+    beq !+
+    jmp !-
+  !:
+  jsr dly_wait10
+  jsr stopCopper
+  rts
+}
+
 doIngame: {
   jsr configureIngameVic2
   jsr prepareIngameScreen
@@ -145,7 +163,9 @@ doIngame: {
   jsr startIngameCopper
   mainMapLoop:
     // check death conditions
-    jsr checkCollisions
+    .if (INVINCIBLE == 0) {
+      jsr checkCollisions
+    }
     jsr updateScore
     // check game state
     lda z_gameState
@@ -343,6 +363,26 @@ prepareLevelScreen: {
   rts
 }
 
+prepareEndGameScreen: {
+  lda #32
+  ldx #LIGHT_GRAY
+  jsr clearBothScreens
+
+  pushParamW(txt_endGame1)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 15)
+  jsr outText
+
+  pushParamW(txt_endGame2)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*12 + 15)
+  jsr outText
+
+  pushParamW(txt_pressAnyKey)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*15 + 15)
+  jsr outText
+
+  rts
+}
+
 prepareIngameScreen: {
   lda #32
   ldx #0
@@ -402,7 +442,7 @@ nextLevel: {
   // cmp #2
   world1:
     lda z_levelCounter
-    cmp #3
+    cmp #2
     beq level1_3
       inc z_levelCounter
       jmp end
@@ -923,6 +963,9 @@ txt_entering: .text "world  0-0"; .byte $ff
 txt_getReady: .text "get ready!"; .byte $ff
 // ingame screen
 txt_dashboard: .text " lives 0         score 000000 hi 000000"; .byte $FF
+// end game screen
+txt_endGame1: .text "congratulations!"; .byte $ff
+txt_endGame2: .text "you have finished the game"; .byte $ff
 
 // -- animations --
 
