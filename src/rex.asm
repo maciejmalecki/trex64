@@ -21,14 +21,13 @@
 
 .file [name="./rex.prg", segments="Code, Data, Charsets, LevelData, Sprites", modify="BasicUpstart", _start=$0810]
 
-
 // ---- game parameters ----
-.label INVINCIBLE = 1
+.label INVINCIBLE = 0
 // starting amount of lives
-.label LIVES = 5
+.label LIVES = 3
 // starting level
 .label STARTING_WORLD = 1
-.label STARTING_LEVEL = 2
+.label STARTING_LEVEL = 1
 // scoring
 .label SCORE_FOR_PROGRESS_DELAY = 50
 .label SCORE_FOR_PROGRESS = $0025
@@ -163,9 +162,7 @@ doIngame: {
   jsr startIngameCopper
   mainMapLoop:
     // check death conditions
-    .if (INVINCIBLE == 0) {
-      jsr checkCollisions
-    }
+    jsr checkCollisions
     jsr updateScore
     // check game state
     lda z_gameState
@@ -369,15 +366,15 @@ prepareEndGameScreen: {
   jsr clearBothScreens
 
   pushParamW(txt_endGame1)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 10)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 12)
   jsr outText
 
   pushParamW(txt_endGame2)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*12 + 10)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*12 + 7)
   jsr outText
 
   pushParamW(txt_pressAnyKey)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*15 + 10)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*15 + 13)
   jsr outText
 
   rts
@@ -684,7 +681,9 @@ checkCollisions: {
   and #%10000000
   beq !+
     lda #GAME_STATE_KILLED
-    sta z_gameState
+    .if (INVINCIBLE == 0) {
+      sta z_gameState
+    }
   !:
   sta z_collisionTile
   rts
