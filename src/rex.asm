@@ -369,15 +369,15 @@ prepareEndGameScreen: {
   jsr clearBothScreens
 
   pushParamW(txt_endGame1)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 15)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 10)
   jsr outText
 
   pushParamW(txt_endGame2)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*12 + 15)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*12 + 10)
   jsr outText
 
   pushParamW(txt_pressAnyKey)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*15 + 15)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*15 + 10)
   jsr outText
 
   rts
