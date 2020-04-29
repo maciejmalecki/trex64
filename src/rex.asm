@@ -129,6 +129,12 @@ doTitleScreen: {
       jmp endlessTitle
     !:
     lda z_currentKeys
+    and #KEY_F5
+    beq !+
+      jsr toggleLevel
+      jmp endlessTitle
+    !:
+    lda z_currentKeys
     and #KEY_F3
     beq !+
       jsr toggleSound
@@ -151,6 +157,18 @@ toggleSound: {
   lda z_gameConfig
   eor #CFG_SOUND
   sta z_gameConfig
+  jsr drawConfig
+  rts
+}
+
+toggleLevel: {
+  inc z_startingLevel
+  lda z_startingLevel
+  cmp #3
+  bne !+
+    lda #1
+    sta z_startingLevel
+  !:
   jsr drawConfig
   rts
 }
@@ -244,6 +262,8 @@ initConfig: {
   // default controls - joystick + music
   lda #(CFG_CONTROLS + CFG_SOUND)
   sta z_gameConfig
+  lda #STARTING_LEVEL
+  sta z_startingLevel
   rts
 }
 
@@ -255,7 +275,7 @@ initGame: {
   // set up start level
   lda #STARTING_WORLD
   sta z_worldCounter
-  lda #STARTING_LEVEL
+  lda z_startingLevel
   sta z_levelCounter
 
   // set score to 0
@@ -384,8 +404,11 @@ prepareTitleScreen: {
   pushParamW(txt_sound)
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*20 + 6)
   jsr outText
-  pushParamW(txt_startGame)
+  pushParamW(txt_startingLevel)
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*22 + 6)
+  jsr outText
+  pushParamW(txt_startGame)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*24 + 6)
   jsr outText
 
   jsr drawConfig
@@ -415,6 +438,11 @@ drawConfig: {
   soundSelected:
     pushParamW(SCREEN_PAGE_ADDR_0 + 40*20 + 21)
     jsr outText
+  // starting level
+  pushParamW(z_startingLevel)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*22 + 23)
+  jsr outHexNibble
+
   rts
 }
 
@@ -1059,6 +1087,7 @@ txt_controlsKey:      .text "keyboard  "; .byte $ff
 txt_sound:            .text "f3     ingame"; .byte $ff
 txt_soundMus:         .text "music"; .byte $ff
 txt_soundFx:          .text "fx   "; .byte $ff
+txt_startingLevel:    .text "f5      level  1-"; .byte $ff
 txt_startGame:        .text "f7      start  game"; .byte $ff
 // level start screen
 txt_entering: .text "world  0-0"; .byte $ff
