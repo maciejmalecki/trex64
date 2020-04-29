@@ -31,6 +31,7 @@
   lda #0
   adc z_score + 2
   sta z_score + 2
+  cld
 }
 
 /*

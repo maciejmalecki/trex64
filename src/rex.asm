@@ -177,13 +177,13 @@ doEndGameScreen: {
   jsr configureTitleVic2
   jsr startTitleCopper
   jsr prepareEndGameScreen
-  jsr dly_wait10
   jsr io_resetControls
+  jsr dly_wait10
 
   !:
     jsr io_scanControls
     jsr io_checkAnyKeyHit
-    beq !+
+    bne !+
     jmp !-
   !:
   jsr dly_wait10
