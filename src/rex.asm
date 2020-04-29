@@ -182,7 +182,7 @@ doEndGameScreen: {
 
   !:
     jsr io_scanControls
-    jsr io_scanSpaceHit
+    jsr io_checkAnyKeyHit
     beq !+
     jmp !-
   !:
