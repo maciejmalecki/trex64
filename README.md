@@ -21,6 +21,13 @@ You need a Commodore 64 emulator such as Vice (see: https://vice-emu.sourceforge
 x64 rex.prg
 ```
 
+## How to play
+There are currently a few options on title screen but actually only F1 "controls" and F7 "start game" are supported.
+
+By pressing F1 you can toggle control methods: for Joystick port 2 up and fire are used for jumping. For keyboard use Space key for jumping.
+
+Goals of the game: you control running dino. The dino must jump over obstacles (cactuses) otherwise he will die. Run as far as you can.
+
 ## Tools
 
 * Charpad
