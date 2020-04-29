@@ -11,9 +11,9 @@ io_toggleControls: {
   and #CFG_CONTROLS
   beq joy
     // switch joy -> keyb
-    lda #<io_scanSpaceHit
+    lda #<io_scanIngameKeys
     sta io_scanControls.handler
-    lda #>io_scanSpaceHit
+    lda #>io_scanIngameKeys
     sta io_scanControls.handler + 1
     jmp end
   joy:
@@ -27,21 +27,6 @@ io_toggleControls: {
     lda z_gameConfig
     eor #CFG_CONTROLS
     sta z_gameConfig
-  rts
-}
-
-// TODO: remove me
-io_scanSpaceHit: {
-  // set up data direction
-  lda #$FF
-  sta CIA1_DATA_DIR_A 
-  lda #$00
-  sta CIA1_DATA_DIR_B
-  // SPACE for being pressed
-  lda #%01111111
-  sta CIA1_DATA_PORT_A
-  lda CIA1_DATA_PORT_B
-  and #%00010000
   rts
 }
 
@@ -90,7 +75,7 @@ io_scanFunctionKeys: {
   lda z_currentKeys
   sta z_previousKeys
   // set up data direction
-  lda #$FF
+  lda #$ff
   sta CIA1_DATA_DIR_A
   lda #$00
   sta CIA1_DATA_DIR_B
@@ -142,36 +127,10 @@ io_resetControls: {
 }
 
 io_scanControls: {
-  /*
-  lda z_delay
-  beq scan
-  dec z_delay
-  beq scan
-  jmp skip
-  scan:
-  */
-
   // copy current state to previous state
   lda z_currentKeys
   sta z_previousKeys
   // jump to dedicated handler
   jsr handler:io_scanJoy
-  /*
-  bne !+ 
-  {
-    lda z_mode
-    bne !+
-      lda #1 
-      sta z_mode
-      lda #0
-      sta z_jumpFrame
-    !:
-    lda #MAX_DELAY
-    sta z_delay
-  }
-  !:
-
-  skip:
-  */
   rts
 }
