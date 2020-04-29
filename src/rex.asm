@@ -73,6 +73,7 @@ start:
   // main init
   jsr cfg_configureC64
   jsr unpackData
+  jsr initConfig
   
   // main loop
   titleScreen: 
@@ -105,16 +106,52 @@ start:
   // end of main loop
 
 doTitleScreen: {
+  // reset keyboard readouts
+  lda #0
+  sta z_previousKeys
+  sta z_currentKeys
+
   jsr configureTitleVic2
   jsr startTitleCopper
   jsr prepareTitleScreen
   endlessTitle:
-    jsr io_scanSpaceHit
-    beq startIngame
+    // scan keyboard
+    jsr io_scanFunctionKeys
+    lda z_previousKeys
+    bne endlessTitle
+    lda z_currentKeys
+    and #KEY_F7
+    bne startIngame
+    lda z_currentKeys
+    and #KEY_F1
+    beq !+
+      jsr toggleControls
+      jmp endlessTitle
+    !:
+    lda z_currentKeys
+    and #KEY_F3
+    beq !+
+      jsr toggleSound
+      jmp endlessTitle
+    !:
     jmp endlessTitle
   startIngame:
   jsr dly_wait10
   jsr stopCopper
+  rts
+}
+
+toggleControls: {
+  jsr io_toggleControls
+  jsr drawConfig
+  rts
+}
+
+toggleSound: {
+  lda z_gameConfig
+  eor #CFG_SOUND
+  sta z_gameConfig
+  jsr drawConfig
   rts
 }
 
@@ -196,6 +233,13 @@ doIngame: {
     jsr stopCopper
     jsr spr_hidePlayers
     rts
+}
+
+initConfig: {
+  // default controls - joystick + music
+  lda #(CFG_CONTROLS + CFG_SOUND)
+  sta z_gameConfig
+  rts
 }
 
 initGame: {
@@ -329,10 +373,43 @@ prepareTitleScreen: {
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*12 + 4)
   jsr outText
 
-  pushParamW(txt_pressAnyKey)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*18 + 13)
+  pushParamW(txt_controls)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*18 + 6)
+  jsr outText
+  pushParamW(txt_sound)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*20 + 6)
+  jsr outText
+  pushParamW(txt_startGame)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*22 + 6)
   jsr outText
 
+  jsr drawConfig
+  rts
+}
+
+drawConfig: {
+  // controls
+  lda z_gameConfig
+  and #CFG_CONTROLS
+  beq keys
+    pushParamW(txt_controlsJoy)
+    jmp controlMethodSelected
+  keys:
+    pushParamW(txt_controlsKey)
+  controlMethodSelected:
+    pushParamW(SCREEN_PAGE_ADDR_0 + 40*18 + 21)
+    jsr outText
+  // sound
+  lda z_gameConfig
+  and #CFG_SOUND
+  beq soundFx
+    pushParamW(txt_soundMus)
+    jmp soundSelected
+  soundFx:
+    pushParamW(txt_soundFx)
+  soundSelected:
+    pushParamW(SCREEN_PAGE_ADDR_0 + 40*20 + 21)
+    jsr outText
   rts
 }
 
@@ -720,7 +797,6 @@ initLevel: {
   
   // set key mode to 0
   lda #$00
-  sta z_keyPressed
   sta z_mode
 
   // set max delay
@@ -952,11 +1028,18 @@ switchPages: {
 .segment Data
 // ---- texts ----
 // title screen
-txt_title: .text "t-rex runner"; .byte $ff
-txt_subTitle: .text "c64  edition"; .byte $ff
-txt_author: .text "by  maciej malecki"; .byte $ff
-txt_originalConcept: .text "based on google chrome easter egg"; .byte $ff
-txt_pressAnyKey: .text "hit the button"; .byte $ff
+txt_title:            .text "t-rex runner"; .byte $ff
+txt_subTitle:         .text "c64  edition"; .byte $ff
+txt_author:           .text "by  maciej malecki"; .byte $ff
+txt_originalConcept:  .text "based on google chrome easter egg"; .byte $ff
+// title screen menu
+txt_controls:         .text "f1   controls"; .byte $ff
+txt_controlsJoy:      .text "joystick 2"; .byte $ff
+txt_controlsKey:      .text "keyboard  "; .byte $ff
+txt_sound:            .text "f3     ingame"; .byte $ff
+txt_soundMus:         .text "music"; .byte $ff
+txt_soundFx:          .text "fx   "; .byte $ff
+txt_startGame:        .text "f7      start  game"; .byte $ff
 // level start screen
 txt_entering: .text "world  0-0"; .byte $ff
 txt_getReady: .text "get ready!"; .byte $ff
@@ -965,6 +1048,7 @@ txt_dashboard: .text " lives 0         score 000000 hi 000000"; .byte $FF
 // end game screen
 txt_endGame1: .text "congratulations!"; .byte $ff
 txt_endGame2: .text "you have finished the game"; .byte $ff
+txt_pressAnyKey:      .text "hit the button"; .byte $ff
 
 // -- animations --
 

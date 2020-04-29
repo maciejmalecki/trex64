@@ -12,7 +12,7 @@
 .label z_displayListPtr = 12  // $0C,$0D
 .label z_deltaX = 14          // $0E
 .label z_acc0 = 15            // $0F
-.label z_keyPressed = 16      // $10
+//.label z_keyPressed = 16      // $10
 .label z_mode = 17            // $11
 .label z_delay = 18           // $12
 .label z_animationPhase = 19  // $13
@@ -28,3 +28,8 @@
 .label z_score = 29           // $1D,$1E,$1F
 .label z_scoreDelay = 32      // $20
 .label z_xPos = 33            // $21
+.label z_gameConfig = 35      // $22
+
+// keyboard handling
+.label z_previousKeys = 36    // $23
+.label z_currentKeys = 37     // $23
