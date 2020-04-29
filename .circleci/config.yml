@@ -17,7 +17,7 @@ jobs:
                 at: ./artifacts
             - run: mkdir out
             - run: ./gradlew
-            - run: cd src && cp rex.prg out
+            - run: cd src && cp rex.prg ../out
             - persist-to-workspace:
                 root: .
                 paths:
