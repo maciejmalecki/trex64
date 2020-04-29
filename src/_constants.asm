@@ -21,8 +21,13 @@
 .label MAX_DELAY = 10
 
 // ---- keyboard ----
+// title screen
 .label KEY_F1 = %00010000
 .label KEY_F3 = %00100000
 .label KEY_F5 = %01000000
 .label KEY_F7 = %00001000
 .label KEY_FUNCTION_MASK = KEY_F1 + KEY_F3 + KEY_F5 + KEY_F7
+// level, ingame, end game
+.label KEY_SPACE = %00010000
+.label KEY_COMMODORE = %00100000
+.label KEY_INGAME_MASK = KEY_SPACE + KEY_COMMODORE

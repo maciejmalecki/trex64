@@ -12,16 +12,16 @@ io_toggleControls: {
   beq joy
     // switch joy -> keyb
     lda #<io_scanSpaceHit
-    sta io_scanKeys.handler
+    sta io_scanControls.handler
     lda #>io_scanSpaceHit
-    sta io_scanKeys.handler + 1
+    sta io_scanControls.handler + 1
     jmp end
   joy:
     // switch keyb -> joy
     lda #<io_scanJoy
-    sta io_scanKeys.handler
+    sta io_scanControls.handler
     lda #>io_scanJoy
-    sta io_scanKeys.handler + 1
+    sta io_scanControls.handler + 1
   end:
     // toggle control config bit
     lda z_gameConfig
@@ -30,6 +30,7 @@ io_toggleControls: {
   rts
 }
 
+// TODO: remove me
 io_scanSpaceHit: {
   // set up data direction
   lda #$FF
@@ -41,6 +42,46 @@ io_scanSpaceHit: {
   sta CIA1_DATA_PORT_A
   lda CIA1_DATA_PORT_B
   and #%00010000
+  rts
+}
+
+io_scanIngameKeys: {
+  // set up data direction
+  lda #$ff
+  sta CIA1_DATA_DIR_A
+  lda #$00
+  sta CIA1_DATA_DIR_B
+  // F keys
+  lda #%01111111
+  sta CIA1_DATA_PORT_A
+  lda CIA1_DATA_PORT_B
+  and #KEY_INGAME_MASK
+  eor #KEY_INGAME_MASK
+  sta z_currentKeys
+  rts
+}
+
+/*
+ * Check Z after this subroutine: Z=0 -> no keys hit, Z=1 -> any key hit
+ */
+io_checkAnyKeyHit: {
+  lda z_previousKeys
+  bne !+
+  lda z_currentKeys
+  rts
+  !:
+  lda #0
+  rts
+}
+
+io_checkJump: {
+  lda z_previousKeys
+  bne !+
+  lda z_currentKeys
+  and #KEY_SPACE
+  rts
+  !:
+  lda #0
   rts
 }
 
@@ -64,23 +105,58 @@ io_scanFunctionKeys: {
 }
 
 io_scanJoy: {
+  // read joystick
   lda #$00
   sta CIA1_DATA_DIR_A
   lda CIA1_DATA_PORT_A
-  and #$01
+  and #%00010011
+  eor #%00010011
+  sta tmp
+  and #%00010001
+  bne fireOrUp
+  lda tmp
+  and #%00000010
+  bne down
+  lda #0
+  sta z_currentKeys
+  jmp end
+  fireOrUp:
+    lda z_currentKeys
+    ora #KEY_SPACE
+    sta z_currentKeys
+    jmp end
+  down:
+    lda z_currentKeys
+    ora #KEY_COMMODORE
+    sta z_currentKeys
+  end:
+  rts
+  tmp: .byte $00
+}
+
+io_resetControls: {
+  lda #0
+  sta z_previousKeys
+  sta z_currentKeys
   rts
 }
 
-io_scanKeys: {
+io_scanControls: {
+  /*
   lda z_delay
   beq scan
   dec z_delay
   beq scan
   jmp skip
   scan:
+  */
 
+  // copy current state to previous state
+  lda z_currentKeys
+  sta z_previousKeys
+  // jump to dedicated handler
   jsr handler:io_scanJoy
-
+  /*
   bne !+ 
   {
     lda z_mode
@@ -96,5 +172,6 @@ io_scanKeys: {
   !:
 
   skip:
+  */
   rts
 }

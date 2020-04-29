@@ -159,11 +159,13 @@ doLevelScreen: {
   jsr configureTitleVic2
   jsr startTitleCopper
   jsr prepareLevelScreen
+  jsr io_resetControls
   jsr dly_wait10
 
   !:
-    jsr io_scanSpaceHit
-    beq !+
+    jsr io_scanControls
+    jsr io_checkAnyKeyHit
+    bne !+
     jmp !-
   !:
   jsr dly_wait10
@@ -176,8 +178,10 @@ doEndGameScreen: {
   jsr startTitleCopper
   jsr prepareEndGameScreen
   jsr dly_wait10
+  jsr io_resetControls
 
   !:
+    jsr io_scanControls
     jsr io_scanSpaceHit
     beq !+
     jmp !-
@@ -195,6 +199,7 @@ doIngame: {
   jsr setUpWorld
   jsr setUpMap
   jsr initLevel
+  jsr io_resetControls
   jsr spr_showPlayer
   jsr startIngameCopper
   mainMapLoop:
@@ -1012,7 +1017,22 @@ switchPages: {
   endOfPhase:
 
   jsr updateDashboard
-  jsr io_scanKeys
+  jsr io_scanControls
+
+  // handle controls
+  jsr io_checkJump
+  beq !+ 
+  {
+    lda z_mode
+    bne !+
+      lda #1 
+      sta z_mode
+      lda #0
+      sta z_jumpFrame
+    !:
+  }
+  !:
+
   jsr spr_animate
   jsr phy_performJump
   jsr phy_updateSpriteY
