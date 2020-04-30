@@ -12,7 +12,7 @@
 .label z_displayListPtr = 12  // $0C,$0D
 .label z_deltaX = 14          // $0E
 .label z_acc0 = 15            // $0F
-//.label z_keyPressed = 16      // $10
+.label z_startingLevel = 16   // $10
 .label z_mode = 17            // $11
 .label z_delay = 18           // $12
 .label z_animationPhase = 19  // $13
@@ -32,4 +32,6 @@
 
 // keyboard handling
 .label z_previousKeys = 36    // $23
-.label z_currentKeys = 37     // $23
+.label z_currentKeys = 37     // $24
+
+.label z_wrappingMark = 38    // $25
