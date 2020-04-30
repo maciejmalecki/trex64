@@ -8,7 +8,7 @@
 .filenamespace c64lib
 
 .label _JUMP_TABLE_LENGTH = 14
-.label _JUMP_LINEAR_LENGTH = 17
+.label _JUMP_LINEAR_LENGTH = 16
 .label _GRAVITY_FACTOR = 3
 
 .function _polyJump(i) {

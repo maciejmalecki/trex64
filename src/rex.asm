@@ -597,7 +597,7 @@ nextLevel: {
   rts
 }
 
-.macro setUpMap(mapAddress, mapWidth) {
+.macro setUpMap(mapAddress, mapWidth, deltaX, wrappingMark) {
   // set map definition pointer
   lda #<mapAddress
   sta z_map
@@ -609,8 +609,10 @@ nextLevel: {
   sta z_width
 
   // set delta X
-  lda #(1<<4)
+  lda #deltaX
   sta z_deltaX
+  lda #wrappingMark
+  sta z_wrappingMark
 
   rts
 }
@@ -661,8 +663,8 @@ setUpMap: {
   rts
 }
 
-setUpMap1_1: setUpMap(level1.MAP_1_ADDRESS, level1.MAP_1_WIDTH)
-setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH)
+setUpMap1_1: setUpMap(level1.MAP_1_ADDRESS, level1.MAP_1_WIDTH, level1.MAP_1_DELTA_X, level1.MAP_1_WRAPPING_MARK)
+setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH, level1.MAP_2_DELTA_X, level1.MAP_2_WRAPPING_MARK)
 
 // ---- END: level handling ----
 
@@ -1008,7 +1010,7 @@ switchPages: {
 
   // detect page switching phase
   lda z_acc0
-  cmp #%00000111
+  cmp z_wrappingMark
   bne notSeven
     lda z_phase
     and #%11111110
@@ -1090,13 +1092,13 @@ txt_soundFx:          .text "fx   "; .byte $ff
 txt_startingLevel:    .text "f5      level  1-"; .byte $ff
 txt_startGame:        .text "f7      start  game"; .byte $ff
 // level start screen
-txt_entering: .text "world  0-0"; .byte $ff
-txt_getReady: .text "get ready!"; .byte $ff
+txt_entering:         .text "world  0-0"; .byte $ff
+txt_getReady:         .text "get ready!"; .byte $ff
 // ingame screen
-txt_dashboard: .text " lives 0         score 000000 hi 000000"; .byte $FF
+txt_dashboard:        .text " lives 0         score 000000 hi 000000"; .byte $FF
 // end game screen
-txt_endGame1: .text "congratulations!"; .byte $ff
-txt_endGame2: .text "you have finished the game"; .byte $ff
+txt_endGame1:         .text "congratulations!"; .byte $ff
+txt_endGame2:         .text "you have finished the game"; .byte $ff
 txt_pressAnyKey:      .text "hit the button"; .byte $ff
 
 // -- animations --

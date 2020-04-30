@@ -32,4 +32,6 @@
 
 // keyboard handling
 .label z_previousKeys = 36    // $23
-.label z_currentKeys = 37     // $23
+.label z_currentKeys = 37     // $24
+
+.label z_wrappingMark = 38    // $25
