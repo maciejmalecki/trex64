@@ -60,13 +60,8 @@ io_checkAnyKeyHit: {
 }
 
 io_checkJump: {
-  lda z_previousKeys
-  bne !+
   lda z_currentKeys
   and #KEY_SPACE
-  rts
-  !:
-  lda #0
   rts
 }
 
