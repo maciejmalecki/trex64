@@ -6,7 +6,7 @@
 .label z_y = 4                // $04,$05
 .label z_width = 6            // $06
 .label z_height = 7           // $07
-.label z_map = 8              // $08, $09
+.label z_map = 8              // $08,$09
 .label z_phase = 10           // $0A
 .label z_listPtr = 11         // $0B
 .label z_displayListPtr = 12  // $0C,$0D

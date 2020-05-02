@@ -20,3 +20,6 @@
 .label ANIMATION_JUMP_UP = 2
 .label ANIMATION_JUMP_DOWN = 3
 .label ANIMATION_DELAY = 4
+// actors
+.label ACT_PLAYER = 0
+.label ACT_VOGEL = 1
