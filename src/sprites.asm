@@ -167,39 +167,6 @@ spr_hidePlayers: {
   rts
 }
 
-spr_animate: {
-  lda z_animationPhase
-  cmp animatePhaseOld
-  beq phaseNotChanged
-    // phase has been changed
-    sta animatePhaseOld
-    ldx #0
-    stx z_animationFrame
-  phaseNotChanged:
-    // load next phase
-    ldx z_animationFrame
-    lda animWalkLeftBottomOvl, x
-    bne !+
-      // end of animation sequence, wrap to 0
-      ldx #0
-      stx z_animationFrame
-      jmp phaseNotChanged
-    !:
-      // set up correct sprite shape
-      sta SCREEN_PAGE_ADDR_0 + 1024 - 8 + PLAYER_SPRITE_BOTTOM_OVL
-      sta SCREEN_PAGE_ADDR_1 + 1024 - 8 + PLAYER_SPRITE_BOTTOM_OVL
-
-    lda animWalkLeftBottom, x
-      // set up correct sprite shape
-      sta SCREEN_PAGE_ADDR_0 + 1024 - 8 + PLAYER_SPRITE_BOTTOM
-      sta SCREEN_PAGE_ADDR_1 + 1024 - 8 + PLAYER_SPRITE_BOTTOM
-
-      inx
-      stx z_animationFrame
-  rts
-  animatePhaseOld: .byte 0
-}
-
 // ---- Sprites definition ----
 .segment Sprites
 beginOfSprites:

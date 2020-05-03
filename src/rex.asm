@@ -1065,7 +1065,6 @@ switchPages: {
   !:
 
   jsr animate
-  //jsr spr_animate
   jsr phy_performJump
   jsr phy_updateSpriteY
   jsr dly_handleDelay
