@@ -3,16 +3,6 @@
 
 .filenamespace c64lib
 
-.struct AniConfig  {
-  page0,
-  page1,
-  control,
-  sequenceLo,
-  sequenceHI,
-  frames,
-  speedCounters
-}
-
 /*
  * In:
  *      X - slot index 0..7
