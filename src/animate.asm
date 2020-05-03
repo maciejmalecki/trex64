@@ -72,6 +72,24 @@
       speedCounterFinished:
         _ani_calculateSpeedCounterInit(aniConfig)
       // calculate next frame
+      lda aniConfig.sequenceLo,x
+      sta sequenceAddr
+      lda aniConfig.sequenceHi,x
+      sta sequenceAddr + 1
+      ldy aniConfig.frames,x
+      lda sequenceAddr:$ffff,y
+      cmp #$ff
+      beq endOfSequence
+        iny
+        sty aniConfig.frames,y
+        // save new pointer in screen memories
+        sta aniConfig.page0 + 1024 - 8,x
+        sta aniConfig.page1 + 1024 - 8,x
+        jmp nextSlot
+      endOfSequence:
+        lda #0
+        // TODO only if LOOP = 1
+        sta aniConfig.frames,x
     nextSlot:
     dex
   bne loopThruSlots
