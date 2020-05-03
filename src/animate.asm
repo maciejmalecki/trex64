@@ -9,7 +9,8 @@
     control,
     sequenceLo,
     sequenceHI,
-    frame
+    frames,
+    speedCounters
 }
 
 /*
@@ -30,7 +31,14 @@
     noLoop:
         lda #00
     initFrame:
-        sta aniConfig,x
+        sta aniConfig.frames,x
+    // init animation counters
+    lda aniConfig.control,x
+    lsr 
+    lsr
+    lsr
+    lsr
+    sta aniConfig.speedCounters,x
     // store sequence addresses
     invokeStackBegin(ptr)
     pullParamB(sequenceHi)
