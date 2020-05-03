@@ -8,6 +8,11 @@
 
 .filenamespace c64lib
 
+.label SPR_DINO = 0
+.label SPR_DEATH = (_b_death - _b_dino)/64
+.label SPR_GAME_OVER = (_b_gameOver - _b_death)/64
+.label SPR_VOGEL = (_b_vogel - _b_gameOver)/64
+
 .macro _setSpriteShape(spriteNum, shapeNum) {
   lda #shapeNum
   sta SCREEN_PAGE_ADDR_0 + 1024 - 8 + spriteNum
@@ -148,6 +153,21 @@ spr_animate: {
   rts
   animatePhaseOld: .byte 0
 }
+
+// ---- Sprites definition ----
+.segment Sprites
+beginOfSprites:
+  _b_dino:
+  #import "sprites/dino.asm"
+  _b_death:
+  #import "sprites/death.asm"
+  _b_gameOver:
+  #import "sprites/gameover.asm"
+  _b_vogel:
+  #import "sprites/vogel.asm"
+endOfSprites:
+.print "Sprites import size = " + (endOfSprites - beginOfSprites)
+// ---- END: Sprites definition ----
 
 .segment Data
 animWalkLeft:

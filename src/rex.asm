@@ -47,8 +47,8 @@
    - P page: 0=page0, 1=page1
    - W switching pages: 0=no switching, 1=switching
    - S scrolling: 0=no scrolling, 1=scrolling
-   
-   Usage: 
+
+   Usage:
      lda #%00000001
      bit z_phase
      bmi ... - branch if page1
@@ -74,9 +74,9 @@ start:
   jsr cfg_configureC64
   jsr unpackData
   jsr initConfig
-  
+
   // main loop
-  titleScreen: 
+  titleScreen:
     jsr doTitleScreen
     jsr initGame
   levelScreen:
@@ -229,7 +229,7 @@ doIngame: {
     cmp #GAME_STATE_KILLED
     bne !+
       jsr spr_showDeath
-      // decrement lives 
+      // decrement lives
       dec z_lives
       bne livesLeft
         lda #GAME_STATE_GAME_OVER
@@ -299,12 +299,12 @@ updateScore: {
 }
 addScore: { addScore(); rts }
 
-// ---- General configuration ---- 
+// ---- General configuration ----
 cfg_configureC64: {
   sei
   configureMemory(RAM_IO_RAM)
   disableNMI()
-  disableCIAInterrupts() 
+  disableCIAInterrupts()
   cli
   rts
 }
@@ -320,7 +320,7 @@ unpackData: {
   pushParamW(SPRITE_ADDR)
   pushParamW(endOfSprites - beginOfSprites)
   jsr copyLargeMemForward
-  
+
   rts
 }
 // ---- END: general configuration ----
@@ -538,7 +538,7 @@ updateDashboard: {
   pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 7)
   jsr outHexNibble
 
-  rts 
+  rts
 }
 // ---- END: graphics configuration ----
 
@@ -707,8 +707,8 @@ startTitleCopper: {
 
 startCopper: {
   startCopper(
-    z_displayListPtr, 
-    z_listPtr, 
+    z_displayListPtr,
+    z_listPtr,
     List().add(c64lib.IRQH_HSCROLL, c64lib.IRQH_JSR).lock())
   rts
 }
@@ -728,7 +728,7 @@ ingameCopperList:
   hScroll:
     copperEntry(50, IRQH_HSCROLL, 5, 0)
     // here we do the actual scrolling
-  scrollCode: 
+  scrollCode:
     copperEntry(54, IRQH_JSR, <scrollBackground, >scrollBackground)
     // at the top we reset HScroll register to 0
     copperEntry(241, IRQH_HSCROLL, 0, 0)
@@ -806,7 +806,7 @@ drawTile: drawTile(tilesCfg, SCREEN_PAGE_ADDR_0, COLOR_RAM)
 initLevel: {
   lda #MAP_HEIGHT
   sta z_height
-  
+
   // set phase to 0
   lda #PHASE_SHOW_0
   sta z_phase
@@ -829,7 +829,7 @@ initLevel: {
   sta z_animationFrame
   sta z_yPos
   sta z_jumpFrame
-  
+
   // set key mode to 0
   lda #$00
   sta z_mode
@@ -851,7 +851,7 @@ initLevel: {
   // draw the screen
   ldx #0
   ldy #0
-  draw: 
+  draw:
     jsr drawTile
     inx
     cpx #20
@@ -886,7 +886,7 @@ scrollBackground: {
   scrolling:
   bpl page0
   // we're on page 1
-  page1: { 
+  page1: {
       // if scrolling
       lda z_phase
       and #%11111110
@@ -944,7 +944,7 @@ switchPages: {
   bit z_phase
   bpl page0
   // we're on page 1
-  page1: { 
+  page1: {
       // if do not switch the page
       bvc endSwitch
       // if switch the page
@@ -1051,11 +1051,11 @@ switchPages: {
 
   // handle controls
   jsr io_checkJump
-  beq !+ 
+  beq !+
   {
     lda z_mode
     bne !+
-      lda #1 
+      lda #1
       sta z_mode
       lda #0
       sta z_jumpFrame
@@ -1104,16 +1104,6 @@ txt_pressAnyKey:      .text "hit the button"; .byte $ff
 // -- animations --
 
 // ---- END:DATA ----
-
-// ---- Sprites definition ----
-.segment Sprites
-beginOfSprites:
-  #import "sprites/dino.asm"
-  #import "sprites/death.asm"
-  #import "sprites/gameover.asm"
-endOfSprites:
-.print "Sprites import size = " + (endOfSprites - beginOfSprites)
-// ---- END: Sprites definition ----
 
 // ---- chargen definition ----
 .segment Charsets
