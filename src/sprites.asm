@@ -1,10 +1,12 @@
 #import "chipset/lib/sprites.asm"
 #import "chipset/lib/vic2.asm"
+#import "common/lib/invoke.asm"
 
 #import "_segments.asm"
 #import "_vic_layout.asm"
 #import "_zero_page.asm"
 #import "_sprites.asm"
+#import "_animate.asm"
 
 .filenamespace c64lib
 
@@ -20,6 +22,29 @@
 }
 
 .segment Code
+animControl:
+  .fill 8, 0
+animSequenceLo:
+  .fill 8, 0
+animSequenceHi:
+  .fill 8, 0
+animFrames:
+  .fill 8, 0
+animSpeedCounters:
+  .fill 8, 0
+.var aniConfig = AniConfig()
+.eval aniConfig.page0 = SCREEN_PAGE_ADDR_0
+.eval aniConfig.page1 = SCREEN_PAGE_ADDR_1
+.eval aniConfig.control = animControl
+.eval aniConfig.sequenceLo = animSequenceLo
+.eval aniConfig.sequenceHi = animSequenceHi
+.eval aniConfig.frames = animFrames
+.eval aniConfig.speedCounters = animSpeedCounters
+.eval aniConfig.lock()
+
+setAnimation: { ani_setAnimation(aniConfig); }
+animate: { ani_animate(aniConfig); rts }
+
 spr_showPlayer: {
   lda #0
   sta SPRITE_ENABLE
@@ -49,16 +74,37 @@ spr_showPlayer: {
   sta SPRITE_COL_0
   lda #PLAYER_COL2
   sta SPRITE_COL_1
+
+  pushParamW(dinoWalkLeft)
+  ldx #PLAYER_SPRITE_TOP
+  lda #$43
+  jsr setAnimation
+
+  pushParamW(dinoWalkLeftOvl)
+  ldx #PLAYER_SPRITE_TOP_OVL
+  lda #$43
+  jsr setAnimation
+
+  pushParamW(dinoWalkLeftBottom)
+  ldx #PLAYER_SPRITE_BOTTOM
+  lda #$43
+  jsr setAnimation
+
+  pushParamW(dinoWalkLeftBottomOvl)
+  ldx #PLAYER_SPRITE_BOTTOM_OVL
+  lda #$43
+  jsr setAnimation
+
   lda #$0F
   sta SPRITE_ENABLE
-  _setSpriteShape(PLAYER_SPRITE_TOP, 128)
-  _setSpriteShape(PLAYER_SPRITE_TOP_OVL, 129)
-  _setSpriteShape(PLAYER_SPRITE_BOTTOM, 130)
-  _setSpriteShape(PLAYER_SPRITE_BOTTOM_OVL, 131)
+
   rts
 }
 
 spr_showDeath: {
+  lda #0
+  sta animControl
+  sta animControl+1
   lda #0
   sta SPRITE_ENABLE
   // set X coord
@@ -170,24 +216,36 @@ endOfSprites:
 // ---- END: Sprites definition ----
 
 .segment Data
-animWalkLeft:
-  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 0
-  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 0 + 4
-  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 0 + 8
-  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 0 + 4
-  .byte 0
-animWalkLeftOvl:
-  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 1
-  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 1 + 4
-  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 1 + 8
-  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 1 + 4
-  .byte 0
+dinoWalkLeft:
+  .byte SPRITE_SHAPES_START + SPR_DINO
+  .byte SPRITE_SHAPES_START + SPR_DINO + 4
+  .byte SPRITE_SHAPES_START + SPR_DINO + 8
+  .byte SPRITE_SHAPES_START + SPR_DINO + 4
+  .byte $ff
+dinoWalkLeftOvl:
+  .byte SPRITE_SHAPES_START + SPR_DINO + 1
+  .byte SPRITE_SHAPES_START + SPR_DINO + 1 + 4
+  .byte SPRITE_SHAPES_START + SPR_DINO + 1 + 8
+  .byte SPRITE_SHAPES_START + SPR_DINO + 1 + 4
+  .byte $ff
+dinoWalkLeftBottom:
+  .byte SPRITE_SHAPES_START + SPR_DINO + 2
+  .byte SPRITE_SHAPES_START + SPR_DINO + 2 + 4
+  .byte SPRITE_SHAPES_START + SPR_DINO + 2 + 8
+  .byte SPRITE_SHAPES_START + SPR_DINO + 2 + 4
+  .byte $ff
 animWalkLeftBottom:
   .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 2
   .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 2 + 4
   .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 2 + 8
   .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 2 + 4
   .byte 0
+dinoWalkLeftBottomOvl:
+  .byte SPRITE_SHAPES_START + SPR_DINO + 3
+  .byte SPRITE_SHAPES_START + SPR_DINO + 3 + 4
+  .byte SPRITE_SHAPES_START + SPR_DINO + 3 + 8
+  .byte SPRITE_SHAPES_START + SPR_DINO + 3 + 4
+  .byte $ff
 animWalkLeftBottomOvl:
   .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 3
   .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 3 + 4

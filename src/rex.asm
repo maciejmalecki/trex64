@@ -16,6 +16,7 @@
 #import "_sprites.asm"
 #import "_vic_layout.asm"
 #import "_score.asm"
+#import "_animate.asm"
 
 .filenamespace c64lib
 
@@ -1063,7 +1064,8 @@ switchPages: {
   }
   !:
 
-  jsr spr_animate
+  jsr animate
+  //jsr spr_animate
   jsr phy_performJump
   jsr phy_updateSpriteY
   jsr dly_handleDelay

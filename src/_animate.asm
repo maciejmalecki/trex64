@@ -12,7 +12,7 @@
   page1,
   control,
   sequenceLo,
-  sequenceHI,
+  sequenceHi,
   frames,
   speedCounters
 }
@@ -31,7 +31,8 @@
   lda #00
   sta aniConfig.frames,x
   // init animation counters
-  _ani_calculateSpeedCounterInit(aniConfig)
+  lda #1
+  sta aniConfig.speedCounters,x
   // store sequence addresses
   invokeStackBegin(ptr)
   pullParamB(sequenceHi)
@@ -40,6 +41,7 @@
   sta aniConfig.sequenceLo,x
   lda sequenceHi:#$00
   sta aniConfig.sequenceHi,x
+  // TODO: sprite pointers should be already set there on both pages
   invokeStackEnd(ptr)
   rts
   ptr: .word $0000
@@ -61,7 +63,7 @@
  * Mod: A, X
  */
 .macro ani_animate(aniConfig) {
-  ldx #07
+  ldx #0
   loopThruSlots:
     // skip slot if disabled
     lda aniConfig.control,x
@@ -71,7 +73,8 @@
       ldy aniConfig.speedCounters,x
       dey
       beq speedCounterFinished
-        sty aniConfig.speedCounters,x
+        tya
+        sta aniConfig.speedCounters,x
         jmp nextSlot
       speedCounterFinished:
         _ani_calculateSpeedCounterInit(aniConfig)
@@ -84,17 +87,20 @@
       lda sequenceAddr:$ffff,y
       cmp #$ff
       beq endOfSequence
-        iny
-        sty aniConfig.frames,y
         // save new pointer in screen memories
         sta aniConfig.page0 + 1024 - 8,x
         sta aniConfig.page1 + 1024 - 8,x
+        // increment and store frame
+        iny
+        tya
+        sta aniConfig.frames,x
         jmp nextSlot
       endOfSequence:
         lda #0
         // TODO only if LOOP = 1
         sta aniConfig.frames,x
     nextSlot:
-    dex
+    inx
+    cpx #8
   bne loopThruSlots
 }
