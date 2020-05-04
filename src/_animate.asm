@@ -17,6 +17,11 @@
   speedCounters
 }
 
+.macro ani_disableAnimation(aniConfig) {
+  lda #0
+  sta aniConfig.control,x
+}
+
 /*
  * In:
  *      X - slot index 0..7

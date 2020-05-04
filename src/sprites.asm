@@ -42,7 +42,8 @@ animSpeedCounters:
 .eval aniConfig.speedCounters = animSpeedCounters
 .eval aniConfig.lock()
 
-setAnimation: { ani_setAnimation(aniConfig); }
+setAnimation: { ani_setAnimation(aniConfig) }
+disableAnimation: { ani_disableAnimation(aniConfig); rts }
 animate: { ani_animate(aniConfig); rts }
 
 spr_showPlayer: {
@@ -126,10 +127,29 @@ spr_showDeath: {
   sta SPRITE_COL_0
   lda #PLAYER_COL2
   sta SPRITE_COL_1
+
+  pushParamW(dinoDeath)
+  ldx #PLAYER_SPRITE_TOP
+  lda #$43
+  jsr setAnimation
+
+  pushParamW(dinoDeathOvl)
+  ldx #PLAYER_SPRITE_TOP_OVL
+  lda #$43
+  jsr setAnimation
+
+  ldx #PLAYER_SPRITE_BOTTOM
+  jsr disableAnimation
+
+  ldx #PLAYER_SPRITE_BOTTOM_OVL
+  jsr disableAnimation
+
+
+  //_setSpriteShape(PLAYER_SPRITE_TOP, 128 + 12)
+  //_setSpriteShape(PLAYER_SPRITE_TOP_OVL, 128 + 12 + 1)
+
   lda #%00000011
   sta SPRITE_ENABLE
-  _setSpriteShape(PLAYER_SPRITE_TOP, 128 + 12)
-  _setSpriteShape(PLAYER_SPRITE_TOP_OVL, 128 + 12 + 1)
   rts
 }
 
@@ -183,6 +203,7 @@ endOfSprites:
 // ---- END: Sprites definition ----
 
 .segment Data
+// ---- Animation sequences -----
 dinoWalkLeft:
   .byte SPRITE_SHAPES_START + SPR_DINO
   .byte SPRITE_SHAPES_START + SPR_DINO + 4
@@ -201,27 +222,28 @@ dinoWalkLeftBottom:
   .byte SPRITE_SHAPES_START + SPR_DINO + 2 + 8
   .byte SPRITE_SHAPES_START + SPR_DINO + 2 + 4
   .byte $ff
-animWalkLeftBottom:
-  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 2
-  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 2 + 4
-  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 2 + 8
-  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 2 + 4
-  .byte 0
 dinoWalkLeftBottomOvl:
   .byte SPRITE_SHAPES_START + SPR_DINO + 3
   .byte SPRITE_SHAPES_START + SPR_DINO + 3 + 4
   .byte SPRITE_SHAPES_START + SPR_DINO + 3 + 8
   .byte SPRITE_SHAPES_START + SPR_DINO + 3 + 4
   .byte $ff
-animWalkLeftBottomOvl:
-  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 3
-  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 3 + 4
-  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 3 + 8
-  .fill ANIMATION_DELAY, SPRITE_SHAPES_START + 3 + 4
-  .byte 0
-animJumpUp:
+dinoDeath:
+  .byte SPRITE_SHAPES_START + SPR_DEATH
+  .byte $ff
+dinoDeathOvl:
+  .byte SPRITE_SHAPES_START + SPR_DEATH + 1
+  .byte $ff
+dinoJump:
   .byte SPRITE_SHAPES_START + 0
-  .byte 0
-animJumpDown:
+  .byte $ff
+dinoJumpOvl:
   .byte SPRITE_SHAPES_START + 1
-  .byte 0
+  .byte $ff
+dinoJumpBottom:
+  .byte SPRITE_SHAPES_START + 0
+  .byte $ff
+dinoJumpBottomOvl:
+  .byte SPRITE_SHAPES_START + 1
+  .byte $ff
+// ----- END: Animation sequences -----
