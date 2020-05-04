@@ -824,10 +824,7 @@ initLevel: {
   sta z_xPos
 
   // init animation
-  lda #ANIMATION_WALK
-  sta z_animationPhase
   lda #0
-  sta z_animationFrame
   sta z_yPos
   sta z_jumpFrame
 

@@ -15,8 +15,10 @@
 .label z_startingLevel = 16   // $10
 .label z_mode = 17            // $11
 .label z_delay = 18           // $12
-.label z_animationPhase = 19  // $13
-.label z_animationFrame = 20  // $14
+// keyboard handling
+.label z_previousKeys = 19    // $13
+.label z_currentKeys = 20     // $14
+
 .label z_yPos = 21            // $15
 .label z_jumpFrame = 22       // $16
 .label z_collisionTile = 23   // $17
@@ -29,9 +31,5 @@
 .label z_scoreDelay = 32      // $20
 .label z_xPos = 33            // $21
 .label z_gameConfig = 35      // $22
-
-// keyboard handling
-.label z_previousKeys = 36    // $23
-.label z_currentKeys = 37     // $24
 
 .label z_wrappingMark = 38    // $25
