@@ -11,9 +11,9 @@
 .filenamespace c64lib
 
 .label SPR_DINO = 0
-.label SPR_DEATH = (_b_death - _b_dino)/64
-.label SPR_GAME_OVER = (_b_gameOver - _b_death)/64
-.label SPR_VOGEL = (_b_vogel - _b_gameOver)/64
+.label SPR_DEATH = SPR_DINO + (_b_death - _b_dino)/64
+.label SPR_GAME_OVER = SPR_DEATH + (_b_gameOver - _b_death)/64
+.label SPR_VOGEL = SPR_GAME_OVER + (_b_vogel - _b_gameOver)/64
 
 .macro _setSpriteShape(spriteNum, shapeNum) {
   lda #shapeNum
@@ -76,6 +76,15 @@ spr_showPlayer: {
   lda #PLAYER_COL2
   sta SPRITE_COL_1
 
+  jsr spr_showPlayerWalkLeft
+
+  lda #$0F
+  sta SPRITE_ENABLE
+
+  rts
+}
+
+spr_showPlayerWalkLeft: {
   pushParamW(dinoWalkLeft)
   ldx #PLAYER_SPRITE_TOP
   lda #$43
@@ -96,8 +105,29 @@ spr_showPlayer: {
   lda #$43
   jsr setAnimation
 
-  lda #$0F
-  sta SPRITE_ENABLE
+  rts
+}
+
+spr_showPlayerJump: {
+  pushParamW(dinoJump)
+  ldx #PLAYER_SPRITE_TOP
+  lda #$43
+  jsr setAnimation
+
+  pushParamW(dinoJumpOvl)
+  ldx #PLAYER_SPRITE_TOP_OVL
+  lda #$43
+  jsr setAnimation
+
+  pushParamW(dinoJumpBottom)
+  ldx #PLAYER_SPRITE_BOTTOM
+  lda #$43
+  jsr setAnimation
+
+  pushParamW(dinoJumpBottomOvl)
+  ldx #PLAYER_SPRITE_BOTTOM_OVL
+  lda #$43
+  jsr setAnimation
 
   rts
 }
@@ -158,7 +188,7 @@ spr_showGameOver: {
   .label _GAME_OVER_Y = 135
 
   .for(var i = 0; i < 4; i++) {
-    _setSpriteShape(4 + i, 128 + 14 + i)
+    _setSpriteShape(4 + i, 128 + SPR_GAME_OVER + i)
   }
   lda #WHITE
   .for(var i = 0; i < 4; i++) {
@@ -235,15 +265,15 @@ dinoDeathOvl:
   .byte SPRITE_SHAPES_START + SPR_DEATH + 1
   .byte $ff
 dinoJump:
-  .byte SPRITE_SHAPES_START + 0
+  .byte SPRITE_SHAPES_START + SPR_DINO + 12
   .byte $ff
 dinoJumpOvl:
-  .byte SPRITE_SHAPES_START + 1
+  .byte SPRITE_SHAPES_START + SPR_DINO + 12 + 1
   .byte $ff
 dinoJumpBottom:
-  .byte SPRITE_SHAPES_START + 0
+  .byte SPRITE_SHAPES_START + SPR_DINO + 12 + 2
   .byte $ff
 dinoJumpBottomOvl:
-  .byte SPRITE_SHAPES_START + 1
+  .byte SPRITE_SHAPES_START + SPR_DINO + 12 + 3
   .byte $ff
 // ----- END: Animation sequences -----

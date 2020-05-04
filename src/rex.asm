@@ -1057,6 +1057,7 @@ switchPages: {
       sta z_mode
       lda #0
       sta z_jumpFrame
+      jsr spr_showPlayerJump
     !:
   }
   !:
