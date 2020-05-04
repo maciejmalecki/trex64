@@ -33,3 +33,4 @@
 .label z_gameConfig = 35      // $22
 
 .label z_wrappingMark = 38    // $25
+.label z_prevMode     = 39    // $26

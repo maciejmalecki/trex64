@@ -32,6 +32,7 @@
 .segment Code
 phy_performJump: {
   lda z_mode
+  sta z_prevMode
   beq end
     ldx z_jumpFrame
     lda jumpTable, x

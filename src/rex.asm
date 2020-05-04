@@ -831,6 +831,7 @@ initLevel: {
   // set key mode to 0
   lda #$00
   sta z_mode
+  sta z_prevMode
 
   // set max delay
   lda #MAX_DELAY
@@ -1058,12 +1059,21 @@ switchPages: {
       lda #0
       sta z_jumpFrame
       jsr spr_showPlayerJump
+      jmp end
     !:
+    end:
   }
   !:
 
   jsr animate
   jsr phy_performJump
+  lda z_prevMode
+  beq !+
+    lda z_mode
+    bne stillInAir
+      jsr spr_showPlayerWalkLeft
+    stillInAir:
+  !:
   jsr phy_updateSpriteY
   jsr dly_handleDelay
   decrementScoreDelay()
