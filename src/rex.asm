@@ -1047,11 +1047,22 @@ switchPages: {
 
   jsr updateDashboard
   jsr io_scanControls
+  jsr animate
+  jsr handleControls
+  jsr phy_performJump
+  jsr phy_updateSpriteY
+  jsr dly_handleDelay
+  decrementScoreDelay()
 
-  // handle controls
+  debugBorderEnd()
+  rts
+}
+
+handleControls: {
   jsr io_checkJump
   beq !+
   {
+    // start jumping sequence
     lda z_mode
     bne !+
       lda #1
@@ -1065,8 +1076,7 @@ switchPages: {
   }
   !:
 
-  jsr animate
-  jsr phy_performJump
+  // if back on earth -> switch to walk left again
   lda z_prevMode
   beq !+
     lda z_mode
@@ -1074,11 +1084,7 @@ switchPages: {
       jsr spr_showPlayerWalkLeft
     stillInAir:
   !:
-  jsr phy_updateSpriteY
-  jsr dly_handleDelay
-  decrementScoreDelay()
 
-  debugBorderEnd()
   rts
 }
 // ---- END: Scrollable background handling ----

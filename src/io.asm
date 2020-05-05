@@ -65,6 +65,12 @@ io_checkJump: {
   rts
 }
 
+io_checkDuck: {
+  lda z_currentKeys
+  and #KEY_COMMODORE
+  rts
+}
+
 io_scanFunctionKeys: {
   // copy current state to previous state
   lda z_currentKeys
