@@ -11,7 +11,8 @@
 .filenamespace c64lib
 
 .label SPR_DINO = 0
-.label SPR_DEATH = SPR_DINO + (_b_death - _b_dino)/64
+.label SPR_DINO_JUMP = SPR_DINO + (_b_dinoJump - _b_dino)/64
+.label SPR_DEATH = SPR_DINO_JUMP + (_b_death - _b_dinoJump)/64
 .label SPR_GAME_OVER = SPR_DEATH + (_b_gameOver - _b_death)/64
 .label SPR_VOGEL = SPR_GAME_OVER + (_b_vogel - _b_gameOver)/64
 
@@ -227,6 +228,8 @@ spr_hidePlayers: {
 beginOfSprites:
   _b_dino:
   #import "sprites/dino.asm"
+  _b_dinoJump:
+  #import "sprites/dino-jump.asm"
   _b_death:
   #import "sprites/death.asm"
   _b_gameOver:
@@ -270,15 +273,15 @@ dinoDeathOvl:
   .byte SPRITE_SHAPES_START + SPR_DEATH + 1
   .byte $ff
 dinoJump:
-  .byte SPRITE_SHAPES_START + SPR_DINO + 12
+  .byte SPRITE_SHAPES_START + SPR_DINO_JUMP
   .byte $ff
 dinoJumpOvl:
-  .byte SPRITE_SHAPES_START + SPR_DINO + 12 + 1
+  .byte SPRITE_SHAPES_START + SPR_DINO_JUMP + 1
   .byte $ff
 dinoJumpBottom:
-  .byte SPRITE_SHAPES_START + SPR_DINO + 12 + 2
+  .byte SPRITE_SHAPES_START + SPR_DINO_JUMP + 2
   .byte $ff
 dinoJumpBottomOvl:
-  .byte SPRITE_SHAPES_START + SPR_DINO + 12 + 3
+  .byte SPRITE_SHAPES_START + SPR_DINO_JUMP + 3
   .byte $ff
 // ----- END: Animation sequences -----
