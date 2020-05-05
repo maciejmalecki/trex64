@@ -12,7 +12,8 @@
 
 .label SPR_DINO = 0
 .label SPR_DINO_JUMP = SPR_DINO + (_b_dinoJump - _b_dino)/64
-.label SPR_DEATH = SPR_DINO_JUMP + (_b_death - _b_dinoJump)/64
+.label SPR_DINO_DUCK = SPR_DINO_JUMP + (_b_dinoDuck - _b_dinoJump)/64
+.label SPR_DEATH = SPR_DINO_DUCK + (_b_death - _b_dinoDuck)/64
 .label SPR_GAME_OVER = SPR_DEATH + (_b_gameOver - _b_death)/64
 .label SPR_VOGEL = SPR_GAME_OVER + (_b_vogel - _b_gameOver)/64
 
@@ -230,6 +231,8 @@ beginOfSprites:
   #import "sprites/dino.asm"
   _b_dinoJump:
   #import "sprites/dino-jump.asm"
+  _b_dinoDuck:
+  #import "sprites/dino-duck.asm"
   _b_death:
   #import "sprites/death.asm"
   _b_gameOver:
