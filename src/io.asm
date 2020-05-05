@@ -71,6 +71,17 @@ io_checkDuck: {
   rts
 }
 
+io_checkUnduck: {
+  lda z_previousKeys
+  and #KEY_COMMODORE
+  bne !+
+  lda z_currentKeys
+  and #KEY_COMMODORE
+  rts
+  !:
+  rts
+}
+
 io_scanFunctionKeys: {
   // copy current state to previous state
   lda z_currentKeys

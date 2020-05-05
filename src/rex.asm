@@ -1073,9 +1073,20 @@ handleControls: {
       jmp end
     !:
     end:
+      jmp afterDuck
   }
   !:
+  // handle ducking
+  jsr io_checkUnduck
+  beq !+
+    jsr spr_showPlayerWalkLeft
+  !:
+  jsr io_checkDuck
+  beq !+
+    jsr spr_showPlayerDuck
+  !:
 
+  afterDuck:
   // if back on earth -> switch to walk left again
   lda z_prevMode
   beq !+

@@ -132,6 +132,11 @@ spr_showPlayerJump: {
   rts
 }
 
+spr_showPlayerDuck: {
+  jsr spr_showPlayerJump
+  rts
+}
+
 spr_showDeath: {
   lda #0
   sta animControl
