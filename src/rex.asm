@@ -279,6 +279,9 @@ initGame: {
   lda z_startingLevel
   sta z_levelCounter
 
+  lda #0
+  sta z_isDuck
+
   // set score to 0
   resetScore()
 
@@ -1079,10 +1082,14 @@ handleControls: {
   // handle ducking
   jsr io_checkUnduck
   beq !+
+    lda #0
+    sta z_isDuck
     jsr spr_showPlayerWalkLeft
   !:
   jsr io_checkDuck
   beq !+
+    lda z_isDuck
+    bne !+
     jsr spr_showPlayerDuck
   !:
 

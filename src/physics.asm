@@ -55,12 +55,13 @@ phy_updateSpriteY: {
   // set Y coord
   sec
   cld
-  lda #PLAYER_Y
+  lda z_yPosTop
   sbc z_yPos
   sta spriteYReg(PLAYER_SPRITE_TOP)
   sta spriteYReg(PLAYER_SPRITE_TOP_OVL)
   clc
-  adc #21
+  lda z_yPosBottom
+  sbc z_yPos
   sta spriteYReg(PLAYER_SPRITE_BOTTOM)
   sta spriteYReg(PLAYER_SPRITE_BOTTOM_OVL)
 

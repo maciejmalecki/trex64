@@ -26,7 +26,7 @@
 .label TILES_COLORS_ADDRESS = _colors
 .label TILES_ADDRESS = _tiles
 
-.label BORDER_COLOR = 11
+.label BORDER_COLOR = 0
 .label BG_COLOR_0 = 11
 .label BG_COLOR_1 = 8
 .label BG_COLOR_2 = 10

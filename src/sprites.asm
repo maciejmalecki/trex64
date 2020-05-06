@@ -51,19 +51,6 @@ animate: { ani_animate(aniConfig); rts }
 spr_showPlayer: {
   lda #0
   sta SPRITE_ENABLE
-  // set X coord
-  lda #PLAYER_X
-  sta spriteXReg(PLAYER_SPRITE_TOP)
-  sta spriteXReg(PLAYER_SPRITE_TOP_OVL)
-  sta spriteXReg(PLAYER_SPRITE_BOTTOM)
-  sta spriteXReg(PLAYER_SPRITE_BOTTOM_OVL)
-  // set Y coord
-  lda #PLAYER_Y
-  sta spriteYReg(PLAYER_SPRITE_TOP)
-  sta spriteYReg(PLAYER_SPRITE_TOP_OVL)
-  lda #PLAYER_BOTTOM_Y
-  sta spriteYReg(PLAYER_SPRITE_BOTTOM)
-  sta spriteYReg(PLAYER_SPRITE_BOTTOM_OVL)
   // set colors
   lda #PLAYER_COL
   sta spriteColorReg(PLAYER_SPRITE_TOP_OVL)
@@ -86,7 +73,47 @@ spr_showPlayer: {
   rts
 }
 
+_spr_setNormalPosition: {
+  // set X coord
+  lda #PLAYER_X
+  sta spriteXReg(PLAYER_SPRITE_TOP)
+  sta spriteXReg(PLAYER_SPRITE_TOP_OVL)
+  sta spriteXReg(PLAYER_SPRITE_BOTTOM)
+  sta spriteXReg(PLAYER_SPRITE_BOTTOM_OVL)
+  // set Y coord
+  lda #PLAYER_Y
+  sta z_yPosTop
+  sta spriteYReg(PLAYER_SPRITE_TOP)
+  sta spriteYReg(PLAYER_SPRITE_TOP_OVL)
+  lda #PLAYER_BOTTOM_Y
+  sta z_yPosBottom
+  sta spriteYReg(PLAYER_SPRITE_BOTTOM)
+  sta spriteYReg(PLAYER_SPRITE_BOTTOM_OVL)
+  rts
+}
+
+_spr_setDuckPosition: {
+  // set X coord
+  lda #(PLAYER_X - 12)
+  sta spriteXReg(PLAYER_SPRITE_TOP)
+  sta spriteXReg(PLAYER_SPRITE_TOP_OVL)
+  lda #(PLAYER_X + 12)
+  sta spriteXReg(PLAYER_SPRITE_BOTTOM)
+  sta spriteXReg(PLAYER_SPRITE_BOTTOM_OVL)
+  // set Y coord
+  lda #(PLAYER_Y + 10)
+  sta z_yPosTop
+  sta z_yPosBottom
+  sta spriteYReg(PLAYER_SPRITE_TOP)
+  sta spriteYReg(PLAYER_SPRITE_TOP_OVL)
+  sta spriteYReg(PLAYER_SPRITE_BOTTOM)
+  sta spriteYReg(PLAYER_SPRITE_BOTTOM_OVL)
+  rts
+}
+
 spr_showPlayerWalkLeft: {
+  jsr _spr_setNormalPosition
+
   pushParamW(dinoWalkLeft)
   ldx #PLAYER_SPRITE_TOP
   lda #$43
@@ -111,6 +138,8 @@ spr_showPlayerWalkLeft: {
 }
 
 spr_showPlayerJump: {
+  jsr _spr_setNormalPosition
+
   pushParamW(dinoJump)
   ldx #PLAYER_SPRITE_TOP
   lda #$43
@@ -135,7 +164,31 @@ spr_showPlayerJump: {
 }
 
 spr_showPlayerDuck: {
-  jsr spr_showPlayerJump
+  lda #1
+  sta z_isDuck
+
+  jsr _spr_setDuckPosition
+
+  pushParamW(dinoDuck)
+  ldx #PLAYER_SPRITE_TOP
+  lda #$43
+  jsr setAnimation
+
+  pushParamW(dinoDuckOvl)
+  ldx #PLAYER_SPRITE_TOP_OVL
+  lda #$43
+  jsr setAnimation
+
+  pushParamW(dinoDuckBottom)
+  ldx #PLAYER_SPRITE_BOTTOM
+  lda #$43
+  jsr setAnimation
+
+  pushParamW(dinoDuckBottomOvl)
+  ldx #PLAYER_SPRITE_BOTTOM_OVL
+  lda #$43
+  jsr setAnimation
+
   rts
 }
 
@@ -286,5 +339,21 @@ dinoJumpBottom:
   .byte $ff
 dinoJumpBottomOvl:
   .byte SPRITE_SHAPES_START + SPR_DINO_JUMP + 3
+  .byte $ff
+dinoDuck:
+  .byte SPRITE_SHAPES_START + SPR_DINO_DUCK
+  .byte SPRITE_SHAPES_START + SPR_DINO_DUCK + 4
+  .byte $ff
+dinoDuckOvl:
+  .byte SPRITE_SHAPES_START + SPR_DINO_DUCK + 1
+  .byte SPRITE_SHAPES_START + SPR_DINO_DUCK + 4 + 1
+  .byte $ff
+dinoDuckBottom:
+  .byte SPRITE_SHAPES_START + SPR_DINO_DUCK + 2
+  .byte SPRITE_SHAPES_START + SPR_DINO_DUCK + 4 + 2
+  .byte $ff
+dinoDuckBottomOvl:
+  .byte SPRITE_SHAPES_START + SPR_DINO_DUCK + 3
+  .byte SPRITE_SHAPES_START + SPR_DINO_DUCK + 4 + 3
   .byte $ff
 // ----- END: Animation sequences -----
