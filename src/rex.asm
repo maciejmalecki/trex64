@@ -165,7 +165,7 @@ toggleSound: {
 toggleLevel: {
   inc z_startingLevel
   lda z_startingLevel
-  cmp #3
+  cmp #4
   bne !+
     lda #1
     sta z_startingLevel
@@ -553,11 +553,11 @@ nextLevel: {
   // cmp #2
   world1:
     lda z_levelCounter
-    cmp #2
-    beq level1_3
+    cmp #3
+    beq level1_end
       inc z_levelCounter
       jmp end
-    level1_3:
+    level1_end:
       lda #GAME_STATE_GAME_FINISHED
       sta z_gameState
       jmp end
@@ -654,11 +654,16 @@ setUpMap: {
     lda z_levelCounter
     cmp #2
     beq level1_2
+    cmp #3
+    beq level1_3
     level1_1:
       jsr setUpMap1_1
       jmp end
     level1_2:
       jsr setUpMap1_2
+      jmp end
+    level1_3:
+      jsr setUpMap1_3
       jmp end
   world2:
     jmp end
@@ -669,6 +674,7 @@ setUpMap: {
 
 setUpMap1_1: setUpMap(level1.MAP_1_ADDRESS, level1.MAP_1_WIDTH, level1.MAP_1_DELTA_X, level1.MAP_1_WRAPPING_MARK)
 setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH, level1.MAP_2_DELTA_X, level1.MAP_2_WRAPPING_MARK)
+setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DELTA_X, level1.MAP_3_WRAPPING_MARK)
 
 // ---- END: level handling ----
 
