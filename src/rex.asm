@@ -21,6 +21,7 @@
 .filenamespace c64lib
 
 .file [name="./rex.prg", segments="Code, Data, Charsets, LevelData, Sprites", modify="BasicUpstart", _start=$0810]
+.var music = LoadSid("music/sixpack.sid")
 
 // ---- game parameters ----
 .label INVINCIBLE = 0
@@ -35,6 +36,8 @@
 // collision detection
 .label X_COLLISION_OFFSET = 8 - 24
 .label Y_COLLISION_OFFSET = 29 - 50
+
+.label MUSIC_TARGET_ADDRESS = $6000
 
 // ---- levels ----
 #import "levels/level1/data.asm"
@@ -113,6 +116,7 @@ doTitleScreen: {
   sta z_currentKeys
 
   jsr configureTitleVic2
+  jsr initSound
   jsr startTitleCopper
   jsr prepareTitleScreen
   endlessTitle:
@@ -259,6 +263,42 @@ doIngame: {
     rts
 }
 
+.print ""
+.print "SID Data"
+.print "--------"
+.print "location=$"+toHexString(music.location)
+.print "init=$"+toHexString(music.init)
+.print "play=$"+toHexString(music.play)
+.print "songs="+music.songs
+.print "startSong="+music.startSong
+.print "size=$"+toHexString(music.size)
+.print "name="+music.name
+.print "author="+music.author
+.print "copyright="+music.copyright
+.print ""
+.print "Additional tech data"
+.print "--------------------"
+.print "header="+music.header
+.print "header version="+music.version
+.print "flags="+toBinaryString(music.flags)
+.print "speed="+toBinaryString(music.speed)
+.print "startpage="+music.startpage
+.print "pagelength="+music.pagelength
+
+// Initialize music player.
+initSound: {
+  ldx #0
+  ldy #0
+  lda #music.startSong-1
+  jsr music.init
+  rts
+}
+
+playMusic: {
+  jsr music.play
+  rts
+}
+
 initConfig: {
   // default controls - joystick + music
   lda #(CFG_CONTROLS + CFG_SOUND)
@@ -324,7 +364,11 @@ unpackData: {
   pushParamW(SPRITE_ADDR)
   pushParamW(endOfSprites - beginOfSprites)
   jsr copyLargeMemForward
-
+  // copy music
+  pushParamW(musicData)
+  pushParamW(music.location)
+  pushParamW(music.size)
+  jsr copyLargeMemForward
   rts
 }
 // ---- END: general configuration ----
@@ -734,6 +778,7 @@ stopCopper: {
 _copperListStart:
 // here we define layout of raster interrupt handlers
 ingameCopperList:
+    copperEntry(10, IRQH_JSR, <playMusic, >playMusic)
     // here we set scroll register to 5, but in fact this value will be modified by scrollBackground routine
   hScroll:
     copperEntry(50, IRQH_HSCROLL, 5, 0)
@@ -748,6 +793,7 @@ ingameCopperList:
     copperLoop()
 
 titleScreenCopperList:
+    copperEntry(10, IRQH_JSR, <playMusic, >playMusic)
     copperEntry(245, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
     // here we loop and so on, so on, for each frame
     copperLoop()
@@ -1136,6 +1182,9 @@ txt_dashboard:        .text " lives 0         score 000000 hi 000000"; .byte $FF
 txt_endGame1:         .text "congratulations!"; .byte $ff
 txt_endGame2:         .text "you have finished the game"; .byte $ff
 txt_pressAnyKey:      .text "hit the button"; .byte $ff
+musicData:
+                      .fill music.size, music.getData(i)
+endOfMusicData:
 
 // -- animations --
 
