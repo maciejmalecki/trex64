@@ -1,4 +1,4 @@
-#define VISUAL_DEBUG
+//#define VISUAL_DEBUG
 #import "common/lib/common.asm"
 #import "common/lib/mem.asm"
 #import "common/lib/invoke.asm"
@@ -1056,8 +1056,8 @@ switchPages: {
 
   jsr updateDashboard
   jsr io_scanControls
-  jsr animate
   jsr handleControls
+  jsr animate
   jsr phy_performJump
   jsr phy_updateSpriteY
   jsr dly_handleDelay
