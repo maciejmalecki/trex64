@@ -72,14 +72,39 @@ io_checkDuck: {
   rts
 }
 
+/*
+ * beq -> do ducking
+ */
+io_checkDoduck: {
+  lda z_previousKeys
+  and #KEY_COMMODORE
+  // CBM pressed -> NZ -> end
+  bne !+
+  {
+    lda z_currentKeys
+    and #KEY_COMMODORE
+    // NZ -> do duck, Z -> no do duck
+    rts
+  }
+  !:
+  // invert -> Z - no do duck
+  eor #KEY_COMMODORE
+  rts
+}
+
+/*
+ * beq -> no unduck
+ */
 io_checkUnduck: {
   lda z_previousKeys
   and #KEY_COMMODORE
+  // CBM depressed -> Z -> end ( no unduck)
   beq !+
   {
     lda z_currentKeys
     and #KEY_COMMODORE
-    eor #$ff
+    // Z -> unduck, NZ -> no unduck
+    eor #KEY_COMMODORE // invert
     rts
   }
   !:

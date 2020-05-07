@@ -164,8 +164,6 @@ spr_showPlayerJump: {
 }
 
 spr_showPlayerDuck: {
-  lda #1
-  sta z_isDuck
 
   jsr _spr_setDuckPosition
 

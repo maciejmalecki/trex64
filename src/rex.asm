@@ -1082,14 +1082,11 @@ handleControls: {
   // handle ducking
   jsr io_checkUnduck
   beq !+
-    lda #0
-    sta z_isDuck
     jsr spr_showPlayerWalkLeft
+    jmp afterDuck
   !:
-  jsr io_checkDuck
+  jsr io_checkDoduck
   beq !+
-    lda z_isDuck
-    bne !+
     jsr spr_showPlayerDuck
   !:
 
