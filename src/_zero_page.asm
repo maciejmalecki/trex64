@@ -33,7 +33,7 @@
 .label z_gameConfig = 35      // $22
 
 .label z_wrappingMark = 38    // $25
-.label z_prevMode     = 39    // $26
-.label z_yPosTop = 40
-.label z_yPosBottom = 41
-.label z_isDuck = 42
+.label z_prevMode = 39        // $26
+.label z_yPosTop = 40         // $27
+.label z_yPosBottom = 41      // $28
+.label z_isDuck = 42          // $29

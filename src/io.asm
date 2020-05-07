@@ -68,16 +68,20 @@ io_checkJump: {
 io_checkDuck: {
   lda z_currentKeys
   and #KEY_COMMODORE
+  eor #$ff
   rts
 }
 
 io_checkUnduck: {
   lda z_previousKeys
   and #KEY_COMMODORE
-  bne !+
-  lda z_currentKeys
-  and #KEY_COMMODORE
-  rts
+  beq !+
+  {
+    lda z_currentKeys
+    and #KEY_COMMODORE
+    eor #$ff
+    rts
+  }
   !:
   rts
 }
