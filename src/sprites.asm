@@ -112,7 +112,6 @@ _spr_setDuckPosition: {
 }
 
 spr_showPlayerWalkLeft: {
-  jsr _spr_setNormalPosition
 
   pushParamW(dinoWalkLeft)
   ldx #PLAYER_SPRITE_TOP
@@ -134,6 +133,7 @@ spr_showPlayerWalkLeft: {
   lda #$43
   jsr setAnimation
 
+  jsr _spr_setNormalPosition
   rts
 }
 

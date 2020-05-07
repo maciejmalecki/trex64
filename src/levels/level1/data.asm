@@ -23,7 +23,7 @@
 .label MAP_3_WIDTH = _map3Data.getSize() / c64lib.MAP_HEIGHT
 .label MAP_3_ADDRESS = _map3
 .label MAP_3_DELTA_X = 1<<5 // x2
-.label MAP_3_WRAPPING_MARK = %00000101
+.label MAP_3_WRAPPING_MARK = %00000110
 
 .label CHARSET_SIZE = _charsetData.getSize()/8
 .label CHARSET_ADDRESS = _charset
