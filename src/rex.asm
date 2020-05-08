@@ -16,10 +16,12 @@
 #import "_sprites.asm"
 #import "_vic_layout.asm"
 #import "_score.asm"
+#import "_animate.asm"
 
 .filenamespace c64lib
 
 .file [name="./rex.prg", segments="Code, Data, Charsets, LevelData, Sprites", modify="BasicUpstart", _start=$0810]
+.var music = LoadSid("music/sixpack.sid")
 
 // ---- game parameters ----
 .label INVINCIBLE = 0
@@ -35,6 +37,8 @@
 .label X_COLLISION_OFFSET = 8 - 24
 .label Y_COLLISION_OFFSET = 29 - 50
 
+.label MUSIC_TARGET_ADDRESS = $6000
+
 // ---- levels ----
 #import "levels/level1/data.asm"
 
@@ -47,8 +51,8 @@
    - P page: 0=page0, 1=page1
    - W switching pages: 0=no switching, 1=switching
    - S scrolling: 0=no scrolling, 1=scrolling
-   
-   Usage: 
+
+   Usage:
      lda #%00000001
      bit z_phase
      bmi ... - branch if page1
@@ -74,9 +78,9 @@ start:
   jsr cfg_configureC64
   jsr unpackData
   jsr initConfig
-  
+
   // main loop
-  titleScreen: 
+  titleScreen:
     jsr doTitleScreen
     jsr initGame
   levelScreen:
@@ -112,6 +116,7 @@ doTitleScreen: {
   sta z_currentKeys
 
   jsr configureTitleVic2
+  jsr initSound
   jsr startTitleCopper
   jsr prepareTitleScreen
   endlessTitle:
@@ -164,7 +169,7 @@ toggleSound: {
 toggleLevel: {
   inc z_startingLevel
   lda z_startingLevel
-  cmp #3
+  cmp #4
   bne !+
     lda #1
     sta z_startingLevel
@@ -229,7 +234,7 @@ doIngame: {
     cmp #GAME_STATE_KILLED
     bne !+
       jsr spr_showDeath
-      // decrement lives 
+      // decrement lives
       dec z_lives
       bne livesLeft
         lda #GAME_STATE_GAME_OVER
@@ -258,6 +263,42 @@ doIngame: {
     rts
 }
 
+.print ""
+.print "SID Data"
+.print "--------"
+.print "location=$"+toHexString(music.location)
+.print "init=$"+toHexString(music.init)
+.print "play=$"+toHexString(music.play)
+.print "songs="+music.songs
+.print "startSong="+music.startSong
+.print "size=$"+toHexString(music.size)
+.print "name="+music.name
+.print "author="+music.author
+.print "copyright="+music.copyright
+.print ""
+.print "Additional tech data"
+.print "--------------------"
+.print "header="+music.header
+.print "header version="+music.version
+.print "flags="+toBinaryString(music.flags)
+.print "speed="+toBinaryString(music.speed)
+.print "startpage="+music.startpage
+.print "pagelength="+music.pagelength
+
+// Initialize music player.
+initSound: {
+  ldx #0
+  ldy #0
+  lda #music.startSong-1
+  jsr music.init
+  rts
+}
+
+playMusic: {
+  jsr music.play
+  rts
+}
+
 initConfig: {
   // default controls - joystick + music
   lda #(CFG_CONTROLS + CFG_SOUND)
@@ -277,6 +318,9 @@ initGame: {
   sta z_worldCounter
   lda z_startingLevel
   sta z_levelCounter
+
+  lda #0
+  sta z_isDuck
 
   // set score to 0
   resetScore()
@@ -299,12 +343,12 @@ updateScore: {
 }
 addScore: { addScore(); rts }
 
-// ---- General configuration ---- 
+// ---- General configuration ----
 cfg_configureC64: {
   sei
   configureMemory(RAM_IO_RAM)
   disableNMI()
-  disableCIAInterrupts() 
+  disableCIAInterrupts()
   cli
   rts
 }
@@ -320,7 +364,11 @@ unpackData: {
   pushParamW(SPRITE_ADDR)
   pushParamW(endOfSprites - beginOfSprites)
   jsr copyLargeMemForward
-  
+  // copy music
+  pushParamW(musicData)
+  pushParamW(music.location)
+  pushParamW(music.size)
+  jsr copyLargeMemForward
   rts
 }
 // ---- END: general configuration ----
@@ -538,7 +586,7 @@ updateDashboard: {
   pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 7)
   jsr outHexNibble
 
-  rts 
+  rts
 }
 // ---- END: graphics configuration ----
 
@@ -549,11 +597,11 @@ nextLevel: {
   // cmp #2
   world1:
     lda z_levelCounter
-    cmp #2
-    beq level1_3
+    cmp #3
+    beq level1_end
       inc z_levelCounter
       jmp end
-    level1_3:
+    level1_end:
       lda #GAME_STATE_GAME_FINISHED
       sta z_gameState
       jmp end
@@ -650,11 +698,16 @@ setUpMap: {
     lda z_levelCounter
     cmp #2
     beq level1_2
+    cmp #3
+    beq level1_3
     level1_1:
       jsr setUpMap1_1
       jmp end
     level1_2:
       jsr setUpMap1_2
+      jmp end
+    level1_3:
+      jsr setUpMap1_3
       jmp end
   world2:
     jmp end
@@ -665,6 +718,7 @@ setUpMap: {
 
 setUpMap1_1: setUpMap(level1.MAP_1_ADDRESS, level1.MAP_1_WIDTH, level1.MAP_1_DELTA_X, level1.MAP_1_WRAPPING_MARK)
 setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH, level1.MAP_2_DELTA_X, level1.MAP_2_WRAPPING_MARK)
+setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DELTA_X, level1.MAP_3_WRAPPING_MARK)
 
 // ---- END: level handling ----
 
@@ -707,8 +761,8 @@ startTitleCopper: {
 
 startCopper: {
   startCopper(
-    z_displayListPtr, 
-    z_listPtr, 
+    z_displayListPtr,
+    z_listPtr,
     List().add(c64lib.IRQH_HSCROLL, c64lib.IRQH_JSR).lock())
   rts
 }
@@ -724,11 +778,12 @@ stopCopper: {
 _copperListStart:
 // here we define layout of raster interrupt handlers
 ingameCopperList:
+    copperEntry(10, IRQH_JSR, <playMusic, >playMusic)
     // here we set scroll register to 5, but in fact this value will be modified by scrollBackground routine
   hScroll:
     copperEntry(50, IRQH_HSCROLL, 5, 0)
     // here we do the actual scrolling
-  scrollCode: 
+  scrollCode:
     copperEntry(54, IRQH_JSR, <scrollBackground, >scrollBackground)
     // at the top we reset HScroll register to 0
     copperEntry(241, IRQH_HSCROLL, 0, 0)
@@ -738,6 +793,7 @@ ingameCopperList:
     copperLoop()
 
 titleScreenCopperList:
+    copperEntry(10, IRQH_JSR, <playMusic, >playMusic)
     copperEntry(245, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
     // here we loop and so on, so on, for each frame
     copperLoop()
@@ -806,7 +862,7 @@ drawTile: drawTile(tilesCfg, SCREEN_PAGE_ADDR_0, COLOR_RAM)
 initLevel: {
   lda #MAP_HEIGHT
   sta z_height
-  
+
   // set phase to 0
   lda #PHASE_SHOW_0
   sta z_phase
@@ -823,16 +879,14 @@ initLevel: {
   sta z_xPos
 
   // init animation
-  lda #ANIMATION_WALK
-  sta z_animationPhase
   lda #0
-  sta z_animationFrame
   sta z_yPos
   sta z_jumpFrame
-  
+
   // set key mode to 0
   lda #$00
   sta z_mode
+  sta z_prevMode
 
   // set max delay
   lda #MAX_DELAY
@@ -851,7 +905,7 @@ initLevel: {
   // draw the screen
   ldx #0
   ldy #0
-  draw: 
+  draw:
     jsr drawTile
     inx
     cpx #20
@@ -886,7 +940,7 @@ scrollBackground: {
   scrolling:
   bpl page0
   // we're on page 1
-  page1: { 
+  page1: {
       // if scrolling
       lda z_phase
       and #%11111110
@@ -944,7 +998,7 @@ switchPages: {
   bit z_phase
   bpl page0
   // we're on page 1
-  page1: { 
+  page1: {
       // if do not switch the page
       bvc endSwitch
       // if switch the page
@@ -1048,28 +1102,56 @@ switchPages: {
 
   jsr updateDashboard
   jsr io_scanControls
-
-  // handle controls
-  jsr io_checkJump
-  beq !+ 
-  {
-    lda z_mode
-    bne !+
-      lda #1 
-      sta z_mode
-      lda #0
-      sta z_jumpFrame
-    !:
-  }
-  !:
-
-  jsr spr_animate
+  jsr handleControls
+  jsr animate
   jsr phy_performJump
   jsr phy_updateSpriteY
   jsr dly_handleDelay
   decrementScoreDelay()
 
   debugBorderEnd()
+  rts
+}
+
+handleControls: {
+  jsr io_checkJump
+  beq !+
+  {
+    // start jumping sequence
+    lda z_mode
+    bne !+
+      lda #1
+      sta z_mode
+      lda #0
+      sta z_jumpFrame
+      jsr spr_showPlayerJump
+      jmp end
+    !:
+    end:
+      jmp afterDuck
+  }
+  !:
+  // handle ducking
+  jsr io_checkUnduck
+  beq !+
+    jsr spr_showPlayerWalkLeft
+    jmp afterDuck
+  !:
+  jsr io_checkDoduck
+  beq !+
+    jsr spr_showPlayerDuck
+  !:
+
+  afterDuck:
+  // if back on earth -> switch to walk left again
+  lda z_prevMode
+  beq !+
+    lda z_mode
+    bne stillInAir
+      jsr spr_showPlayerWalkLeft
+    stillInAir:
+  !:
+
   rts
 }
 // ---- END: Scrollable background handling ----
@@ -1100,20 +1182,13 @@ txt_dashboard:        .text " lives 0         score 000000 hi 000000"; .byte $FF
 txt_endGame1:         .text "congratulations!"; .byte $ff
 txt_endGame2:         .text "you have finished the game"; .byte $ff
 txt_pressAnyKey:      .text "hit the button"; .byte $ff
+musicData:
+                      .fill music.size, music.getData(i)
+endOfMusicData:
 
 // -- animations --
 
 // ---- END:DATA ----
-
-// ---- Sprites definition ----
-.segment Sprites
-beginOfSprites:
-  #import "sprites/dino.asm"
-  #import "sprites/death.asm"
-  #import "sprites/gameover.asm"
-endOfSprites:
-.print "Sprites import size = " + (endOfSprites - beginOfSprites)
-// ---- END: Sprites definition ----
 
 // ---- chargen definition ----
 .segment Charsets

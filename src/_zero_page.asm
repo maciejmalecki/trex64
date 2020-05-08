@@ -6,7 +6,7 @@
 .label z_y = 4                // $04,$05
 .label z_width = 6            // $06
 .label z_height = 7           // $07
-.label z_map = 8              // $08, $09
+.label z_map = 8              // $08,$09
 .label z_phase = 10           // $0A
 .label z_listPtr = 11         // $0B
 .label z_displayListPtr = 12  // $0C,$0D
@@ -15,8 +15,10 @@
 .label z_startingLevel = 16   // $10
 .label z_mode = 17            // $11
 .label z_delay = 18           // $12
-.label z_animationPhase = 19  // $13
-.label z_animationFrame = 20  // $14
+// keyboard handling
+.label z_previousKeys = 19    // $13
+.label z_currentKeys = 20     // $14
+
 .label z_yPos = 21            // $15
 .label z_jumpFrame = 22       // $16
 .label z_collisionTile = 23   // $17
@@ -30,8 +32,8 @@
 .label z_xPos = 33            // $21
 .label z_gameConfig = 35      // $22
 
-// keyboard handling
-.label z_previousKeys = 36    // $23
-.label z_currentKeys = 37     // $24
-
 .label z_wrappingMark = 38    // $25
+.label z_prevMode = 39        // $26
+.label z_yPosTop = 40         // $27
+.label z_yPosBottom = 41      // $28
+.label z_isDuck = 42          // $29

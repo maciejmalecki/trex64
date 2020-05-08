@@ -1,5 +1,5 @@
 
-// 12 sprites generated with spritemate on 26.03.2020, 23:56:09
+// 12 sprites generated with spritemate on 6.05.2020, 00:13:30
 // Byte 64 of each sprite contains multicolor (high nibble) & color (low nibble) information
 
 
