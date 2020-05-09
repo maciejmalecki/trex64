@@ -263,28 +263,6 @@ doIngame: {
     rts
 }
 
-.print ""
-.print "SID Data"
-.print "--------"
-.print "location=$"+toHexString(music.location)
-.print "init=$"+toHexString(music.init)
-.print "play=$"+toHexString(music.play)
-.print "songs="+music.songs
-.print "startSong="+music.startSong
-.print "size=$"+toHexString(music.size)
-.print "name="+music.name
-.print "author="+music.author
-.print "copyright="+music.copyright
-.print ""
-.print "Additional tech data"
-.print "--------------------"
-.print "header="+music.header
-.print "header version="+music.version
-.print "flags="+toBinaryString(music.flags)
-.print "speed="+toBinaryString(music.speed)
-.print "startpage="+music.startpage
-.print "pagelength="+music.pagelength
-
 // Initialize music player.
 initSound: {
   ldx #0
@@ -1218,3 +1196,25 @@ memSummary("      CHARGEN_ADDR", CHARGEN_ADDR)
 memSummary("       SPRITE_ADDR", SPRITE_ADDR)
 
 .print ("total size = " + (endOfTRex - start) + " bytes")
+
+.print ""
+.print "SID Data"
+.print "--------"
+.print "location=$"+toHexString(music.location)
+.print "init=$"+toHexString(music.init)
+.print "play=$"+toHexString(music.play)
+.print "songs="+music.songs
+.print "startSong="+music.startSong
+.print "size=$"+toHexString(music.size)
+.print "name="+music.name
+.print "author="+music.author
+.print "copyright="+music.copyright
+.print ""
+.print "Additional tech data"
+.print "--------------------"
+.print "header="+music.header
+.print "header version="+music.version
+.print "flags="+toBinaryString(music.flags)
+.print "speed="+toBinaryString(music.speed)
+.print "startpage="+music.startpage
+.print "pagelength="+music.pagelength
