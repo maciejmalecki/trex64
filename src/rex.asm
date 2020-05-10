@@ -222,6 +222,7 @@ doIngame: {
   jsr setUpWorld
   jsr setUpMap
   jsr initLevel
+  jsr act_reset
   jsr io_resetControls
   jsr spr_showPlayer
   jsr startIngameCopper

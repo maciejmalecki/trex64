@@ -355,4 +355,14 @@ dinoDuckBottomOvl:
   .byte SPRITE_SHAPES_START + SPR_DINO_DUCK + 3
   .byte SPRITE_SHAPES_START + SPR_DINO_DUCK + 4 + 3
   .byte $ff
+vogel:
+  .byte SPRITE_SHAPES_START + SPR_VOGEL
+  .byte SPRITE_SHAPES_START + SPR_VOGEL + 1
+  .byte SPRITE_SHAPES_START + SPR_VOGEL + 2
+  .byte SPRITE_SHAPES_START + SPR_VOGEL + 3
+  .byte SPRITE_SHAPES_START + SPR_VOGEL + 4
+  .byte SPRITE_SHAPES_START + SPR_VOGEL + 3
+  .byte SPRITE_SHAPES_START + SPR_VOGEL + 2
+  .byte SPRITE_SHAPES_START + SPR_VOGEL + 1
+  .byte $ff
 // ----- END: Animation sequences -----
