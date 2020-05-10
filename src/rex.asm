@@ -705,6 +705,7 @@ setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DEL
 #import "io.asm"
 #import "physics.asm"
 #import "delays.asm"
+#import "actors.asm"
 // ---- END: import modules ----
 
 // ---- Utility subroutines ----
