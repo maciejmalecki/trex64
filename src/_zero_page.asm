@@ -38,4 +38,6 @@
 .label z_yPosBottom = 41      // $28
 .label z_isDuck = 42          // $29
 
-// goat tracker ghost regs: $40-$5A
+// actors
+.label z_actorsBase = 43      // $2A,$2B
+.label z_actorsPtr = 45       // $2C

@@ -40,12 +40,13 @@ act_add: {
     pla
     sta act_code,x
     invokeStackEnd(returnPtr)
-  end:
+    // get new sprite number from the sprite stack
     ldy act_stackPtr
     lda act_spriteStack,y
     sta act_sprite,x
     dey
     sta act_stackPtr
+  end:
     rts
   // local vars
   returnPtr: .word 0
@@ -115,6 +116,32 @@ act_reset: {
   sta act_spriteStack + 3
   lda #3
   sta act_stackPtr
+  rts
+}
+
+/*
+ * Animates active actors by moving them to the left side according to the speed register.
+ * Actors are not automatically removed once they come to the left edge of the screen so it is up to the caller
+ * code to remove / disable / hide them.
+ *
+ * Mod: A,X
+ */
+act_animate: {
+  ldx #0
+  loop:
+    lda act_code,x
+    beq end
+    sec
+    lda act_xLo,x
+    sbc act_speed,x
+    sta act_xLo,x
+    lda act_xHi,x
+    sbc #0
+    sta act_xHi,x
+    inx
+    cpx #ACT_MAX_SIZE
+    bne loop
+  end:
   rts
 }
 

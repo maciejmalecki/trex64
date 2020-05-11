@@ -624,7 +624,7 @@ nextLevel: {
   rts
 }
 
-.macro setUpMap(mapAddress, mapWidth, deltaX, wrappingMark) {
+.macro setUpMap(mapAddress, mapWidth, deltaX, wrappingMark, mapActors) {
   // set map definition pointer
   lda #<mapAddress
   sta z_map
@@ -640,6 +640,14 @@ nextLevel: {
   sta z_deltaX
   lda #wrappingMark
   sta z_wrappingMark
+
+  // set actors base and pointer
+  lda #<mapActors
+  sta z_actorsBase
+  lda #>mapActors
+  sta z_actorsBase + 1
+  lda #0
+  sta z_actorsPtr
 
   rts
 }
@@ -695,9 +703,9 @@ setUpMap: {
   rts
 }
 
-setUpMap1_1: setUpMap(level1.MAP_1_ADDRESS, level1.MAP_1_WIDTH, level1.MAP_1_DELTA_X, level1.MAP_1_WRAPPING_MARK)
-setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH, level1.MAP_2_DELTA_X, level1.MAP_2_WRAPPING_MARK)
-setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DELTA_X, level1.MAP_3_WRAPPING_MARK)
+setUpMap1_1: setUpMap(level1.MAP_1_ADDRESS, level1.MAP_1_WIDTH, level1.MAP_1_DELTA_X, level1.MAP_1_WRAPPING_MARK, level1.MAP_1_ACTORS)
+setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH, level1.MAP_2_DELTA_X, level1.MAP_2_WRAPPING_MARK, level1.MAP_2_ACTORS)
+setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DELTA_X, level1.MAP_3_WRAPPING_MARK, level1.MAP_3_ACTORS)
 
 // ---- END: level handling ----
 
@@ -1199,7 +1207,7 @@ memSummary("       SPRITE_ADDR", SPRITE_ADDR)
 
 .print ("total size = " + (endOfTRex - start) + " bytes")
 
-.print ""
+.print "SID Data"
 .print "SID Data"
 .print "--------"
 .print "location=$"+toHexString(music.location)
