@@ -40,4 +40,3 @@
 
 // actors
 .label z_actorsBase = 43      // $2A,$2B
-.label z_actorsPtr = 45       // $2C

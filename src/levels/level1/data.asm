@@ -49,7 +49,7 @@ _charset: .fill _charsetData.getSize(), _charsetData.get(i)
 // level 1-1
 _map1: .fill _map1Data.getSize(), _map1Data.get(i)
 _map1Actors:
-  actorDef($01, 32, 100, 4)
+  actorDef($01, 32, 150, 4)
   actorDefEnd()
 // level 1-2
 _map2: .fill _map2Data.getSize(), _map2Data.get(i)

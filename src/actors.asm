@@ -34,6 +34,8 @@ act_add: {
     pla
     sta act_speed,x
     pla
+    sta act_y,x
+    pla
     sta act_xHi,x
     pla
     sta act_xLo,x
@@ -106,13 +108,13 @@ act_reset: {
     cpx #ACT_MAX_SIZE
   bne loop
   // reset sprite number stack
-  lda #4
-  sta act_spriteStack
-  lda #5
-  sta act_spriteStack + 1
-  lda #6
-  sta act_spriteStack + 2
   lda #7
+  sta act_spriteStack
+  lda #6
+  sta act_spriteStack + 1
+  lda #5
+  sta act_spriteStack + 2
+  lda #4
   sta act_spriteStack + 3
   lda #3
   sta act_stackPtr

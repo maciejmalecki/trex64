@@ -1,4 +1,4 @@
-//#define VISUAL_DEBUG
+// #define VISUAL_DEBUG
 #import "common/lib/common.asm"
 #import "common/lib/mem.asm"
 #import "common/lib/invoke.asm"
@@ -274,7 +274,9 @@ initSound: {
 }
 
 playMusic: {
+  debugBorderStart()
   jsr music.play
+  debugBorderEnd()
   rts
 }
 
@@ -569,6 +571,104 @@ updateDashboard: {
 }
 // ---- END: graphics configuration ----
 
+// ---- actors handling ----
+checkForNewActors: {
+  ldy #0
+  lda (z_actorsBase),y
+  // check actor code
+  cmp #$ff
+  beq end
+    iny
+    lda (z_actorsBase),y
+    // check trigger position
+    cmp z_x + 1
+    bne end
+    // new actor trigger condition met
+    jmp newActor
+  end:
+    rts
+  newActor:
+    ldy #0
+    // actor code
+    lda (z_actorsBase),y
+    pha
+    // actor X position
+    lda #70 // #87 TODO: to make it visible from behind the border
+    pha
+    lda #1
+    pha
+    // actor Y position
+    iny
+    iny
+    lda (z_actorsBase),y
+    pha
+    // actor speed
+    iny
+    lda (z_actorsBase),y
+    pha
+    // add new actor
+    jsr act_add
+    lda act_sprite,x
+    tax
+    // X <- sprite number
+    ldy #0
+    lda (z_actorsBase),y
+    cmp #1
+    beq vogel
+    jmp moveActorsBase
+    vogel:
+      jsr spr_showVogel
+      jmp moveActorsBase
+    moveActorsBase:
+    // move actors base to the next entry
+    clc
+    lda z_actorsBase
+    adc #4
+    sta z_actorsBase
+    lda z_actorsBase + 1
+    adc #0
+    sta z_actorsBase + 1
+    rts
+}
+
+drawActors: {
+  ldy #0
+  loop:
+    cpy #ACT_MAX_SIZE
+    beq end
+    lda act_code,y
+    beq end
+    lda act_sprite,y
+    tax
+    lda spriteYPosRegisters,x
+    sta spriteY
+    lda spriteXPosRegisters,x
+    sta spriteX
+    lda act_y,y
+    sta spriteY:$d000
+    lda act_xLo,y
+    sta spriteX:$d000
+    lda act_xHi,y
+    beq hiZero
+      // X bigger than 255
+      lda SPRITE_MSB_X
+      ora bitMaskTable,x
+      sta SPRITE_MSB_X
+      jmp next
+    hiZero:
+      // less than 256
+      lda SPRITE_MSB_X
+      and bitMaskInvertedTable,x
+      sta SPRITE_MSB_X
+    next:
+    iny
+    jmp loop
+  end:
+  rts
+}
+
+// ---- END: actors handling ----
+
 // ---- level handling ----
 nextLevel: {
   lda z_worldCounter
@@ -646,8 +746,6 @@ nextLevel: {
   sta z_actorsBase
   lda #>mapActors
   sta z_actorsBase + 1
-  lda #0
-  sta z_actorsPtr
 
   rts
 }
@@ -1095,6 +1193,9 @@ switchPages: {
   jsr phy_performJump
   jsr phy_updateSpriteY
   jsr dly_handleDelay
+  jsr drawActors
+  jsr checkForNewActors
+  jsr act_animate
   decrementScoreDelay()
 
   debugBorderEnd()
@@ -1146,6 +1247,12 @@ handleControls: {
 
 // ---- DATA ----
 .segment Data
+spriteXPosRegisters:
+  .byte <SPRITE_0_X; .byte <SPRITE_1_X; .byte <SPRITE_2_X; .byte <SPRITE_3_X
+  .byte <SPRITE_4_X; .byte <SPRITE_5_X; .byte <SPRITE_6_X; .byte <SPRITE_7_X
+spriteYPosRegisters:
+  .byte <SPRITE_0_Y; .byte <SPRITE_1_Y; .byte <SPRITE_2_Y; .byte <SPRITE_3_Y
+  .byte <SPRITE_4_Y; .byte <SPRITE_5_Y; .byte <SPRITE_6_Y; .byte <SPRITE_7_Y
 // ---- texts ----
 // title screen
 txt_title:            .text "t-rex runner"; .byte $ff

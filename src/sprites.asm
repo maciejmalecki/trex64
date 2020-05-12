@@ -191,6 +191,25 @@ spr_showPlayerDuck: {
   rts
 }
 
+spr_showVogel: {
+  // set color
+  lda #WHITE
+  sta SPRITE_0_COLOR,x
+  // set sprite hires
+  lda SPRITE_COL_MODE
+  and bitMaskInvertedTable,x
+  sta SPRITE_COL_MODE
+  // sprite enable
+  lda SPRITE_ENABLE
+  ora bitMaskTable,x
+  sta SPRITE_ENABLE
+  // set animation
+  pushParamW(vogel)
+  lda #$43
+  jsr setAnimation
+  rts
+}
+
 spr_showDeath: {
   lda #0
   sta animControl
@@ -296,6 +315,10 @@ endOfSprites:
 // ---- END: Sprites definition ----
 
 .segment Data
+bitMaskTable:
+  .byte $01, $02, $04, $08, $10, $20, $40, $80
+bitMaskInvertedTable:
+  .byte neg($01), neg($02), neg($04), neg($08), neg($10), neg($20), neg($40), neg($80)
 // ---- Animation sequences -----
 dinoWalkLeft:
   .byte SPRITE_SHAPES_START + SPR_DINO
