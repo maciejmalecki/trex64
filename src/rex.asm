@@ -631,6 +631,41 @@ checkForNewActors: {
     rts
 }
 
+disposeActors: {
+  ldx #(ACT_MAX_SIZE-1)
+  loop:
+    lda act_code,x
+    beq next
+    lda act_xHi,x
+    bne next
+    lda act_xLo,x
+    and #%11111000
+    bne next
+    lda act_sprite,x
+    pha
+    stx preserveX
+    jsr act_remove
+    // disable animation
+    pla
+    tax
+    jsr disableAnimation
+    // disable sprite
+    lda SPRITE_ENABLE
+    and bitMaskInvertedTable,x
+    sta SPRITE_ENABLE
+    // restore X
+    ldx preserveX
+  next:
+    cpx #0
+    beq end
+    dex
+    jmp loop
+  end:
+  rts
+    // local vars
+    preserveX: .byte $00
+}
+
 drawActors: {
   ldy #0
   loop:
@@ -1196,6 +1231,7 @@ switchPages: {
   jsr drawActors
   jsr checkForNewActors
   jsr act_animate
+  jsr disposeActors
   decrementScoreDelay()
 
   debugBorderEnd()
@@ -1290,6 +1326,7 @@ endOfMusicData:
 beginOfChargen:
   // 0-63: letters, symbols, numbers
   #import "fonts/regular/base.asm"
+.print "Chargen import size = " + (endOfChargen - beginOfChargen)
 endOfChargen:
 .print "Chargen import size = " + (endOfChargen - beginOfChargen)
 // ---- END: chargen definition ----

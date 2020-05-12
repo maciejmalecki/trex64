@@ -21,13 +21,13 @@
 .label MAP_2_ADDRESS = _map2
 .label MAP_2_DELTA_X = 1<<6 // x4
 .label MAP_2_WRAPPING_MARK = %00000100
-.label MAP_2_ACTORS = _map1Actors
+.label MAP_2_ACTORS = _map2Actors
 
 .label MAP_3_WIDTH = _map3Data.getSize() / c64lib.MAP_HEIGHT
 .label MAP_3_ADDRESS = _map3
 .label MAP_3_DELTA_X = 1<<5 // x2
 .label MAP_3_WRAPPING_MARK = %00000110
-.label MAP_3_ACTORS = _map1Actors
+.label MAP_3_ACTORS = _map2Actors
 
 .label CHARSET_SIZE = _charsetData.getSize()/8
 .label CHARSET_ADDRESS = _charset
@@ -50,9 +50,14 @@ _charset: .fill _charsetData.getSize(), _charsetData.get(i)
 _map1: .fill _map1Data.getSize(), _map1Data.get(i)
 _map1Actors:
   actorDef($01, 32, 150, 4)
+  actorDef($01, 40, 120, 4)
+  actorDef($01, 41, 95, 8)
+  actorDef($01, 42, 130, 4)
   actorDefEnd()
 // level 1-2
 _map2: .fill _map2Data.getSize(), _map2Data.get(i)
+_map2Actors:
+  actorDefEnd()
 // level 1-3
 _map3: .fill _map3Data.getSize(), _map3Data.get(i)
 _colors: .fill _tileColorsData.getSize(), _tileColorsData.get(i)

@@ -59,7 +59,7 @@ act_add: {
  *
  * In:  X - number of actor to be removed: 0..ACT_MAX_SIZE-1
  * Mod:
- *      Y, A
+ *      X, Y, A
  */
 act_remove: {
   // release sprite number
