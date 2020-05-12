@@ -192,9 +192,6 @@ spr_showPlayerDuck: {
 }
 
 spr_showVogel: {
-  // set color
-  lda #WHITE
-  sta SPRITE_0_COLOR,x
   // set sprite hires
   lda SPRITE_COL_MODE
   and bitMaskInvertedTable,x
@@ -251,10 +248,6 @@ spr_showDeath: {
 
   ldx #PLAYER_SPRITE_BOTTOM_OVL
   jsr disableAnimation
-
-
-  //_setSpriteShape(PLAYER_SPRITE_TOP, 128 + 12)
-  //_setSpriteShape(PLAYER_SPRITE_TOP_OVL, 128 + 12 + 1)
 
   lda #%00000011
   sta SPRITE_ENABLE

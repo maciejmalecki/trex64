@@ -606,11 +606,17 @@ checkForNewActors: {
     iny
     lda (z_actorsBase),y
     pha
+    // actor color
+    iny
+    lda (z_actorsBase),y
+    sta color
     // add new actor
     jsr act_add
     lda act_sprite,x
     tax
     // X <- sprite number
+    lda color:#$00
+    sta SPRITE_0_COLOR,x
     ldy #0
     lda (z_actorsBase),y
     cmp #1
@@ -623,7 +629,7 @@ checkForNewActors: {
     // move actors base to the next entry
     clc
     lda z_actorsBase
-    adc #4
+    adc #5
     sta z_actorsBase
     lda z_actorsBase + 1
     adc #0
@@ -639,7 +645,7 @@ disposeActors: {
     lda act_xHi,x
     bne next
     lda act_xLo,x
-    and #%11111000
+    and #%11110000
     bne next
     lda act_sprite,x
     pha

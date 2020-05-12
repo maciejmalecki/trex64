@@ -47,7 +47,7 @@ act_add: {
     lda act_spriteStack,y
     sta act_sprite,x
     dey
-    sta act_stackPtr
+    sty act_stackPtr
   end:
     rts
   // local vars
