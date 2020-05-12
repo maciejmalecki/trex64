@@ -52,7 +52,9 @@ _map1Actors:
   actorDef($01, 32, 150, 4, WHITE)
   actorDef($01, 40, 110, 4, WHITE)
   actorDef($01, 41, 75, 5, CYAN)
-  actorDef($01, 42, 135, 4, PURPLE)
+  actorDef($01, 42, 135, 4, LIGHT_BLUE)
+  actorDef($01, 43, 150, 4, WHITE)
+  actorDef($01, 50, 80, 5, WHITE)
   actorDefEnd()
 // level 1-2
 _map2: .fill _map2Data.getSize(), _map2Data.get(i)
