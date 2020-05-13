@@ -249,12 +249,15 @@ spr_showDeath: {
   ldx #PLAYER_SPRITE_BOTTOM_OVL
   jsr disableAnimation
 
-  lda #%00000011
+  lda SPRITE_ENABLE
+  and #%11110011
+  ora #%00000011
   sta SPRITE_ENABLE
   rts
 }
 
 spr_showGameOver: {
+
   .label _GAME_OVER_X = 130
   .label _GAME_OVER_Y = 135
 

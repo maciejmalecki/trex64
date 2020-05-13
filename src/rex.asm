@@ -235,6 +235,7 @@ doIngame: {
     lda z_gameState
     cmp #GAME_STATE_KILLED
     bne !+
+
       jsr spr_showDeath
       // decrement lives
       dec z_lives
@@ -257,6 +258,14 @@ doIngame: {
 
   displayGameOver:
     jsr spr_hidePlayers
+    lda SPRITE_ENABLE
+    and #%00000000
+    sta SPRITE_ENABLE
+    .for (var i = 4; i < 8; i++) {
+      ldx #i
+      jsr disableAnimation
+    }
+    jsr act_reset
     jsr spr_showGameOver
     wait #200
   gameOver:
@@ -1259,11 +1268,13 @@ switchPages: {
   jsr phy_performJump
   jsr phy_updateSpriteY
   jsr dly_handleDelay
-  jsr drawActors
+
+  jsr disposeActors
   jsr checkForNewActors
+  jsr drawActors
   jsr act_animate
   jsr enableActors
-  jsr disposeActors
+
   decrementScoreDelay()
 
   debugBorderEnd()
