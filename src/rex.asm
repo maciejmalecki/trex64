@@ -228,7 +228,8 @@ doIngame: {
   jsr startIngameCopper
   mainMapLoop:
     // check death conditions
-    jsr checkCollisions
+    jsr checkBGCollisions
+    jsr checkActorCollisions
     jsr updateScore
     // check game state
     lda z_gameState
@@ -956,7 +957,7 @@ tileDefinition:
 .eval tilesCfg.tileDefinition = tileDefinition
 .eval tilesCfg.lock()
 
-checkCollisions: {
+checkBGCollisions: {
   cld
   lda #(PLAYER_X + X_COLLISION_OFFSET)
   lsr
@@ -981,6 +982,18 @@ checkCollisions: {
     }
   !:
   sta z_collisionTile
+  rts
+}
+
+checkActorCollisions: {
+  lda SPRITE_2S_COLLISION
+  and #%11110000
+  beq !+
+    lda #GAME_STATE_KILLED
+    .if (INVINCIBLE == 0) {
+      sta z_gameState
+    }
+  !:
   rts
 }
 
