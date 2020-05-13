@@ -1282,6 +1282,11 @@ switchPages: {
 }
 
 handleControls: {
+  lda z_gameState
+  cmp #GAME_STATE_LIVE
+  beq !+
+    rts
+  !:
   jsr io_checkJump
   beq !+
   {
