@@ -709,6 +709,18 @@ drawActors: {
   rts
 }
 
+enableActors: {
+  lda z_spriteEnable
+  beq !+
+    lda SPRITE_ENABLE
+    ora z_spriteEnable
+    sta SPRITE_ENABLE
+    lda #0
+    sta z_spriteEnable
+  !:
+  rts
+}
+
 // ---- END: actors handling ----
 
 // ---- level handling ----
@@ -1250,6 +1262,7 @@ switchPages: {
   jsr drawActors
   jsr checkForNewActors
   jsr act_animate
+  jsr enableActors
   jsr disposeActors
   decrementScoreDelay()
 

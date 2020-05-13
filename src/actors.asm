@@ -1,4 +1,5 @@
 #import "_segments.asm"
+#import "_zero_page.asm"
 #import "common/lib/invoke.asm"
 
 .filenamespace c64lib
@@ -118,6 +119,9 @@ act_reset: {
   sta act_spriteStack + 3
   lda #3
   sta act_stackPtr
+  // reset sprite enable ghost register
+  lda #0
+  sta z_spriteEnable
   rts
 }
 

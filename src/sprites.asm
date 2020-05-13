@@ -196,14 +196,14 @@ spr_showVogel: {
   lda SPRITE_COL_MODE
   and bitMaskInvertedTable,x
   sta SPRITE_COL_MODE
-  // sprite enable
-  lda SPRITE_ENABLE
-  ora bitMaskTable,x
-  sta SPRITE_ENABLE
   // set animation
   pushParamW(vogel)
   lda #$43
   jsr setAnimation
+  // sprite enable
+  lda z_spriteEnable
+  ora bitMaskTable,x
+  sta z_spriteEnable
   rts
 }
 
