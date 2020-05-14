@@ -11,10 +11,10 @@
 .filenamespace c64lib
 
 .label SPR_DINO = 0
-.label SPR_DINO_JUMP = SPR_DINO + (_b_dinoJump - _b_dino)/64
-.label SPR_DINO_DUCK = SPR_DINO_JUMP + (_b_dinoDuck - _b_dinoJump)/64
-.label SPR_DEATH = SPR_DINO_DUCK + (_b_death - _b_dinoDuck)/64
-.label SPR_GAME_OVER = SPR_DEATH + (_b_gameOver - _b_death)/64
+.label SPR_DINO_JUMP = SPR_DINO + 8
+.label SPR_DINO_DUCK = SPR_DINO_JUMP + 4
+.label SPR_DEATH = SPR_DINO_DUCK + 8
+.label SPR_GAME_OVER = SPR_DEATH + 4
 .label SPR_VOGEL = SPR_GAME_OVER + (_b_vogel - _b_gameOver)/64
 
 .macro _setSpriteShape(spriteNum, shapeNum) {
@@ -208,30 +208,8 @@ spr_showVogel: {
 }
 
 spr_showDeath: {
-  lda #0
-  sta animControl
-  sta animControl+1
-  lda #0
-  sta SPRITE_ENABLE
-  // set X coord
-  lda #PLAYER_X
-  sta spriteXReg(PLAYER_SPRITE_TOP)
-  sta spriteXReg(PLAYER_SPRITE_TOP_OVL)
-  // set Y coord
-  lda #PLAYER_Y
-  sta spriteYReg(PLAYER_SPRITE_TOP)
-  sta spriteYReg(PLAYER_SPRITE_TOP_OVL)
-  // set colors
-  lda #DEATH_COL
-  sta spriteColorReg(PLAYER_SPRITE_TOP_OVL)
-  lda #DEATH_COL0
-  sta spriteColorReg(PLAYER_SPRITE_TOP)
-  lda #%00000010
-  sta SPRITE_COL_MODE
-  lda #PLAYER_COL1
-  sta SPRITE_COL_0
-  lda #PLAYER_COL2
-  sta SPRITE_COL_1
+
+  jsr _spr_setNormalPosition
 
   pushParamW(dinoDeath)
   ldx #PLAYER_SPRITE_TOP
@@ -243,16 +221,16 @@ spr_showDeath: {
   lda #$43
   jsr setAnimation
 
+  pushParamW(dinoDeathBottom)
   ldx #PLAYER_SPRITE_BOTTOM
-  jsr disableAnimation
+  lda #$43
+  jsr setAnimation
 
+  pushParamW(dinoDeathBottomOvl)
   ldx #PLAYER_SPRITE_BOTTOM_OVL
-  jsr disableAnimation
+  lda #$43
+  jsr setAnimation
 
-  lda SPRITE_ENABLE
-  and #%11110011
-  ora #%00000011
-  sta SPRITE_ENABLE
   rts
 }
 
@@ -280,7 +258,7 @@ spr_showGameOver: {
     lda #(_GAME_OVER_X + 20 + i*24)
     sta spriteXReg(4 + i)
   }
-  lda #%11110011
+  lda #%11111111
   sta SPRITE_ENABLE
   rts
 }
@@ -296,12 +274,12 @@ spr_hidePlayers: {
 beginOfSprites:
   _b_dino:
   #import "sprites/dino.asm"
-  _b_dinoJump:
-  #import "sprites/dino-jump.asm"
-  _b_dinoDuck:
-  #import "sprites/dino-duck.asm"
-  _b_death:
-  #import "sprites/death.asm"
+  //_b_dinoJump:
+  //#import "sprites/dino-jump.asm"
+  //_b_dinoDuck:
+  //#import "sprites/dino-duck.asm"
+  //_b_death:
+  //#import "sprites/death.asm"
   _b_gameOver:
   #import "sprites/gameover.asm"
   _b_vogel:
@@ -337,6 +315,12 @@ dinoDeath:
   .byte $ff
 dinoDeathOvl:
   .byte SPRITE_SHAPES_START + SPR_DEATH + 1
+  .byte $ff
+dinoDeathBottom:
+  .byte SPRITE_SHAPES_START + SPR_DEATH + 2
+  .byte $ff
+dinoDeathBottomOvl:
+  .byte SPRITE_SHAPES_START + SPR_DEATH + 3
   .byte $ff
 dinoJump:
   .byte SPRITE_SHAPES_START + SPR_DINO_JUMP
