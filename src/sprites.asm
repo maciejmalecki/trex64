@@ -319,25 +319,17 @@ bitMaskInvertedTable:
 dinoWalkLeft:
   .byte SPRITE_SHAPES_START + SPR_DINO
   .byte SPRITE_SHAPES_START + SPR_DINO + 4
-  .byte SPRITE_SHAPES_START + SPR_DINO + 8
-  .byte SPRITE_SHAPES_START + SPR_DINO + 4
   .byte $ff
 dinoWalkLeftOvl:
   .byte SPRITE_SHAPES_START + SPR_DINO + 1
-  .byte SPRITE_SHAPES_START + SPR_DINO + 1 + 4
-  .byte SPRITE_SHAPES_START + SPR_DINO + 1 + 8
   .byte SPRITE_SHAPES_START + SPR_DINO + 1 + 4
   .byte $ff
 dinoWalkLeftBottom:
   .byte SPRITE_SHAPES_START + SPR_DINO + 2
   .byte SPRITE_SHAPES_START + SPR_DINO + 2 + 4
-  .byte SPRITE_SHAPES_START + SPR_DINO + 2 + 8
-  .byte SPRITE_SHAPES_START + SPR_DINO + 2 + 4
   .byte $ff
 dinoWalkLeftBottomOvl:
   .byte SPRITE_SHAPES_START + SPR_DINO + 3
-  .byte SPRITE_SHAPES_START + SPR_DINO + 3 + 4
-  .byte SPRITE_SHAPES_START + SPR_DINO + 3 + 8
   .byte SPRITE_SHAPES_START + SPR_DINO + 3 + 4
   .byte $ff
 dinoDeath:
