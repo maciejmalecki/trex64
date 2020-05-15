@@ -235,6 +235,15 @@ doIngame: {
     lda z_gameState
     cmp #GAME_STATE_KILLED
     bne !+
+      {
+        lda z_mode
+        bne !+
+          lda #1
+          sta z_mode
+          lda #0
+          sta z_jumpFrame
+        !:
+      }
 
       jsr spr_showDeath
       // decrement lives

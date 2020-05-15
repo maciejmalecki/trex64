@@ -273,7 +273,8 @@ spr_hidePlayers: {
 .segment Sprites
 beginOfSprites:
   _b_dino:
-  #import "sprites/dino.asm"
+  //#import "sprites/dino.asm"
+  .import binary "sprites/dino.bin"
   //_b_dinoJump:
   //#import "sprites/dino-jump.asm"
   //_b_dinoDuck:
