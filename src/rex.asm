@@ -1250,8 +1250,13 @@ switchPages: {
   adc #20
   cmp z_width
   bne dontReset
-    lda #GAME_STATE_LEVEL_END_SEQUENCE
-    sta z_gameState
+    lda z_gameState
+    cmp #GAME_STATE_LEVEL_END_SEQUENCE
+    beq !+
+      lda #GAME_STATE_LEVEL_END_SEQUENCE
+      sta z_gameState
+      jsr spr_showPlayerWalkLeft
+    !:
   dontReset:
 
   // detect scrolling phase
