@@ -1037,6 +1037,10 @@ initLevel: {
   lda #PHASE_SHOW_0
   sta z_phase
 
+  // set sprite enable ghost reg to 0
+  lda #0
+  sta z_spriteEnable
+
   // set [x,y] = [0,0]
   lda #0
   sta z_x
