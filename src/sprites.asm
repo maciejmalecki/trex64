@@ -67,8 +67,9 @@ spr_showPlayer: {
 
   jsr spr_showPlayerWalkLeft
 
-  lda #$0F
-  sta SPRITE_ENABLE
+  lda z_spriteEnable
+  ora #$0F
+  sta z_spriteEnable
 
   rts
 }
