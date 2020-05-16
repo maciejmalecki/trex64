@@ -266,6 +266,7 @@ doIngame: {
   jmp mainMapLoop
 
   displayGameOver:
+    jsr act_reset
     jsr spr_hidePlayers
     lda SPRITE_ENABLE
     and #%00000000
@@ -274,7 +275,6 @@ doIngame: {
       ldx #i
       jsr disableAnimation
     }
-    jsr act_reset
     jsr spr_showGameOver
     wait #200
   gameOver:
