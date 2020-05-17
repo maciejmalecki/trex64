@@ -37,3 +37,7 @@
 .label z_yPosTop = 40         // $27
 .label z_yPosBottom = 41      // $28
 .label z_isDuck = 42          // $29
+
+// actors
+.label z_actorsBase = 43      // $2A,$2B
+.label z_spriteEnable = 45    // $2C

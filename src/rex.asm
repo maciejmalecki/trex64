@@ -1,4 +1,4 @@
-//#define VISUAL_DEBUG
+// #define VISUAL_DEBUG
 #import "common/lib/common.asm"
 #import "common/lib/mem.asm"
 #import "common/lib/invoke.asm"
@@ -222,17 +222,29 @@ doIngame: {
   jsr setUpWorld
   jsr setUpMap
   jsr initLevel
+  jsr act_reset
   jsr io_resetControls
   jsr spr_showPlayer
   jsr startIngameCopper
+  brkInGame:
   mainMapLoop:
     // check death conditions
-    jsr checkCollisions
+    jsr checkBGCollisions
     jsr updateScore
     // check game state
     lda z_gameState
     cmp #GAME_STATE_KILLED
     bne !+
+      {
+        lda z_mode
+        bne !+
+          lda #1
+          sta z_mode
+          lda #0
+          sta z_jumpFrame
+        !:
+      }
+
       jsr spr_showDeath
       // decrement lives
       dec z_lives
@@ -254,7 +266,15 @@ doIngame: {
   jmp mainMapLoop
 
   displayGameOver:
+    jsr act_reset
     jsr spr_hidePlayers
+    lda SPRITE_ENABLE
+    and #%00000000
+    sta SPRITE_ENABLE
+    .for (var i = 4; i < 8; i++) {
+      ldx #i
+      jsr disableAnimation
+    }
     jsr spr_showGameOver
     wait #200
   gameOver:
@@ -262,28 +282,6 @@ doIngame: {
     jsr spr_hidePlayers
     rts
 }
-
-.print ""
-.print "SID Data"
-.print "--------"
-.print "location=$"+toHexString(music.location)
-.print "init=$"+toHexString(music.init)
-.print "play=$"+toHexString(music.play)
-.print "songs="+music.songs
-.print "startSong="+music.startSong
-.print "size=$"+toHexString(music.size)
-.print "name="+music.name
-.print "author="+music.author
-.print "copyright="+music.copyright
-.print ""
-.print "Additional tech data"
-.print "--------------------"
-.print "header="+music.header
-.print "header version="+music.version
-.print "flags="+toBinaryString(music.flags)
-.print "speed="+toBinaryString(music.speed)
-.print "startpage="+music.startpage
-.print "pagelength="+music.pagelength
 
 // Initialize music player.
 initSound: {
@@ -295,7 +293,9 @@ initSound: {
 }
 
 playMusic: {
+  debugBorderStart()
   jsr music.play
+  debugBorderEnd()
   rts
 }
 
@@ -590,6 +590,157 @@ updateDashboard: {
 }
 // ---- END: graphics configuration ----
 
+// ---- actors handling ----
+checkForNewActors: {
+  ldy #0
+  lda (z_actorsBase),y
+  // check actor code
+  cmp #$ff
+  beq end
+    iny
+    lda (z_actorsBase),y
+    // check trigger position
+    cmp z_x + 1
+    bne end
+    // new actor trigger condition met
+    jmp newActor
+  end:
+    rts
+  newActor:
+    ldy #0
+    // actor code
+    lda (z_actorsBase),y
+    pha
+    // actor X position
+    lda #70 // #87 TODO: to make it visible from behind the border
+    pha
+    lda #1
+    pha
+    // actor Y position
+    iny
+    iny
+    lda (z_actorsBase),y
+    pha
+    // actor speed
+    iny
+    lda (z_actorsBase),y
+    pha
+    // actor color
+    iny
+    lda (z_actorsBase),y
+    sta color
+    // add new actor
+    jsr act_add
+    lda act_sprite,x
+    tax
+    // X <- sprite number
+    lda color:#$00
+    sta SPRITE_0_COLOR,x
+    ldy #0
+    lda (z_actorsBase),y
+    cmp #1
+    beq vogel
+    jmp moveActorsBase
+    vogel:
+      jsr spr_showVogel
+      jmp moveActorsBase
+    moveActorsBase:
+    // move actors base to the next entry
+    clc
+    lda z_actorsBase
+    adc #5
+    sta z_actorsBase
+    lda z_actorsBase + 1
+    adc #0
+    sta z_actorsBase + 1
+    rts
+}
+
+disposeActors: {
+  ldx #(ACT_MAX_SIZE-1)
+  loop:
+    lda act_code,x
+    beq next
+    lda act_xHi,x
+    bne next
+    lda act_xLo,x
+    and #%11110000
+    bne next
+    lda act_sprite,x
+    pha
+    stx preserveX
+    jsr act_remove
+    // disable animation
+    pla
+    tax
+    jsr disableAnimation
+    // disable sprite
+    lda SPRITE_ENABLE
+    and bitMaskInvertedTable,x
+    sta SPRITE_ENABLE
+    // restore X
+    ldx preserveX
+  next:
+    cpx #0
+    beq end
+    dex
+    jmp loop
+  end:
+  rts
+    // local vars
+    preserveX: .byte $00
+}
+
+drawActors: {
+  ldy #0
+  loop:
+    cpy #ACT_MAX_SIZE
+    beq end
+    lda act_code,y
+    beq end
+    lda act_sprite,y
+    tax
+    lda spriteYPosRegisters,x
+    sta spriteY
+    lda spriteXPosRegisters,x
+    sta spriteX
+    lda act_y,y
+    sta spriteY:$d000
+    lda act_xLo,y
+    sta spriteX:$d000
+    lda act_xHi,y
+    beq hiZero
+      // X bigger than 255
+      lda SPRITE_MSB_X
+      ora bitMaskTable,x
+      sta SPRITE_MSB_X
+      jmp next
+    hiZero:
+      // less than 256
+      lda SPRITE_MSB_X
+      and bitMaskInvertedTable,x
+      sta SPRITE_MSB_X
+    next:
+    iny
+    jmp loop
+  end:
+  rts
+}
+
+enableActors: {
+  lda z_spriteEnable
+  beq !+
+    lda SPRITE_ENABLE
+    ora z_spriteEnable
+    sta SPRITE_ENABLE
+    lda #0
+    sta z_spriteEnable
+  !:
+  rts
+}
+
+// ---- END: actors handling ----
+
 // ---- level handling ----
 nextLevel: {
   lda z_worldCounter
@@ -645,7 +796,7 @@ nextLevel: {
   rts
 }
 
-.macro setUpMap(mapAddress, mapWidth, deltaX, wrappingMark) {
+.macro setUpMap(mapAddress, mapWidth, deltaX, wrappingMark, mapActors) {
   // set map definition pointer
   lda #<mapAddress
   sta z_map
@@ -661,6 +812,12 @@ nextLevel: {
   sta z_deltaX
   lda #wrappingMark
   sta z_wrappingMark
+
+  // set actors base and pointer
+  lda #<mapActors
+  sta z_actorsBase
+  lda #>mapActors
+  sta z_actorsBase + 1
 
   rts
 }
@@ -716,9 +873,9 @@ setUpMap: {
   rts
 }
 
-setUpMap1_1: setUpMap(level1.MAP_1_ADDRESS, level1.MAP_1_WIDTH, level1.MAP_1_DELTA_X, level1.MAP_1_WRAPPING_MARK)
-setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH, level1.MAP_2_DELTA_X, level1.MAP_2_WRAPPING_MARK)
-setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DELTA_X, level1.MAP_3_WRAPPING_MARK)
+setUpMap1_1: setUpMap(level1.MAP_1_ADDRESS, level1.MAP_1_WIDTH, level1.MAP_1_DELTA_X, level1.MAP_1_WRAPPING_MARK, level1.MAP_1_ACTORS)
+setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH, level1.MAP_2_DELTA_X, level1.MAP_2_WRAPPING_MARK, level1.MAP_2_ACTORS)
+setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DELTA_X, level1.MAP_3_WRAPPING_MARK, level1.MAP_3_ACTORS)
 
 // ---- END: level handling ----
 
@@ -727,6 +884,7 @@ setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DEL
 #import "io.asm"
 #import "physics.asm"
 #import "delays.asm"
+#import "actors.asm"
 // ---- END: import modules ----
 
 // ---- Utility subroutines ----
@@ -829,7 +987,7 @@ tileDefinition:
 .eval tilesCfg.tileDefinition = tileDefinition
 .eval tilesCfg.lock()
 
-checkCollisions: {
+checkBGCollisions: {
   cld
   lda #(PLAYER_X + X_COLLISION_OFFSET)
   lsr
@@ -857,6 +1015,18 @@ checkCollisions: {
   rts
 }
 
+checkActorCollisions: {
+  lda SPRITE_2S_COLLISION
+  and #%11110000
+  beq !+
+    lda #GAME_STATE_KILLED
+    .if (INVINCIBLE == 0) {
+      sta z_gameState
+    }
+  !:
+  rts
+}
+
 drawTile: drawTile(tilesCfg, SCREEN_PAGE_ADDR_0, COLOR_RAM)
 
 initLevel: {
@@ -866,6 +1036,10 @@ initLevel: {
   // set phase to 0
   lda #PHASE_SHOW_0
   sta z_phase
+
+  // set sprite enable ghost reg to 0
+  lda #0
+  sta z_spriteEnable
 
   // set [x,y] = [0,0]
   lda #0
@@ -1080,8 +1254,13 @@ switchPages: {
   adc #20
   cmp z_width
   bne dontReset
-    lda #GAME_STATE_LEVEL_END_SEQUENCE
-    sta z_gameState
+    lda z_gameState
+    cmp #GAME_STATE_LEVEL_END_SEQUENCE
+    beq !+
+      lda #GAME_STATE_LEVEL_END_SEQUENCE
+      sta z_gameState
+      jsr spr_showPlayerWalkLeft
+    !:
   dontReset:
 
   // detect scrolling phase
@@ -1107,6 +1286,14 @@ switchPages: {
   jsr phy_performJump
   jsr phy_updateSpriteY
   jsr dly_handleDelay
+
+  jsr disposeActors
+  jsr checkForNewActors
+  jsr drawActors
+  jsr act_animate
+  jsr enableActors
+  jsr checkActorCollisions
+
   decrementScoreDelay()
 
   debugBorderEnd()
@@ -1114,6 +1301,11 @@ switchPages: {
 }
 
 handleControls: {
+  lda z_gameState
+  cmp #GAME_STATE_LIVE
+  beq !+
+    rts
+  !:
   jsr io_checkJump
   beq !+
   {
@@ -1158,6 +1350,12 @@ handleControls: {
 
 // ---- DATA ----
 .segment Data
+spriteXPosRegisters:
+  .byte <SPRITE_0_X; .byte <SPRITE_1_X; .byte <SPRITE_2_X; .byte <SPRITE_3_X
+  .byte <SPRITE_4_X; .byte <SPRITE_5_X; .byte <SPRITE_6_X; .byte <SPRITE_7_X
+spriteYPosRegisters:
+  .byte <SPRITE_0_Y; .byte <SPRITE_1_Y; .byte <SPRITE_2_Y; .byte <SPRITE_3_Y
+  .byte <SPRITE_4_Y; .byte <SPRITE_5_Y; .byte <SPRITE_6_Y; .byte <SPRITE_7_Y
 // ---- texts ----
 // title screen
 txt_title:            .text "t-rex runner"; .byte $ff
@@ -1195,6 +1393,7 @@ endOfMusicData:
 beginOfChargen:
   // 0-63: letters, symbols, numbers
   #import "fonts/regular/base.asm"
+.print "Chargen import size = " + (endOfChargen - beginOfChargen)
 endOfChargen:
 .print "Chargen import size = " + (endOfChargen - beginOfChargen)
 // ---- END: chargen definition ----
@@ -1218,3 +1417,29 @@ memSummary("      CHARGEN_ADDR", CHARGEN_ADDR)
 memSummary("       SPRITE_ADDR", SPRITE_ADDR)
 
 .print ("total size = " + (endOfTRex - start) + " bytes")
+
+.print "SID Data"
+.print "SID Data"
+.print "--------"
+.print "location=$"+toHexString(music.location)
+.print "init=$"+toHexString(music.init)
+.print "play=$"+toHexString(music.play)
+.print "songs="+music.songs
+.print "startSong="+music.startSong
+.print "size=$"+toHexString(music.size)
+.print "name="+music.name
+.print "author="+music.author
+.print "copyright="+music.copyright
+.print ""
+.print "Additional tech data"
+.print "--------------------"
+.print "header="+music.header
+.print "header version="+music.version
+.print "flags="+toBinaryString(music.flags)
+.print "speed="+toBinaryString(music.speed)
+.print "startpage="+music.startpage
+.print "pagelength="+music.pagelength
+
+.print "BREAKPOINTS"
+.print "-----------"
+.print "inGame.brkInGame=$" + toHexString(doIngame.mainMapLoop, 4)

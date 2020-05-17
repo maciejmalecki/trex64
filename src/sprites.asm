@@ -11,10 +11,10 @@
 .filenamespace c64lib
 
 .label SPR_DINO = 0
-.label SPR_DINO_JUMP = SPR_DINO + (_b_dinoJump - _b_dino)/64
-.label SPR_DINO_DUCK = SPR_DINO_JUMP + (_b_dinoDuck - _b_dinoJump)/64
-.label SPR_DEATH = SPR_DINO_DUCK + (_b_death - _b_dinoDuck)/64
-.label SPR_GAME_OVER = SPR_DEATH + (_b_gameOver - _b_death)/64
+.label SPR_DINO_JUMP = SPR_DINO + 8
+.label SPR_DINO_DUCK = SPR_DINO_JUMP + 4
+.label SPR_DEATH = SPR_DINO_DUCK + 8
+.label SPR_GAME_OVER = SPR_DEATH + 4
 .label SPR_VOGEL = SPR_GAME_OVER + (_b_vogel - _b_gameOver)/64
 
 .macro _setSpriteShape(spriteNum, shapeNum) {
@@ -67,8 +67,9 @@ spr_showPlayer: {
 
   jsr spr_showPlayerWalkLeft
 
-  lda #$0F
-  sta SPRITE_ENABLE
+  lda z_spriteEnable
+  ora #$0F
+  sta z_spriteEnable
 
   rts
 }
@@ -191,31 +192,25 @@ spr_showPlayerDuck: {
   rts
 }
 
-spr_showDeath: {
-  lda #0
-  sta animControl
-  sta animControl+1
-  lda #0
-  sta SPRITE_ENABLE
-  // set X coord
-  lda #PLAYER_X
-  sta spriteXReg(PLAYER_SPRITE_TOP)
-  sta spriteXReg(PLAYER_SPRITE_TOP_OVL)
-  // set Y coord
-  lda #PLAYER_Y
-  sta spriteYReg(PLAYER_SPRITE_TOP)
-  sta spriteYReg(PLAYER_SPRITE_TOP_OVL)
-  // set colors
-  lda #DEATH_COL
-  sta spriteColorReg(PLAYER_SPRITE_TOP_OVL)
-  lda #DEATH_COL0
-  sta spriteColorReg(PLAYER_SPRITE_TOP)
-  lda #%00000010
+spr_showVogel: {
+  // set sprite hires
+  lda SPRITE_COL_MODE
+  and bitMaskInvertedTable,x
   sta SPRITE_COL_MODE
-  lda #PLAYER_COL1
-  sta SPRITE_COL_0
-  lda #PLAYER_COL2
-  sta SPRITE_COL_1
+  // set animation
+  pushParamW(vogel)
+  lda #$43
+  jsr setAnimation
+  // sprite enable
+  lda z_spriteEnable
+  ora bitMaskTable,x
+  sta z_spriteEnable
+  rts
+}
+
+spr_showDeath: {
+
+  jsr _spr_setNormalPosition
 
   pushParamW(dinoDeath)
   ldx #PLAYER_SPRITE_TOP
@@ -227,22 +222,21 @@ spr_showDeath: {
   lda #$43
   jsr setAnimation
 
+  pushParamW(dinoDeathBottom)
   ldx #PLAYER_SPRITE_BOTTOM
-  jsr disableAnimation
+  lda #$43
+  jsr setAnimation
 
+  pushParamW(dinoDeathBottomOvl)
   ldx #PLAYER_SPRITE_BOTTOM_OVL
-  jsr disableAnimation
+  lda #$43
+  jsr setAnimation
 
-
-  //_setSpriteShape(PLAYER_SPRITE_TOP, 128 + 12)
-  //_setSpriteShape(PLAYER_SPRITE_TOP_OVL, 128 + 12 + 1)
-
-  lda #%00000011
-  sta SPRITE_ENABLE
   rts
 }
 
 spr_showGameOver: {
+
   .label _GAME_OVER_X = 130
   .label _GAME_OVER_Y = 135
 
@@ -265,7 +259,7 @@ spr_showGameOver: {
     lda #(_GAME_OVER_X + 20 + i*24)
     sta spriteXReg(4 + i)
   }
-  lda #%11110011
+  lda #%11111111
   sta SPRITE_ENABLE
   rts
 }
@@ -280,13 +274,14 @@ spr_hidePlayers: {
 .segment Sprites
 beginOfSprites:
   _b_dino:
-  #import "sprites/dino.asm"
-  _b_dinoJump:
-  #import "sprites/dino-jump.asm"
-  _b_dinoDuck:
-  #import "sprites/dino-duck.asm"
-  _b_death:
-  #import "sprites/death.asm"
+  //#import "sprites/dino.asm"
+  .import binary "sprites/dino.bin"
+  //_b_dinoJump:
+  //#import "sprites/dino-jump.asm"
+  //_b_dinoDuck:
+  //#import "sprites/dino-duck.asm"
+  //_b_death:
+  //#import "sprites/death.asm"
   _b_gameOver:
   #import "sprites/gameover.asm"
   _b_vogel:
@@ -296,29 +291,25 @@ endOfSprites:
 // ---- END: Sprites definition ----
 
 .segment Data
+bitMaskTable:
+  .byte $01, $02, $04, $08, $10, $20, $40, $80
+bitMaskInvertedTable:
+  .byte neg($01), neg($02), neg($04), neg($08), neg($10), neg($20), neg($40), neg($80)
 // ---- Animation sequences -----
 dinoWalkLeft:
   .byte SPRITE_SHAPES_START + SPR_DINO
-  .byte SPRITE_SHAPES_START + SPR_DINO + 4
-  .byte SPRITE_SHAPES_START + SPR_DINO + 8
   .byte SPRITE_SHAPES_START + SPR_DINO + 4
   .byte $ff
 dinoWalkLeftOvl:
   .byte SPRITE_SHAPES_START + SPR_DINO + 1
   .byte SPRITE_SHAPES_START + SPR_DINO + 1 + 4
-  .byte SPRITE_SHAPES_START + SPR_DINO + 1 + 8
-  .byte SPRITE_SHAPES_START + SPR_DINO + 1 + 4
   .byte $ff
 dinoWalkLeftBottom:
   .byte SPRITE_SHAPES_START + SPR_DINO + 2
   .byte SPRITE_SHAPES_START + SPR_DINO + 2 + 4
-  .byte SPRITE_SHAPES_START + SPR_DINO + 2 + 8
-  .byte SPRITE_SHAPES_START + SPR_DINO + 2 + 4
   .byte $ff
 dinoWalkLeftBottomOvl:
   .byte SPRITE_SHAPES_START + SPR_DINO + 3
-  .byte SPRITE_SHAPES_START + SPR_DINO + 3 + 4
-  .byte SPRITE_SHAPES_START + SPR_DINO + 3 + 8
   .byte SPRITE_SHAPES_START + SPR_DINO + 3 + 4
   .byte $ff
 dinoDeath:
@@ -326,6 +317,12 @@ dinoDeath:
   .byte $ff
 dinoDeathOvl:
   .byte SPRITE_SHAPES_START + SPR_DEATH + 1
+  .byte $ff
+dinoDeathBottom:
+  .byte SPRITE_SHAPES_START + SPR_DEATH + 2
+  .byte $ff
+dinoDeathBottomOvl:
+  .byte SPRITE_SHAPES_START + SPR_DEATH + 3
   .byte $ff
 dinoJump:
   .byte SPRITE_SHAPES_START + SPR_DINO_JUMP
@@ -354,5 +351,15 @@ dinoDuckBottom:
 dinoDuckBottomOvl:
   .byte SPRITE_SHAPES_START + SPR_DINO_DUCK + 3
   .byte SPRITE_SHAPES_START + SPR_DINO_DUCK + 4 + 3
+  .byte $ff
+vogel:
+  .byte SPRITE_SHAPES_START + SPR_VOGEL
+  .byte SPRITE_SHAPES_START + SPR_VOGEL + 1
+  .byte SPRITE_SHAPES_START + SPR_VOGEL + 2
+  .byte SPRITE_SHAPES_START + SPR_VOGEL + 3
+  .byte SPRITE_SHAPES_START + SPR_VOGEL + 4
+  .byte SPRITE_SHAPES_START + SPR_VOGEL + 3
+  .byte SPRITE_SHAPES_START + SPR_VOGEL + 2
+  .byte SPRITE_SHAPES_START + SPR_VOGEL + 1
   .byte $ff
 // ----- END: Animation sequences -----
