@@ -226,10 +226,10 @@ doIngame: {
   jsr io_resetControls
   jsr spr_showPlayer
   jsr startIngameCopper
+  brkInGame:
   mainMapLoop:
     // check death conditions
     jsr checkBGCollisions
-    jsr checkActorCollisions
     jsr updateScore
     // check game state
     lda z_gameState
@@ -1292,6 +1292,7 @@ switchPages: {
   jsr drawActors
   jsr act_animate
   jsr enableActors
+  jsr checkActorCollisions
 
   decrementScoreDelay()
 
@@ -1438,3 +1439,7 @@ memSummary("       SPRITE_ADDR", SPRITE_ADDR)
 .print "speed="+toBinaryString(music.speed)
 .print "startpage="+music.startpage
 .print "pagelength="+music.pagelength
+
+.print "BREAKPOINTS"
+.print "-----------"
+.print "inGame.brkInGame=$" + toHexString(doIngame.mainMapLoop, 4)
