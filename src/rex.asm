@@ -638,16 +638,21 @@ checkForNewActors: {
     sta SPRITE_0_COLOR,x
     ldy #0
     lda (z_actorsBase),y
-    cmp #1
+    cmp #EN_VOGEL
     beq vogel
-    cmp #2
+    cmp #EN_SCORPIO
     beq scorpio
+    cmp #EN_SNAKE
+    beq snake
     jmp moveActorsBase
     vogel:
       jsr spr_showVogel
       jmp showEnemy
     scorpio:
       jsr spr_showScorpio
+      jmp showEnemy
+    snake:
+      jsr spr_showSnake
       jmp showEnemy
     showEnemy:
       // sprite enable

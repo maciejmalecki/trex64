@@ -17,6 +17,7 @@
 .label SPR_GAME_OVER = SPR_DEATH + 4
 .label SPR_VOGEL = SPR_GAME_OVER + (_b_vogel - _b_gameOver)/64
 .label SPR_SCORPIO = SPR_VOGEL + (_b_scorpio - _b_vogel)/64
+.label SPR_SNAKE = SPR_SCORPIO + (_b_snake - _b_scorpio)/64
 
 .macro _setSpriteShape(spriteNum, shapeNum) {
   lda #shapeNum
@@ -217,6 +218,18 @@ spr_showScorpio: {
   rts
 }
 
+spr_showSnake: {
+  // set sprite hires
+  lda SPRITE_COL_MODE
+  and bitMaskInvertedTable,x
+  sta SPRITE_COL_MODE
+  // set animation
+  pushParamW(snake)
+  lda #$43
+  jsr setAnimation
+  rts
+}
+
 spr_showDeath: {
 
   jsr _spr_setNormalPosition
@@ -290,6 +303,8 @@ beginOfSprites:
   #import "sprites/vogel.asm"
   _b_scorpio:
   .import binary "sprites/scorpio.bin"
+  _b_snake:
+  .import binary "sprites/snake.bin"
 endOfSprites:
 .print "Sprites import size = " + (endOfSprites - beginOfSprites)
 // ---- END: Sprites definition ----
@@ -371,5 +386,11 @@ scorpio:
   .byte SPRITE_SHAPES_START + SPR_SCORPIO + 1
   .byte SPRITE_SHAPES_START + SPR_SCORPIO + 2
   .byte SPRITE_SHAPES_START + SPR_SCORPIO + 1
+  .byte $ff
+snake:
+  .byte SPRITE_SHAPES_START + SPR_SNAKE
+  .byte SPRITE_SHAPES_START + SPR_SNAKE + 1
+  .byte SPRITE_SHAPES_START + SPR_SNAKE + 2
+  .byte SPRITE_SHAPES_START + SPR_SNAKE + 1
   .byte $ff
 // ----- END: Animation sequences -----

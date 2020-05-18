@@ -9,6 +9,11 @@
 .label GAME_STATE_NEXT_LEVEL = 5
 .label GAME_STATE_GAME_FINISHED = 6
 
+// ---- enemy and power ups constants ----
+.label EN_VOGEL = 1
+.label EN_SCORPIO = 2
+.label EN_SNAKE = 3
+
 // ---- data model constants ----
 .label MAP_HEIGHT = 12
 .label MAP_CHARSET_OFFSET = 64
