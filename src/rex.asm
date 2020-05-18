@@ -1042,6 +1042,8 @@ initLevel: {
   sta z_spriteEnable
 
   // set [x,y] = [0,0]
+  lda #$ff
+  sta z_oldX
   lda #0
   sta z_x
   sta z_x + 1
@@ -1167,6 +1169,14 @@ scrollColorRam: {
 switchPages: {
   debugBorderStart()
   doSwitching:
+  // are we actually moving?
+  lda z_x
+  cmp z_oldX
+  bne !+
+    // no movement -> no page switching - to disable strange artifacts when scrolling is stopped
+    jmp end
+  !:
+  sta z_oldX
   // test phase
   lda #1
   bit z_phase

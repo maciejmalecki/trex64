@@ -30,14 +30,17 @@
 .label z_score = 29           // $1D,$1E,$1F
 .label z_scoreDelay = 32      // $20
 .label z_xPos = 33            // $21
-.label z_gameConfig = 35      // $22
+.label z_gameConfig = 35      // $23
 
-.label z_wrappingMark = 38    // $25
-.label z_prevMode = 39        // $26
-.label z_yPosTop = 40         // $27
-.label z_yPosBottom = 41      // $28
-.label z_isDuck = 42          // $29
+.label z_wrappingMark = 38    // $26
+.label z_prevMode = 39        // $27
+.label z_yPosTop = 40         // $28
+.label z_yPosBottom = 41      // $29
+.label z_isDuck = 42          // $2A
 
 // actors
-.label z_actorsBase = 43      // $2A,$2B
-.label z_spriteEnable = 45    // $2C
+.label z_actorsBase = 43      // $2B,$2C
+.label z_spriteEnable = 45    // $2D
+
+// used for movement detection
+.label z_oldX = 46            // $2E
