@@ -16,6 +16,7 @@
 .label SPR_DEATH = SPR_DINO_DUCK + 8
 .label SPR_GAME_OVER = SPR_DEATH + 4
 .label SPR_VOGEL = SPR_GAME_OVER + (_b_vogel - _b_gameOver)/64
+.label SPR_SCORPIO = SPR_VOGEL + (_b_scorpio - _b_vogel)/64
 
 .macro _setSpriteShape(spriteNum, shapeNum) {
   lda #shapeNum
@@ -208,6 +209,22 @@ spr_showVogel: {
   rts
 }
 
+spr_showScorpio: {
+  // set sprite hires
+  lda SPRITE_COL_MODE
+  and bitMaskInvertedTable,x
+  sta SPRITE_COL_MODE
+  // set animation
+  pushParamW(scorpio)
+  lda #$43
+  jsr setAnimation
+  // sprite enable
+  lda z_spriteEnable
+  ora bitMaskTable,x
+  sta z_spriteEnable
+  rts
+}
+
 spr_showDeath: {
 
   jsr _spr_setNormalPosition
@@ -274,18 +291,13 @@ spr_hidePlayers: {
 .segment Sprites
 beginOfSprites:
   _b_dino:
-  //#import "sprites/dino.asm"
   .import binary "sprites/dino.bin"
-  //_b_dinoJump:
-  //#import "sprites/dino-jump.asm"
-  //_b_dinoDuck:
-  //#import "sprites/dino-duck.asm"
-  //_b_death:
-  //#import "sprites/death.asm"
   _b_gameOver:
   #import "sprites/gameover.asm"
   _b_vogel:
   #import "sprites/vogel.asm"
+  _b_scorpio:
+  .import binary "sprites/scorpio.bin"
 endOfSprites:
 .print "Sprites import size = " + (endOfSprites - beginOfSprites)
 // ---- END: Sprites definition ----
@@ -361,5 +373,11 @@ vogel:
   .byte SPRITE_SHAPES_START + SPR_VOGEL + 3
   .byte SPRITE_SHAPES_START + SPR_VOGEL + 2
   .byte SPRITE_SHAPES_START + SPR_VOGEL + 1
+  .byte $ff
+scorpio:
+  .byte SPRITE_SHAPES_START + SPR_SCORPIO
+  .byte SPRITE_SHAPES_START + SPR_SCORPIO + 1
+  .byte SPRITE_SHAPES_START + SPR_SCORPIO + 2
+  .byte SPRITE_SHAPES_START + SPR_SCORPIO + 1
   .byte $ff
 // ----- END: Animation sequences -----

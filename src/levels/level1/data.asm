@@ -53,7 +53,7 @@ _map1Actors:
   actorDef($01, 40, 110, $40, WHITE)
   actorDef($01, 41, 75, $50, CYAN)
   actorDef($01, 42, 135, $40, LIGHT_BLUE)
-  actorDef($01, 43, 150, $40, WHITE)
+  actorDef($02, 43, 176, $40, WHITE)
   actorDef($01, 50, 80, $50, WHITE)
   actorDefEnd()
 // level 1-2

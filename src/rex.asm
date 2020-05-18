@@ -640,9 +640,14 @@ checkForNewActors: {
     lda (z_actorsBase),y
     cmp #1
     beq vogel
+    cmp #2
+    beq scorpio
     jmp moveActorsBase
     vogel:
       jsr spr_showVogel
+      jmp moveActorsBase
+    scorpio:
+      jsr spr_showScorpio
       jmp moveActorsBase
     moveActorsBase:
     // move actors base to the next entry
