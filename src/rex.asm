@@ -612,9 +612,9 @@ checkForNewActors: {
     lda (z_actorsBase),y
     pha
     // actor X position
-    lda #70 // #87 TODO: to make it visible from behind the border
+    lda #$60 // #87 TODO: to make it visible from behind the border
     pha
-    lda #1
+    lda #$14
     pha
     // actor Y position
     iny
@@ -662,9 +662,10 @@ disposeActors: {
     lda act_code,x
     beq next
     lda act_xHi,x
+    and #%00010000
     bne next
-    lda act_xLo,x
-    and #%11110000
+    lda act_xHi,x
+    and #%00001111
     bne next
     lda act_sprite,x
     pha
@@ -706,10 +707,23 @@ drawActors: {
     sta spriteX
     lda act_y,y
     sta spriteY:$d000
+    // round
     lda act_xLo,y
+    lsr
+    lsr
+    lsr
+    lsr
+    sta tempX
+    lda act_xHi,y
+    asl
+    asl
+    asl
+    asl
+    ora tempX
     sta spriteX:$d000
     lda act_xHi,y
-    beq hiZero
+    and #%00010000
+    beq hiZero // TODO: branch on carry should work as well
       // X bigger than 255
       lda SPRITE_MSB_X
       ora bitMaskTable,x
@@ -725,6 +739,8 @@ drawActors: {
     jmp loop
   end:
   rts
+  // local vars
+    tempX: .byte $00
 }
 
 enableActors: {

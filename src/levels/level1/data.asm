@@ -49,12 +49,12 @@ _charset: .fill _charsetData.getSize(), _charsetData.get(i)
 // level 1-1
 _map1: .fill _map1Data.getSize(), _map1Data.get(i)
 _map1Actors:
-  actorDef($01, 32, 70, 4, WHITE)
-  actorDef($01, 40, 110, 4, WHITE)
-  actorDef($01, 41, 75, 5, CYAN)
-  actorDef($01, 42, 135, 4, LIGHT_BLUE)
-  actorDef($01, 43, 150, 4, WHITE)
-  actorDef($01, 50, 80, 5, WHITE)
+  actorDef($01, 32, 70, $40, WHITE)
+  actorDef($01, 40, 110, $40, WHITE)
+  actorDef($01, 41, 75, $50, CYAN)
+  actorDef($01, 42, 135, $40, LIGHT_BLUE)
+  actorDef($01, 43, 150, $40, WHITE)
+  actorDef($01, 50, 80, $50, WHITE)
   actorDefEnd()
 // level 1-2
 _map2: .fill _map2Data.getSize(), _map2Data.get(i)
