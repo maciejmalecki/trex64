@@ -202,10 +202,6 @@ spr_showVogel: {
   pushParamW(vogel)
   lda #$43
   jsr setAnimation
-  // sprite enable
-  lda z_spriteEnable
-  ora bitMaskTable,x
-  sta z_spriteEnable
   rts
 }
 
@@ -218,10 +214,6 @@ spr_showScorpio: {
   pushParamW(scorpio)
   lda #$43
   jsr setAnimation
-  // sprite enable
-  lda z_spriteEnable
-  ora bitMaskTable,x
-  sta z_spriteEnable
   rts
 }
 

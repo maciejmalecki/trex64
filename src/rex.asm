@@ -645,10 +645,15 @@ checkForNewActors: {
     jmp moveActorsBase
     vogel:
       jsr spr_showVogel
-      jmp moveActorsBase
+      jmp showEnemy
     scorpio:
       jsr spr_showScorpio
-      jmp moveActorsBase
+      jmp showEnemy
+    showEnemy:
+      // sprite enable
+      lda z_spriteEnable
+      ora bitMaskTable,x
+      sta z_spriteEnable
     moveActorsBase:
     // move actors base to the next entry
     clc
