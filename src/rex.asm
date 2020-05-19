@@ -21,7 +21,7 @@
 .filenamespace c64lib
 
 .file [name="./rex.prg", segments="Code, Data, Charsets, LevelData, Sprites", modify="BasicUpstart", _start=$0810]
-.var music = LoadSid("music/sixpack.sid")
+.var music = LoadSid("music/rex.sid")
 
 // ---- game parameters ----
 .label INVINCIBLE = 0
@@ -41,6 +41,9 @@
 
 // ---- levels ----
 #import "levels/level1/data.asm"
+
+// ---- sfx -----
+#import "sfx.asm"
 
 
 /*
@@ -246,6 +249,7 @@ doIngame: {
       }
 
       jsr spr_showDeath
+      jsr playDeath
       // decrement lives
       dec z_lives
       bne livesLeft
@@ -296,6 +300,30 @@ playMusic: {
   debugBorderStart()
   jsr music.play
   debugBorderEnd()
+  rts
+}
+
+playJump: {
+  lda #<sfxJump
+  ldy #>sfxJump
+  jmp playSfx
+}
+
+playDeath: {
+  lda #<sfxDeath
+  ldy #>sfxDeath
+  jmp playSfx
+}
+
+playLanding: {
+  lda #<sfxLanding
+  ldy #>sfxLanding
+  jmp playSfx
+}
+
+playSfx: {
+  ldx #14
+  jsr music.init + 6
   rts
 }
 
@@ -1358,6 +1386,7 @@ handleControls: {
       lda #0
       sta z_jumpFrame
       jsr spr_showPlayerJump
+      jsr playJump
       jmp end
     !:
     end:
@@ -1381,6 +1410,7 @@ handleControls: {
   beq !+
     lda z_mode
     bne stillInAir
+      jsr playLanding
       jsr spr_showPlayerWalkLeft
     stillInAir:
   !:
