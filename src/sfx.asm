@@ -7,9 +7,9 @@
 sfxLanding:
   .byte $24, $00
   .byte $00
-  .byte $b4, $81
+  .byte $a0, $81
   .for (var i = 0; i < 10; i++) {
-    .byte $b4
+    .byte $a0
   }
   .byte $00
 
