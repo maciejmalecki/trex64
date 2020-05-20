@@ -222,6 +222,7 @@ doIngame: {
   jsr updateScoreOnDashboard
   jsr setUpWorld
   jsr setUpMap
+  jsr setupSounds
   jsr initLevel
   jsr act_reset
   jsr io_resetControls
@@ -294,6 +295,12 @@ initSound: {
   rts
 }
 
+setupSounds: {
+  lda #0
+  sta z_sfxChannel
+  rts
+}
+
 playMusic: {
   debugBorderStart()
   jsr music.play
@@ -328,11 +335,25 @@ playLanding: {
 playSnake: {
   lda #<sfxSnake
   ldy #>sfxSnake
-  jmp playSfx
+  jmp playEnemy
 }
 
 playSfx: {
   ldx #14
+  jsr music.init + 6
+  rts
+}
+
+playEnemy: {
+  ldx z_sfxChannel
+  beq !+
+    ldx #0
+    stx z_sfxChannel
+    jmp play
+  !:
+    ldx #7
+    stx z_sfxChannel
+  play:
   jsr music.init + 6
   rts
 }
@@ -1505,6 +1526,7 @@ memSummary("      CHARGEN_ADDR", CHARGEN_ADDR)
 memSummary("       SPRITE_ADDR", SPRITE_ADDR)
 
 .print ("total size = " + (endOfTRex - start) + " bytes")
+.print "SID Data"
 
 .print "SID Data"
 .print "SID Data"

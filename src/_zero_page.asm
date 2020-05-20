@@ -44,3 +44,4 @@
 
 // used for movement detection
 .label z_oldX = 46            // $2E
+.label z_sfxChannel = 47      // $2F
