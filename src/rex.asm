@@ -325,6 +325,12 @@ playLanding: {
   jmp playSfx
 }
 
+playSnake: {
+  lda #<sfxSnake
+  ldy #>sfxSnake
+  jmp playSfx
+}
+
 playSfx: {
   ldx #14
   jsr music.init + 6
@@ -685,6 +691,11 @@ checkForNewActors: {
       jmp showEnemy
     snake:
       jsr spr_showSnake
+      txa
+      pha
+      jsr playSnake
+      pla
+      tax
       jmp showEnemy
     showEnemy:
       // sprite enable

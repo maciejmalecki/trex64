@@ -40,4 +40,18 @@ sfxDeath:
   }
   .byte $00
 
+sfxSnake: {
+  .label PITCH_HI = $e0
+  .label PITCH_LO = $d0
+
+  .byte $f5, $a5
+  .byte $00
+  .byte PITCH_LO, $81, PITCH_HI
+  .for (var i = 0; i < 4; i++) {
+    .byte PITCH_LO, PITCH_HI
+  }
+  .byte PITCH_LO, $80
+  .byte $00
+}
+
 sfxEnd:
