@@ -20,7 +20,7 @@
 
 .filenamespace c64lib
 
-.file [name="./rex.prg", segments="Code, Data, Charsets, LevelData, Sprites", modify="BasicUpstart", _start=$0810]
+.file [name="./rex.prg", segments="Code, Data, Charsets, LevelData, Sprites, Sfx, Music", modify="BasicUpstart", _start=$0810]
 .var music = LoadSid("music/rex.sid")
 
 // ---- game parameters ----
@@ -36,8 +36,6 @@
 // collision detection
 .label X_COLLISION_OFFSET = 8 - 24
 .label Y_COLLISION_OFFSET = 29 - 50
-
-.label MUSIC_TARGET_ADDRESS = $6000
 
 // ---- levels ----
 #import "levels/level1/data.asm"
@@ -306,6 +304,12 @@ playMusic: {
 playJump: {
   lda #<sfxJump
   ldy #>sfxJump
+  jmp playSfx
+}
+
+playDuck: {
+  lda #<sfxDuck
+  ldy #>sfxDuck
   jmp playSfx
 }
 
@@ -1401,6 +1405,7 @@ handleControls: {
   !:
   jsr io_checkDoduck
   beq !+
+    jsr playDuck
     jsr spr_showPlayerDuck
   !:
 
@@ -1451,11 +1456,11 @@ txt_dashboard:        .text " lives 0         score 000000 hi 000000"; .byte $FF
 txt_endGame1:         .text "congratulations!"; .byte $ff
 txt_endGame2:         .text "you have finished the game"; .byte $ff
 txt_pressAnyKey:      .text "hit the button"; .byte $ff
+
+.segment Music
 musicData:
                       .fill music.size, music.getData(i)
 endOfMusicData:
-
-// -- animations --
 
 // ---- END:DATA ----
 
@@ -1470,6 +1475,7 @@ endOfChargen:
 // ---- END: chargen definition ----
 endOfTRex:
 
+.assert "Code and music overlap", sfxEnd <= music.location, true
 
 // print memory map summary
 .macro memSummary(name, address) {

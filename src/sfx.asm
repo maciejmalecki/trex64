@@ -1,16 +1,25 @@
 #import "_segments.asm"
 .filenamespace c64lib
-.segment Data
+.segment Sfx
 
 .label SFX_CHANNEL = 14
 
-sfxLanding:
-  .byte $24, $00
+sfxLanding: {
+  .label PITCH = $90
+  .byte $44, $66
   .byte $00
-  .byte $a0, $81
-  .for (var i = 0; i < 10; i++) {
-    .byte $a0
-  }
+  .byte PITCH, $81
+  .fill 3, PITCH
+  .byte PITCH, $80
+  .fill 3, PITCH
+  .byte $00
+}
+
+sfxDuck:
+  .byte $24, $44
+  .byte $00
+  .byte $c0, $11, $c1, $c2
+  .byte $c3, $10, $c4, $c5, $c6
   .byte $00
 
 sfxJump:
@@ -30,3 +39,5 @@ sfxDeath:
     .byte i
   }
   .byte $00
+
+sfxEnd:

@@ -54,7 +54,7 @@ _map1Actors:
   actorDef(c64lib.EN_VOGEL, 41, 75, $50, CYAN)
   actorDef(c64lib.EN_SCORPIO, 43, 176, $40, WHITE)
   actorDef(c64lib.EN_VOGEL, 50, 80, $50, WHITE)
-  actorDef(c64lib.EN_SNAKE, 51, 176, $30, GREEN)
+  actorDef(c64lib.EN_SNAKE, 51, 176, $30, BLUE)
   actorDef(c64lib.EN_VOGEL, 59, 135, $40, LIGHT_BLUE)
   actorDefEnd()
 // level 1-2
