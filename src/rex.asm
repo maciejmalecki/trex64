@@ -332,16 +332,28 @@ playLanding: {
   jmp playEnemy
 }
 
+playSfx: {
+  ldx #14
+  jsr music.init + 6
+  rts
+}
+
 playSnake: {
   lda #<sfxSnake
   ldy #>sfxSnake
   jmp playEnemy
 }
 
-playSfx: {
-  ldx #14
-  jsr music.init + 6
-  rts
+playVogel: {
+  lda #<sfxVogel
+  ldy #>sfxVogel
+  jmp playEnemy
+}
+
+playScorpio: {
+  lda #<sfxScorpio
+  ldy #>sfxScorpio
+  jmp playEnemy
 }
 
 playEnemy: {
@@ -706,9 +718,19 @@ checkForNewActors: {
     jmp moveActorsBase
     vogel:
       jsr spr_showVogel
+      txa
+      pha
+      jsr playVogel
+      pla
+      tax
       jmp showEnemy
     scorpio:
       jsr spr_showScorpio
+      txa
+      pha
+      jsr playScorpio
+      pla
+      tax
       jmp showEnemy
     snake:
       jsr spr_showSnake
@@ -1531,7 +1553,7 @@ memSummary("       SPRITE_ADDR", SPRITE_ADDR)
 .print "SID Data"
 .print "SID Data"
 .print "--------"
-.print "location=$"+toHexString(music.location)
+.print "--------"
 .print "init=$"+toHexString(music.init)
 .print "play=$"+toHexString(music.play)
 .print "songs="+music.songs

@@ -51,11 +51,9 @@ _map1: .fill _map1Data.getSize(), _map1Data.get(i)
 _map1Actors:
   actorDef(c64lib.EN_VOGEL, 32, 70, $40, WHITE)
   actorDef(c64lib.EN_VOGEL, 40, 110, $40, WHITE)
-  actorDef(c64lib.EN_VOGEL, 41, 75, $50, CYAN)
   actorDef(c64lib.EN_SCORPIO, 43, 176, $40, WHITE)
-  actorDef(c64lib.EN_VOGEL, 50, 80, $50, WHITE)
   actorDef(c64lib.EN_SNAKE, 51, 176, $30, BLUE)
-  actorDef(c64lib.EN_VOGEL, 59, 135, $40, LIGHT_BLUE)
+  actorDef(c64lib.EN_VOGEL, 61, 135, $40, LIGHT_BLUE)
   actorDefEnd()
 // level 1-2
 _map2: .fill _map2Data.getSize(), _map2Data.get(i)

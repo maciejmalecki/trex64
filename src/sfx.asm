@@ -78,6 +78,46 @@ sfxSnake: {
   .byte $00
 }
 
+sfxVogel: {
+  .label HI = $e0
+  .label LO = $d0
+  .label LEN = 4
+  .label WAVEFORM = $40
+  .label PULSE = $08
+
+  .byte $a0, $fa // ADSR
+  .byte PULSE
+  .byte LO, WAVEFORM + 1, HI
+  .for (var i = 0; i < LEN; i++) {
+    .byte LO, HI
+  }
+  .byte LO, WAVEFORM, HI
+  .for (var i = 0; i < LEN; i++) {
+    .byte LO, HI
+  }
+  .byte $00
+}
+
+sfxScorpio: {
+  .label HI = $b0
+  .label LO = $a5
+  .label LEN = 6
+  .label WAVEFORM = $80
+  .label PULSE = $A0
+
+  .byte $23, $aa // ADSR
+  .byte PULSE
+  .byte LO, WAVEFORM + 1, HI
+  .for (var i = 0; i < LEN; i++) {
+    .byte LO, HI
+  }
+  .byte LO, WAVEFORM, HI
+  .for (var i = 0; i < LEN; i++) {
+    .byte LO, HI
+  }
+  .byte $00
+}
+
 sfxLanding: {
   .label PITCH = $90
   .label LEN = 3
