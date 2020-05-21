@@ -27,7 +27,7 @@
 .label MAP_3_ADDRESS = _map3
 .label MAP_3_DELTA_X = 1<<5 // x2
 .label MAP_3_WRAPPING_MARK = %00000110
-.label MAP_3_ACTORS = _map2Actors
+.label MAP_3_ACTORS = _map3Actors
 
 .label CHARSET_SIZE = _charsetData.getSize()/8
 .label CHARSET_ADDRESS = _charset
@@ -61,6 +61,11 @@ _map2Actors:
   actorDefEnd()
 // level 1-3
 _map3: .fill _map3Data.getSize(), _map3Data.get(i)
+_map3Actors:
+  actorDef(c64lib.EN_SCORPIO, 5, 176, $40, PURPLE)
+  actorDef(c64lib.EN_SCORPIO, 10, 176, $40, WHITE)
+  actorDef(c64lib.EN_SCORPIO, 15, 176, $40, BLUE)
+  actorDefEnd()
 _colors: .fill _tileColorsData.getSize(), _tileColorsData.get(i)
 _tiles:
   .fill _tileData.getSize() / 4, _tileData.get(i*4) + c64lib.MAP_CHARSET_OFFSET

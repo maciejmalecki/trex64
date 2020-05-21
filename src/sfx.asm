@@ -99,11 +99,11 @@ sfxVogel: {
 }
 
 sfxScorpio: {
-  .label HI = $b0
-  .label LO = $a5
+  .label HI = $96
+  .label LO = $90
   .label LEN = 6
-  .label WAVEFORM = $80
-  .label PULSE = $A0
+  .label WAVEFORM = $20
+  .label PULSE = $80
 
   .byte $23, $aa // ADSR
   .byte PULSE
