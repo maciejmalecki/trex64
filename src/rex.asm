@@ -662,6 +662,23 @@ updateDashboard: {
 // ---- END: graphics configuration ----
 
 // ---- actors handling ----
+
+.macro playEnemy(enemyRoutine) {
+  txa
+  pha
+  playSfx(enemyRoutine)
+  pla
+  tax
+}
+
+.macro playSfx(enemyRoutine) {
+  lda z_gameConfig
+  and #CFG_SOUND
+  bne !+
+    jsr enemyRoutine
+  !:
+}
+
 checkForNewActors: {
   ldy #0
   lda (z_actorsBase),y
@@ -718,27 +735,15 @@ checkForNewActors: {
     jmp moveActorsBase
     vogel:
       jsr spr_showVogel
-      txa
-      pha
-      jsr playVogel
-      pla
-      tax
+      playEnemy(playVogel)
       jmp showEnemy
     scorpio:
       jsr spr_showScorpio
-      txa
-      pha
-      jsr playScorpio
-      pla
-      tax
+      playEnemy(playScorpio)
       jmp showEnemy
     snake:
       jsr spr_showSnake
-      txa
-      pha
-      jsr playSnake
-      pla
-      tax
+      playEnemy(playSnake)
       jmp showEnemy
     showEnemy:
       // sprite enable
@@ -1469,7 +1474,7 @@ handleControls: {
   beq !+
     lda z_mode
     bne stillInAir
-      jsr playLanding
+      playSfx(playLanding)
       jsr spr_showPlayerWalkLeft
     stillInAir:
   !:
