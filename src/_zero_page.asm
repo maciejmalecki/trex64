@@ -21,7 +21,6 @@
 
 .label z_yPos = 21            // $15
 .label z_jumpFrame = 22       // $16
-.label z_collisionTile = 23   // $17
 .label z_delayCounter = 24    // $18
 .label z_worldCounter = 25    // $19
 .label z_levelCounter = 26    // $1A

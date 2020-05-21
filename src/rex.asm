@@ -34,7 +34,7 @@
 .label SCORE_FOR_PROGRESS_DELAY = 50
 .label SCORE_FOR_PROGRESS = $0025
 // collision detection
-.label X_COLLISION_OFFSET = 8 - 24
+.label X_COLLISION_OFFSET = 12 - 24
 .label Y_COLLISION_OFFSET = 29 - 50
 
 // ---- levels ----
@@ -1111,12 +1111,6 @@ tileDefinition:
 
 checkBGCollisions: {
   cld
-  lda #(PLAYER_X + X_COLLISION_OFFSET)
-  lsr
-  lsr
-  lsr
-  lsr
-  tax
   lda #(PLAYER_Y + Y_COLLISION_OFFSET)
   sec
   sbc z_yPos
@@ -1125,6 +1119,27 @@ checkBGCollisions: {
   lsr
   lsr
   tay
+  lda #(PLAYER_X + X_COLLISION_OFFSET)
+  lsr
+  lsr
+  lsr
+  lsr
+  tax
+  decodeTile(tilesCfg)
+  and #%10000000
+  beq !+
+    lda #GAME_STATE_KILLED
+    .if (INVINCIBLE == 0) {
+      sta z_gameState
+    }
+    rts
+  !:
+  lda #(PLAYER_X + X_COLLISION_OFFSET - 8)
+  lsr
+  lsr
+  lsr
+  lsr
+  tax
   decodeTile(tilesCfg)
   and #%10000000
   beq !+
@@ -1133,7 +1148,6 @@ checkBGCollisions: {
       sta z_gameState
     }
   !:
-  sta z_collisionTile
   rts
 }
 
