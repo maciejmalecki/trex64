@@ -4,53 +4,91 @@
 
 .label SFX_CHANNEL = 14
 
-sfxLanding: {
-  .label PITCH = $90
-  .byte $44, $66
+sfxDuck: {
+  .label LO = $c0
+  .label HI = $c7
+  .label WAVEFORM = $10
+
+  .byte $24, $f4 // ADSR
   .byte $00
-  .byte PITCH, $81
-  .fill 3, PITCH
-  .byte PITCH, $80
-  .fill 3, PITCH
+  .byte LO, WAVEFORM + 1
+  .for(var i = LO + 1; i < (LO + HI)/2; i++) {
+    .byte i
+  }
+  .byte (LO + HI)/2, WAVEFORM
+  .for(var i =(LO + HI)/2 + 1; i < HI; i++) {
+    .byte i
+  }
   .byte $00
 }
 
-sfxDuck:
-  .byte $24, $44
-  .byte $00
-  .byte $c0, $11, $c1, $c2
-  .byte $c3, $10, $c4, $c5, $c6
-  .byte $00
+sfxJump: {
+  .label PITCH_LO = $b2
+  .label PITCH_HI = $c1
+  .label WAVEFORM = $10
 
-sfxJump:
-  .byte $84, $81 // AD, SR
-  .byte $04      // pulse width
-  .byte $b2, $11
-  .for (var i = $b2; i < $c1; i++) {
+  .byte $84, $f1 // ADSR
+  .byte $00
+  .byte PITCH_LO, WAVEFORM + 1
+  .for (var i = PITCH_LO; i < (PITCH_LO + PITCH_HI)/2; i++) {
+    .byte i
+  }
+  .byte (PITCH_LO + PITCH_HI)/2, WAVEFORM
+  .for (var i = (PITCH_LO + PITCH_HI)/2 + 1; i < PITCH_HI; i++) {
     .byte i
   }
   .byte $00
+}
 
-sfxDeath:
-  .byte $84, $81 // ad, sr
-  .byte $08
-  .byte $c1, $11
-  .for (var i = $bf; i > $b2; i = i-2) {
+sfxDeath: {
+  .label HI = $bf
+  .label LO = $b1
+  .label STEP = 2
+  .label WAVEFORM = $10
+
+  .byte $84, $f1 // ADSR
+  .byte $00
+  .byte HI, WAVEFORM + 1
+  .for (var i = HI; i > (LO + HI)/2; i = i - STEP) {
+    .byte i
+  }
+  .byte (LO + HI)/2, WAVEFORM
+  .for (var i = (LO + HI)/2 - 1; i > LO; i = i - STEP) {
     .byte i
   }
   .byte $00
+}
 
 sfxSnake: {
-  .label PITCH_HI = $e0
-  .label PITCH_LO = $d0
+  .label HI = $e0
+  .label LO = $d0
+  .label LEN = 4
+  .label WAVEFORM = $80
 
-  .byte $f5, $a5
+  .byte $a0, $fa // ADSR
   .byte $00
-  .byte PITCH_LO, $81, PITCH_HI
-  .for (var i = 0; i < 4; i++) {
-    .byte PITCH_LO, PITCH_HI
+  .byte LO, WAVEFORM + 1, HI
+  .for (var i = 0; i < LEN; i++) {
+    .byte LO, HI
   }
-  .byte PITCH_LO, $80
+  .byte LO, WAVEFORM, HI
+  .for (var i = 0; i < LEN; i++) {
+    .byte LO, HI
+  }
+  .byte $00
+}
+
+sfxLanding: {
+  .label PITCH = $90
+  .label LEN = 3
+  .label WAVEFORM = $80
+
+  .byte $33, $44 // ADSR
+  .byte $00
+  .byte PITCH, WAVEFORM + 1
+  .fill LEN, PITCH
+  .byte PITCH, WAVEFORM
+  .fill LEN, PITCH
   .byte $00
 }
 

@@ -329,7 +329,7 @@ playDeath: {
 playLanding: {
   lda #<sfxLanding
   ldy #>sfxLanding
-  jmp playSfx
+  jmp playEnemy
 }
 
 playSnake: {
