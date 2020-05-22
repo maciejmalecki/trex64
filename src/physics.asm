@@ -21,26 +21,6 @@
 
 // ---- Jump handling ----
 .segment Code
-phy_performJump: {
-  lda z_mode
-  sta z_prevMode
-  beq end
-    ldx z_jumpFrame
-    lda jumpTable, x
-    cmp #$ff
-    bne nextFrame
-      lda #0
-      sta z_mode
-      sta z_yPos
-      sta z_jumpFrame
-      jmp end
-    nextFrame:
-    sta z_yPos
-    inx
-    stx z_jumpFrame
-  end:
-  rts
-}
 
 phy_performProgressiveJump: {
   lda z_mode

@@ -1244,6 +1244,13 @@ incrementX: {
 
 scrollBackground: {
   debugBorderStart()
+  // are we actually moving?
+  lda z_x
+  cmp z_oldX
+  bne !+
+    // no movement -> no page switching - to disable strange artifacts when scrolling is stopped
+    jmp end2
+  !:
   // test phase flags
   lda #1
   bit z_phase
@@ -1285,12 +1292,20 @@ scrollBackground: {
       lda #>scrollColorRam
       sta scrollCode + 3
     noSwitching:
+  end2:
     debugBorderEnd()
     rts
 }
 
 scrollColorRam: {
   debugBorderEnd()
+  // are we actually moving?
+  lda z_x
+  cmp z_oldX
+  bne !+
+    // no movement -> no page switching - to disable strange artifacts when scrolling is stopped
+    jmp end
+  !:
   _t2_shiftColorRamLeft(tilesCfg, 2)
   _t2_decodeColorRight(tilesCfg, COLOR_RAM)
   // setup IRQ handler back to scrollBackground
@@ -1298,6 +1313,7 @@ scrollColorRam: {
   sta scrollCode + 2
   lda #>scrollBackground
   sta scrollCode + 3
+  end:
   debugBorderStart()
   rts
 }
