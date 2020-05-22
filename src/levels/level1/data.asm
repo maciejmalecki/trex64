@@ -49,7 +49,7 @@ _charset: .fill _charsetData.getSize(), _charsetData.get(i)
 // level 1-1
 _map1: .fill _map1Data.getSize(), _map1Data.get(i)
 _map1Actors:
-  actorDef(c64lib.EN_VOGEL, 32, 70, $40, WHITE)
+  actorDef(c64lib.EN_VOGEL, 32, 90, $40, WHITE)
   actorDef(c64lib.EN_VOGEL, 40, 110, $40, WHITE)
   actorDef(c64lib.EN_SCORPIO, 43, 176, $40, WHITE)
   actorDef(c64lib.EN_SNAKE, 51, 176, $30, BLUE)
