@@ -19,15 +19,6 @@
   .return i * _polyJump(1)
 }
 
-.macro _generateJumpTable() {
-  .fill _JUMP_LINEAR_LENGTH, _linearJump(i)
-  .fill _JUMP_TABLE_LENGTH, _linearJump(_JUMP_LINEAR_LENGTH) + _polyJump(i)
-  .fill _JUMP_LINEAR_LENGTH, _linearJump(_JUMP_LINEAR_LENGTH - i)
-  .byte 0
-  .byte $ff
-}
-
-
 // ---- Jump handling ----
 .segment Code
 phy_performJump: {
@@ -47,6 +38,82 @@ phy_performJump: {
     sta z_yPos
     inx
     stx z_jumpFrame
+  end:
+  rts
+}
+
+phy_performProgressiveJump: {
+  lda z_mode
+  sta z_prevMode
+  beq end
+    lda z_jumpPhase
+    bne peakPhase
+      // up phase
+      lda z_currentKeys
+      and #KEY_SPACE
+      bne goUp
+        lda #0
+        sta z_jumpFrame
+        lda #1
+        sta z_jumpPhase
+        jmp peakPhase
+      goUp:
+      ldx z_jumpLinear
+      inx
+      lda jumpTableLinear,x
+      cmp #$ff
+      bne !+
+        lda #0
+        sta z_jumpFrame
+        lda #1
+        sta z_jumpPhase
+        jmp peakPhase
+      !:
+      sta z_yPos
+      stx z_jumpLinear
+      jmp end
+    peakPhase:
+      cmp #1
+    bne downPhase
+    {
+      // peak phase
+      ldx z_jumpFrame
+      lda jumpTablePeak,x
+      cmp #$ff
+      bne !+
+        lda z_jumpLinear
+        sta z_jumpFrame
+        lda #2
+        sta z_jumpPhase
+        jmp downPhase
+      !:
+      sta z_yPos
+      clc
+      ldx z_jumpLinear
+      lda jumpTableLinear,x
+      adc z_yPos
+      sta z_yPos
+      ldx z_jumpFrame
+      inx
+      stx z_jumpFrame
+      jmp end
+    }
+    downPhase:
+    {
+      // down phase
+      ldx z_jumpLinear
+      bne nextFrame
+        lda #0
+        sta z_mode
+        sta z_yPos
+        sta z_jumpFrame
+        jmp end
+      nextFrame:
+      lda jumpTableLinear,x
+      sta z_yPos
+      dex
+      stx z_jumpLinear
+    }
   end:
   rts
 }
@@ -78,5 +145,22 @@ phy_updateSpriteY: {
   rts
 }
 .segment Data
+
+.macro _generateJumpTable() {
+  .fill _JUMP_LINEAR_LENGTH, _linearJump(i)
+  .fill _JUMP_TABLE_LENGTH, _linearJump(_JUMP_LINEAR_LENGTH) + _polyJump(i)
+  .fill _JUMP_LINEAR_LENGTH, _linearJump(_JUMP_LINEAR_LENGTH - i)
+  .byte 0
+  .byte $ff
+}
+
+
 jumpTable: _generateJumpTable()
-// ---- END: Jump handling ----
+
+jumpTableLinear:
+  .fill _JUMP_LINEAR_LENGTH, _linearJump(i)
+  .byte $ff
+jumpTablePeak:
+  .fill _JUMP_TABLE_LENGTH, _polyJump(i)
+  .byte $ff
+ // ---- END: Jump handling ----

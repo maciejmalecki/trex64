@@ -1429,7 +1429,7 @@ switchPages: {
   jsr io_scanControls
   jsr handleControls
   jsr animate
-  jsr phy_performJump
+  jsr phy_performProgressiveJump
   jsr phy_updateSpriteY
   jsr dly_handleDelay
 
@@ -1462,6 +1462,8 @@ handleControls: {
       sta z_mode
       lda #0
       sta z_jumpFrame
+      sta z_jumpPhase
+      sta z_jumpLinear
       jsr spr_showPlayerJump
       jsr playJump
       jmp end

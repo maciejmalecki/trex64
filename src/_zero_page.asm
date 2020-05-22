@@ -44,3 +44,7 @@
 // used for movement detection
 .label z_oldX = 46            // $2E
 .label z_sfxChannel = 47      // $2F
+
+// jump handling
+.label z_jumpPhase = 48       // $30
+.label z_jumpLinear = 49      // $31
