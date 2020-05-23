@@ -1,4 +1,4 @@
-#define VISUAL_DEBUG
+//#define VISUAL_DEBUG
 #import "common/lib/common.asm"
 #import "common/lib/mem.asm"
 #import "common/lib/invoke.asm"
@@ -918,7 +918,7 @@ nextLevel: {
   rts
 }
 
-.macro setUpMap(mapAddress, mapWidth, deltaX, wrappingMark, mapActors) {
+.macro setUpMap(mapAddress, mapWidth, deltaX, wrappingMark, scrollingMark, mapActors) {
   // set map definition pointer
   lda #<mapAddress
   sta z_map
@@ -934,6 +934,8 @@ nextLevel: {
   sta z_deltaX
   lda #wrappingMark
   sta z_wrappingMark
+  lda #scrollingMark
+  sta z_scrollingMark
 
   // set actors base and pointer
   lda #<mapActors
@@ -995,9 +997,9 @@ setUpMap: {
   rts
 }
 
-setUpMap1_1: setUpMap(level1.MAP_1_ADDRESS, level1.MAP_1_WIDTH, level1.MAP_1_DELTA_X, level1.MAP_1_WRAPPING_MARK, level1.MAP_1_ACTORS)
-setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH, level1.MAP_2_DELTA_X, level1.MAP_2_WRAPPING_MARK, level1.MAP_2_ACTORS)
-setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DELTA_X, level1.MAP_3_WRAPPING_MARK, level1.MAP_3_ACTORS)
+setUpMap1_1: setUpMap(level1.MAP_1_ADDRESS, level1.MAP_1_WIDTH, level1.MAP_1_DELTA_X, level1.MAP_1_WRAPPING_MARK, level1.MAP_1_SCROLLING_MARK, level1.MAP_1_ACTORS)
+setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH, level1.MAP_2_DELTA_X, level1.MAP_2_WRAPPING_MARK, level1.MAP_2_SCROLLING_MARK, level1.MAP_2_ACTORS)
+setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DELTA_X, level1.MAP_3_WRAPPING_MARK, level1.MAP_3_SCROLLING_MARK, level1.MAP_3_ACTORS)
 
 // ---- END: level handling ----
 
@@ -1254,7 +1256,7 @@ scrollBackground: {
   // test phase flags
   lda #1
   bit z_phase
-  beq scrolling
+  bne scrolling
     jmp end2
   scrolling:
   bpl page0
@@ -1365,6 +1367,15 @@ switchPages: {
     sta MEMORY_CONTROL
   end:
 
+  // calculate scroll register
+  lda z_x
+  and #%01110000
+  lsr
+  lsr
+  lsr
+  lsr
+  sta z_acc0
+
   // increment X coordinate
   lda z_gameState
   cmp #GAME_STATE_LIVE
@@ -1385,15 +1396,6 @@ switchPages: {
       jmp endOfPhase
   endOfIncrementX:
 
-  // calculate scroll register
-  lda z_x
-  and #%01110000
-  lsr
-  lsr
-  lsr
-  lsr
-  sta z_acc0
-
   // detect page switching phase
   lda z_acc0
   cmp z_wrappingMark
@@ -1403,7 +1405,6 @@ switchPages: {
     ora #%01000000
     sta z_phase
   notSeven:
-
 
   // check end of level condition
   clc
@@ -1423,6 +1424,7 @@ switchPages: {
 
   // detect scrolling phase
   lda z_acc0
+  cmp z_scrollingMark
   bne notZero
     lda z_phase
     ora #%00000001
@@ -1569,8 +1571,8 @@ endOfTRex:
 .print name + " = " + address + " ($" + toHexString(address, 4) + ")"
 }
 
-.print ""
-.print "SID Data"
+.print "copyright="+music.copyright
+.print "header="+music.header
 .print "--------"
 .print "init=$"+toHexString(music.init)
 .print "play=$"+toHexString(music.play)

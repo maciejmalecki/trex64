@@ -48,3 +48,4 @@
 // jump handling
 .label z_jumpPhase = 48       // $30
 .label z_jumpLinear = 49      // $31
+.label z_scrollingMark = 50   // $32
