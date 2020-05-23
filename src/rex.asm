@@ -1,4 +1,4 @@
-// #define VISUAL_DEBUG
+#define VISUAL_DEBUG
 #import "common/lib/common.asm"
 #import "common/lib/mem.asm"
 #import "common/lib/invoke.asm"
@@ -1255,7 +1255,7 @@ scrollBackground: {
   lda #1
   bit z_phase
   beq scrolling
-    jmp end
+    jmp end2
   scrolling:
   bpl page0
   // we're on page 1
@@ -1283,15 +1283,11 @@ scrollBackground: {
     _t2_shiftScreenLeft(tilesCfg, 1, 0)
 
   end:
-    lda #1
-    bit z_phase
-    bvc noSwitching
-      // setup IRQ handler back to scrollColorRam
-      lda #<scrollColorRam
-      sta scrollCode + 2
-      lda #>scrollColorRam
-      sta scrollCode + 3
-    noSwitching:
+    // setup IRQ handler back to scrollColorRam
+    lda #<scrollColorRam
+    sta scrollCode + 2
+    lda #>scrollColorRam
+    sta scrollCode + 3
   end2:
     debugBorderEnd()
     rts
@@ -1573,6 +1569,27 @@ endOfTRex:
 .print name + " = " + address + " ($" + toHexString(address, 4) + ")"
 }
 
+.print ""
+.print "SID Data"
+.print "--------"
+.print "init=$"+toHexString(music.init)
+.print "play=$"+toHexString(music.play)
+.print "songs="+music.songs
+.print "startSong="+music.startSong
+.print "size=$"+toHexString(music.size)
+.print "name="+music.name
+.print "author="+music.author
+.print "copyright="+music.copyright
+.print "header="+music.header
+.print "header version="+music.version
+.print "flags="+toBinaryString(music.flags)
+.print "speed="+toBinaryString(music.speed)
+.print "startpage="+music.startpage
+.print "pagelength="+music.pagelength
+.print ""
+.print "Memory summary"
+.print "--------------"
+memSummary("        total size", (endOfTRex - start))
 memSummary("       tile colors", tileColors)
 memSummary("      mapOffsetsLo", mapOffsetsLo)
 memSummary("      mapOffsetsHi", mapOffsetsHi)
@@ -1583,32 +1600,10 @@ memSummary("SCREEN_PAGE_ADDR_0", SCREEN_PAGE_ADDR_0)
 memSummary("SCREEN_PAGE_ADDR_1", SCREEN_PAGE_ADDR_1)
 memSummary("      CHARGEN_ADDR", CHARGEN_ADDR)
 memSummary("       SPRITE_ADDR", SPRITE_ADDR)
-
-.print ("total size = " + (endOfTRex - start) + " bytes")
-.print "SID Data"
-
-.print "SID Data"
-.print "SID Data"
-.print "--------"
-.print "--------"
-.print "init=$"+toHexString(music.init)
-.print "play=$"+toHexString(music.play)
-.print "songs="+music.songs
-.print "startSong="+music.startSong
-.print "size=$"+toHexString(music.size)
-.print "name="+music.name
-.print "author="+music.author
-.print "copyright="+music.copyright
 .print ""
-.print "Additional tech data"
-.print "--------------------"
-.print "header="+music.header
-.print "header version="+music.version
-.print "flags="+toBinaryString(music.flags)
-.print "speed="+toBinaryString(music.speed)
-.print "startpage="+music.startpage
-.print "pagelength="+music.pagelength
-
 .print "BREAKPOINTS"
 .print "-----------"
-.print "inGame.brkInGame=$" + toHexString(doIngame.mainMapLoop, 4)
+.print "inGame.brkInGame = $" + toHexString(doIngame.mainMapLoop, 4)
+.print "scrollBackground = $" + toHexString(scrollBackground, 4)
+.print "  scrollColorRAM = $" + toHexString(scrollColorRam, 4)
+.print "     switchPages = $" + toHexString(switchPages, 4)
