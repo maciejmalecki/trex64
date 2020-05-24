@@ -1297,13 +1297,6 @@ scrollBackground: {
 
 scrollColorRam: {
   debugBorderEnd()
-  // are we actually moving?
-  lda z_x
-  cmp z_oldX
-  bne !+
-    // no movement -> no page switching - to disable strange artifacts when scrolling is stopped
-    jmp end
-  !:
   _t2_shiftColorRamLeft(tilesCfg, 2)
   _t2_decodeColorRight(tilesCfg, COLOR_RAM)
   // setup IRQ handler back to scrollBackground
