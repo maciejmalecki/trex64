@@ -52,11 +52,9 @@ _charset: .fill _charsetData.getSize(), _charsetData.get(i)
 // level 1-1
 _map1: .fill _map1Data.getSize(), _map1Data.get(i)
 _map1Actors:
-  actorDef(c64lib.EN_VOGEL, 32, 90, $40, WHITE)
-  actorDef(c64lib.EN_VOGEL, 40, 110, $40, WHITE)
-  actorDef(c64lib.EN_SCORPIO, 43, 176, $40, WHITE)
-  actorDef(c64lib.EN_SNAKE, 51, 176, $30, BLUE)
-  actorDef(c64lib.EN_VOGEL, 61, 135, $40, LIGHT_BLUE)
+  actorDef(c64lib.EN_VOGEL, 43, 70, $40, WHITE)
+  actorDef(c64lib.EN_SNAKE, 70, 176, $30, LIGHT_GREEN)
+  actorDef(c64lib.EN_VOGEL, 91, 135, $40, WHITE)
   actorDefEnd()
 // level 1-2
 _map2: .fill _map2Data.getSize(), _map2Data.get(i)
