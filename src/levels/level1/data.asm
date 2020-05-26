@@ -55,9 +55,7 @@ _charset: .fill _charsetData.getSize(), _charsetData.get(i)
 // level 1-1
 _map1: .fill _map1Data.getSize(), _map1Data.get(i)
 _map1Actors:
-  actorDef(c64lib.EN_VOGEL, 40, 70, $40, WHITE) //43
-  actorDef(c64lib.EN_VOGEL, 42, 70, $40, WHITE)
-  actorDef(c64lib.EN_VOGEL, 44, 70, $40, WHITE)
+  actorDef(c64lib.EN_VOGEL, 43, 70, $40, WHITE)
   actorDef(c64lib.EN_SNAKE, 70, 176, $30, LIGHT_GREEN)
   actorDef(c64lib.EN_VOGEL, 91, 135, $40, WHITE)
   actorDefEnd()
