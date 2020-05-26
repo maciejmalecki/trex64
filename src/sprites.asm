@@ -285,6 +285,9 @@ spr_showGameOver: {
     lda #(_GAME_OVER_X + 20 + i*24)
     sta spriteXReg(4 + i)
   }
+  lda SPRITE_MSB_X
+  and #%00001111
+  sta SPRITE_MSB_X
   lda #%11111111
   sta SPRITE_ENABLE
   rts

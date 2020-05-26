@@ -26,7 +26,7 @@
 // ---- game parameters ----
 .label INVINCIBLE = 0
 // starting amount of lives
-.label LIVES = 3
+.label LIVES = 1
 // starting level
 .label STARTING_WORLD = 1
 .label STARTING_LEVEL = 1
@@ -918,7 +918,7 @@ nextLevel: {
   rts
 }
 
-.macro setUpMap(mapAddress, mapWidth, deltaX, wrappingMark, scrollingMark, mapActors) {
+.macro setUpMap(mapAddress, mapWidth, deltaX, wrappingMark, scrollingMark, obstaclesMark, mapActors) {
   // set map definition pointer
   lda #<mapAddress
   sta z_map
@@ -932,10 +932,14 @@ nextLevel: {
   // set delta X
   lda #deltaX
   sta z_deltaX
+
+  // set marks
   lda #wrappingMark
   sta z_wrappingMark
   lda #scrollingMark
   sta z_scrollingMark
+  lda #obstaclesMark
+  sta z_obstaclesMark
 
   // set actors base and pointer
   lda #<mapActors
@@ -997,9 +1001,9 @@ setUpMap: {
   rts
 }
 
-setUpMap1_1: setUpMap(level1.MAP_1_ADDRESS, level1.MAP_1_WIDTH, level1.MAP_1_DELTA_X, level1.MAP_1_WRAPPING_MARK, level1.MAP_1_SCROLLING_MARK, level1.MAP_1_ACTORS)
-setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH, level1.MAP_2_DELTA_X, level1.MAP_2_WRAPPING_MARK, level1.MAP_2_SCROLLING_MARK, level1.MAP_2_ACTORS)
-setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DELTA_X, level1.MAP_3_WRAPPING_MARK, level1.MAP_3_SCROLLING_MARK, level1.MAP_3_ACTORS)
+setUpMap1_1: setUpMap(level1.MAP_1_ADDRESS, level1.MAP_1_WIDTH, level1.MAP_1_DELTA_X, level1.MAP_1_WRAPPING_MARK, level1.MAP_1_SCROLLING_MARK, level1.MAP_1_OBSTACLES_MARK, level1.MAP_1_ACTORS)
+setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH, level1.MAP_2_DELTA_X, level1.MAP_2_WRAPPING_MARK, level1.MAP_2_SCROLLING_MARK, level1.MAP_2_OBSTACLES_MARK, level1.MAP_2_ACTORS)
+setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DELTA_X, level1.MAP_3_WRAPPING_MARK, level1.MAP_3_SCROLLING_MARK, level1.MAP_3_OBSTACLES_MARK, level1.MAP_3_ACTORS)
 
 // ---- END: level handling ----
 
@@ -1128,8 +1132,9 @@ checkBGCollisions: {
   lsr
   tax
   decodeTile(tilesCfg)
-  and #%10000000
-  beq !+
+  and z_obstaclesMark
+  cmp z_obstaclesMark
+  bne !+
     lda #GAME_STATE_KILLED
     .if (INVINCIBLE == 0) {
       sta z_gameState
@@ -1143,8 +1148,9 @@ checkBGCollisions: {
   lsr
   tax
   decodeTile(tilesCfg)
-  and #%10000000
-  beq !+
+  and z_obstaclesMark
+  cmp z_obstaclesMark
+  bne !+
     lda #GAME_STATE_KILLED
     .if (INVINCIBLE == 0) {
       sta z_gameState

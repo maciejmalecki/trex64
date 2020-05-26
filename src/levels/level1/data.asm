@@ -17,6 +17,7 @@
 .label MAP_1_WRAPPING_MARK = %00000110
 .label MAP_1_SCROLLING_MARK = 6
 .label MAP_1_ACTORS = _map1Actors
+.label MAP_1_OBSTACLES_MARK = %11000000
 
 .label MAP_2_WIDTH = _map2Data.getSize() / c64lib.MAP_HEIGHT
 .label MAP_2_ADDRESS = _map2
@@ -24,6 +25,7 @@
 .label MAP_2_WRAPPING_MARK = %00000100
 .label MAP_2_SCROLLING_MARK = 4
 .label MAP_2_ACTORS = _map2Actors
+.label MAP_2_OBSTACLES_MARK = %11000000
 
 .label MAP_3_WIDTH = _map3Data.getSize() / c64lib.MAP_HEIGHT
 .label MAP_3_ADDRESS = _map3
@@ -31,6 +33,7 @@
 .label MAP_3_WRAPPING_MARK = %00000110
 .label MAP_3_SCROLLING_MARK = 6
 .label MAP_3_ACTORS = _map3Actors
+.label MAP_3_OBSTACLES_MARK = %11000000
 
 .label CHARSET_SIZE = _charsetData.getSize()/8
 .label CHARSET_ADDRESS = _charset
@@ -52,7 +55,9 @@ _charset: .fill _charsetData.getSize(), _charsetData.get(i)
 // level 1-1
 _map1: .fill _map1Data.getSize(), _map1Data.get(i)
 _map1Actors:
-  actorDef(c64lib.EN_VOGEL, 43, 70, $40, WHITE)
+  actorDef(c64lib.EN_VOGEL, 40, 70, $40, WHITE) //43
+  actorDef(c64lib.EN_VOGEL, 42, 70, $40, WHITE)
+  actorDef(c64lib.EN_VOGEL, 44, 70, $40, WHITE)
   actorDef(c64lib.EN_SNAKE, 70, 176, $30, LIGHT_GREEN)
   actorDef(c64lib.EN_VOGEL, 91, 135, $40, WHITE)
   actorDefEnd()

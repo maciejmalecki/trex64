@@ -49,3 +49,6 @@
 .label z_jumpPhase = 48       // $30
 .label z_jumpLinear = 49      // $31
 .label z_scrollingMark = 50   // $32
+
+// obstacles
+.label z_obstaclesMark = 51   // $33
