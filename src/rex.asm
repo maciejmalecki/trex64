@@ -1250,8 +1250,33 @@ incrementX: {
   rts
 }
 
+detectPhases: {
+  // detect page switching phase
+  lda z_acc0
+  cmp z_wrappingMark
+  bne notSeven
+    lda z_phase
+    and #%11111110
+    ora #%01000000
+    sta z_phase
+  notSeven:
+
+  // detect scrolling phase
+  lda z_acc0
+  cmp z_scrollingMark
+  bne notZero
+    lda z_phase
+    ora #%00000001
+    sta z_phase
+  notZero:
+  rts
+}
+
 scrollBackground: {
   debugBorderStart()
+
+  jsr detectPhases
+
   // are we actually moving?
   lda z_x
   cmp z_oldX
@@ -1259,6 +1284,7 @@ scrollBackground: {
     // no movement -> no page switching - to disable strange artifacts when scrolling is stopped
     jmp end2
   !:
+
   // test phase flags
   lda #1
   bit z_phase
@@ -1303,6 +1329,9 @@ scrollBackground: {
 
 scrollColorRam: {
   debugBorderEnd()
+
+  jsr detectPhases
+
   _t2_shiftColorRamLeft(tilesCfg, 2)
   _t2_decodeColorRight(tilesCfg, COLOR_RAM)
   // setup IRQ handler back to scrollBackground
@@ -1395,16 +1424,6 @@ switchPages: {
       jmp endOfPhase
   endOfIncrementX:
 
-  // detect page switching phase
-  lda z_acc0
-  cmp z_wrappingMark
-  bne notSeven
-    lda z_phase
-    and #%11111110
-    ora #%01000000
-    sta z_phase
-  notSeven:
-
   // check end of level condition
   clc
   cld
@@ -1420,15 +1439,6 @@ switchPages: {
       jsr spr_showPlayerWalkLeft
     !:
   dontReset:
-
-  // detect scrolling phase
-  lda z_acc0
-  cmp z_scrollingMark
-  bne notZero
-    lda z_phase
-    ora #%00000001
-    sta z_phase
-  notZero:
 
   // update scroll register for scrollable area
   sec
