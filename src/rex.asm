@@ -1071,11 +1071,11 @@ ingameCopperList:
     copperEntry(5, IRQH_JSR, <playMusic, >playMusic)
   scrollCode:
     // here we do the actual scrolling
-    copperEntry(90, IRQH_JSR, <scrollBackground, >scrollBackground)
+    copperEntry(80, IRQH_JSR, <scrollBackground, >scrollBackground)
     // at the top we reset HScroll register to 0
     //copperEntry(241, IRQH_HSCROLL, 0, 0)
     // here we do the page switching when it's time for this
-    copperEntry(270, IRQH_JSR, <switchPages, >switchPages)
+    copperEntry(260, IRQH_JSR, <switchPages, >switchPages)
     // here we loop and so on, so on, for each frame
     copperLoop()
 
@@ -1477,7 +1477,6 @@ switchPages: {
 
   // update scroll register for scrollable area
   sec
-  sed
   lda #7
   sbc z_scrollReg
   sta hScroll + 2

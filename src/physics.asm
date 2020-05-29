@@ -126,16 +126,6 @@ phy_updateSpriteY: {
 }
 .segment Data
 
-.macro _generateJumpTable() {
-  .fill _JUMP_LINEAR_LENGTH, _linearJump(i)
-  .fill _JUMP_TABLE_LENGTH, _linearJump(_JUMP_LINEAR_LENGTH) + _polyJump(i)
-  .fill _JUMP_LINEAR_LENGTH, _linearJump(_JUMP_LINEAR_LENGTH - i)
-  .byte 0
-  .byte $ff
-}
-
-
-jumpTable: _generateJumpTable()
 
 jumpTableLinear:
   .fill _JUMP_LINEAR_LENGTH, _linearJump(i)
