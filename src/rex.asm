@@ -1,4 +1,4 @@
-//#define VISUAL_DEBUG
+// #define VISUAL_DEBUG
 #import "common/lib/common.asm"
 #import "common/lib/mem.asm"
 #import "common/lib/invoke.asm"
@@ -1064,17 +1064,18 @@ stopCopper: {
 _copperListStart:
 // here we define layout of raster interrupt handlers
 ingameCopperList:
-    copperEntry(10, IRQH_JSR, <playMusic, >playMusic)
-    // here we set scroll register to 5, but in fact this value will be modified by scrollBackground routine
   hScroll:
-    copperEntry(50, IRQH_HSCROLL, 5, 0)
-    // here we do the actual scrolling
+    // here we set scroll register to 5, but in fact this value will be modified by scrollBackground routine
+    copperEntry(1, IRQH_HSCROLL, 5, 0)
+    // play music
+    copperEntry(5, IRQH_JSR, <playMusic, >playMusic)
   scrollCode:
-    copperEntry(54, IRQH_JSR, <scrollBackground, >scrollBackground)
+    // here we do the actual scrolling
+    copperEntry(90, IRQH_JSR, <scrollBackground, >scrollBackground)
     // at the top we reset HScroll register to 0
-    copperEntry(241, IRQH_HSCROLL, 0, 0)
+    //copperEntry(241, IRQH_HSCROLL, 0, 0)
     // here we do the page switching when it's time for this
-    copperEntry(245, IRQH_JSR, <switchPages, >switchPages)
+    copperEntry(270, IRQH_JSR, <switchPages, >switchPages)
     // here we loop and so on, so on, for each frame
     copperLoop()
 
@@ -1104,7 +1105,7 @@ tileDefinition:
 .eval tilesCfg.page1 = SCREEN_PAGE_1
 .eval tilesCfg.startRow = 0
 .eval tilesCfg.endRow = 23
-.eval tilesCfg.x = z_x
+.eval tilesCfg.x = z_bgX
 .eval tilesCfg.y = z_y
 .eval tilesCfg.width = z_width
 .eval tilesCfg.height = z_height
@@ -1185,6 +1186,9 @@ initLevel: {
   lda #0
   sta z_spriteEnable
 
+  lda #0
+  sta z_colorRAMShifted
+
   // set [x,y] = [0,0]
   lda #$ff
   sta z_oldX
@@ -1193,6 +1197,8 @@ initLevel: {
   sta z_x + 1
   sta z_y
   sta z_y + 1
+  sta z_bgX
+  sta z_bgX + 1
 
   // set xpos
   lda #PLAYER_X
@@ -1251,12 +1257,15 @@ incrementX: {
 }
 
 detectPhases: {
+
+  lda z_phase
+  and #%10111110
+  sta z_phase
   // detect page switching phase
   lda z_acc0
   cmp z_wrappingMark
   bne notSeven
     lda z_phase
-    and #%11111110
     ora #%01000000
     sta z_phase
   notSeven:
@@ -1291,9 +1300,13 @@ scrollBackground: {
   bne scrolling
     jmp end2
   scrolling:
-  bpl page0
+    bpl page0
   // we're on page 1
   page1: {
+    lda z_x
+    sta z_bgX
+    lda z_x + 1
+    sta z_bgX + 1
       // if scrolling
       lda z_phase
       and #%11111110
@@ -1302,6 +1315,10 @@ scrollBackground: {
   }
   // we're on page 0
   page0: {
+    lda z_x
+    sta z_bgX
+    lda z_x + 1
+    sta z_bgX + 1
       // if scrolling
       lda z_phase
       and #%11111110
@@ -1323,6 +1340,7 @@ scrollBackground: {
     lda #>scrollColorRam
     sta scrollCode + 3
   end2:
+
     debugBorderEnd()
     rts
 }
@@ -1332,8 +1350,20 @@ scrollColorRam: {
 
   jsr detectPhases
 
+  // are we actually moving?
+  lda z_x
+  cmp z_oldX
+  bne !+
+    // no movement -> no page switching - to disable strange artifacts when scrolling is stopped
+    jmp switchBackIrq
+  !:
+
+  lda #1
+  sta z_colorRAMShifted
+
   _t2_shiftColorRamLeft(tilesCfg, 2)
   _t2_decodeColorRight(tilesCfg, COLOR_RAM)
+  switchBackIrq:
   // setup IRQ handler back to scrollBackground
   lda #<scrollBackground
   sta scrollCode + 2
@@ -1355,6 +1385,11 @@ switchPages: {
     jmp end
   !:
   sta z_oldX
+  lda z_colorRAMShifted
+  bne !+
+    // switch pages only if color RAM have been shifted
+    jmp end
+  !:
   // test phase
   lda #1
   bit z_phase
@@ -1442,10 +1477,12 @@ switchPages: {
 
   // update scroll register for scrollable area
   sec
-  cld
+  sed
   lda #7
-  sbc z_acc0
+  sbc z_scrollReg
   sta hScroll + 2
+  lda z_acc0
+  sta z_scrollReg
   endOfPhase:
 
   jsr updateDashboard
@@ -1464,6 +1501,9 @@ switchPages: {
   jsr checkActorCollisions
 
   decrementScoreDelay()
+
+  lda #0
+  sta z_colorRAMShifted
 
   debugBorderEnd()
   rts

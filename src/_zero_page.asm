@@ -1,6 +1,8 @@
 #importonce
 .filenamespace c64lib
 
+//#define use_watches
+
 // ZERO page
 .label z_x = 2                // $02,$03
 .label z_y = 4                // $04,$05
@@ -8,10 +10,13 @@
 .label z_height = 7           // $07
 .label z_map = 8              // $08,$09
 .label z_phase = 10           // $0A
+
 .label z_listPtr = 11         // $0B
 .label z_displayListPtr = 12  // $0C,$0D
 .label z_deltaX = 14          // $0E
+
 .label z_acc0 = 15            // $0F
+
 .label z_startingLevel = 16   // $10
 .label z_mode = 17            // $11
 .label z_delay = 18           // $12
@@ -52,3 +57,20 @@
 
 // obstacles
 .label z_obstaclesMark = 51   // $33
+.label z_colorRAMShifted = 52 // $34
+.label z_scrollReg = 53       // $35
+
+// background scroller pov
+.label z_bgX = 54; // $36, $37
+
+#if use_watches
+  .watch z_x
+  .watch z_x+1
+  .watch z_phase
+  .watch z_deltaX
+  .watch z_xPos
+  .watch z_acc0
+  .watch z_wrappingMark
+  .watch z_scrollingMark
+  .watch z_colorRAMShifted
+#endif
