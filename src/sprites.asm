@@ -18,6 +18,7 @@
 .label SPR_VOGEL = SPR_GAME_OVER + (_b_vogel - _b_gameOver)/64
 .label SPR_SCORPIO = SPR_VOGEL + (_b_scorpio - _b_vogel)/64
 .label SPR_SNAKE = SPR_SCORPIO + (_b_snake - _b_scorpio)/64
+.label SPR_DASHBOARD = SPR_SNAKE + (_b_dashboard - _b_snake)/64
 
 .macro _setSpriteShape(spriteNum, shapeNum) {
   lda #shapeNum
@@ -312,6 +313,9 @@ beginOfSprites:
   .import binary "sprites/scorpio.bin"
   _b_snake:
   .import binary "sprites/snake.bin"
+  _b_dashboard:
+  .import binary "sprites/dashboard.bin"
+  .fill 2*64, 0
 endOfSprites:
 .print "Sprites import size = " + (endOfSprites - beginOfSprites)
 // ---- END: Sprites definition ----

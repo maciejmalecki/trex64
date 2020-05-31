@@ -1,4 +1,4 @@
-// #define VISUAL_DEBUG
+//#define VISUAL_DEBUG
 #import "common/lib/common.asm"
 #import "common/lib/mem.asm"
 #import "common/lib/invoke.asm"
@@ -269,6 +269,7 @@ doIngame: {
   jmp mainMapLoop
 
   displayGameOver:
+    // TODO problem with multiplexer!
     jsr act_reset
     jsr spr_hidePlayers
     lda SPRITE_ENABLE
@@ -632,6 +633,107 @@ initDashboard: {
   jsr outText
 
   rts
+}
+
+.macro stashSprites(stash) {
+  // stash
+  .for (var i = 0; i < 8; i++) {
+    lda SPRITE_4_X + i
+    sta stash + i
+  }
+  .for (var i = 0; i < 4; i++) {
+    lda SPRITE_4_COLOR + i
+    sta stash + 8 + i
+  }
+  lda SPRITE_MSB_X
+  sta stash + 12
+  lda SPRITE_ENABLE
+  sta stash + 13
+  lda SPRITE_COL_MODE
+  sta stash + 14
+
+  .for (var i = 0; i < 4; i++) {
+    lda SCREEN_PAGE_ADDR_0 + 1020 + i
+    sta stash + 15 + i
+  }
+  .for (var i = 0; i < 4; i++) {
+    lda SCREEN_PAGE_ADDR_1 + 1020 + i
+    sta stash + 19 + i
+  }
+
+  // setup
+  lda #45
+  sta SPRITE_4_Y
+  sta SPRITE_5_Y
+  sta SPRITE_6_Y
+  sta SPRITE_7_Y
+  lda #32
+  sta SPRITE_4_X
+  lda #8
+  sta SPRITE_5_X
+  lda #32
+  sta SPRITE_6_X
+  lda #56
+  sta SPRITE_7_X
+  lda SPRITE_MSB_X
+  and #%11101111
+  ora #%11100000
+  sta SPRITE_MSB_X
+  lda SPRITE_COL_MODE
+  and #%00001111
+  sta SPRITE_COL_MODE
+  lda #WHITE
+  .for(var i = 0; i < 4; i++) {
+    sta SPRITE_4_COLOR + i
+  }
+  // sprite shapes
+  .for(var i = 0; i < 4; i++) {
+    lda #(SPRITE_SHAPES_START + SPR_DASHBOARD + i)
+    sta SCREEN_PAGE_ADDR_0 + 1020 + i
+    sta SCREEN_PAGE_ADDR_1 + 1020 + i
+  }
+  lda SPRITE_ENABLE
+  ora #%11110000
+  sta SPRITE_ENABLE
+
+  lda #1
+  sta z_spritesStashed
+}
+
+.macro popSprites(stash) {
+  lda z_spritesStashed
+  bne !+
+    jmp end
+  !:
+  // pop
+  lda SPRITE_ENABLE
+  and #%00001111
+  sta SPRITE_ENABLE
+  .for (var i = 0; i < 8; i++) {
+    lda stash + i
+    sta SPRITE_4_X + i
+  }
+  .for (var i = 0; i < 4; i++) {
+    lda stash + 8 + i
+    sta SPRITE_4_COLOR + i
+  }
+  lda stash + 12
+  sta SPRITE_MSB_X
+  lda stash + 14
+  sta SPRITE_COL_MODE
+  .for (var i = 0; i < 4; i++) {
+    lda stash + 15 + i
+    sta SCREEN_PAGE_ADDR_0 + 1020 + i
+  }
+  .for (var i = 0; i < 4; i++) {
+    lda stash + 19 + i
+    sta SCREEN_PAGE_ADDR_1 + 1020 + i
+  }
+  lda stash + 13
+  sta SPRITE_ENABLE
+  lda #0
+  sta z_spritesStashed
+  end:
 }
 
 updateScoreOnDashboard: {
@@ -1066,9 +1168,10 @@ _copperListStart:
 ingameCopperList:
   hScroll:
     // here we set scroll register to 5, but in fact this value will be modified by scrollBackground routine
-    copperEntry(1, IRQH_HSCROLL, 5, 0)
+    //copperEntry(1, IRQH_HSCROLL, 5, 0)
     // play music
-    copperEntry(5, IRQH_JSR, <playMusic, >playMusic)
+    copperEntry(0, IRQH_JSR, <playMusic, >playMusic)
+    copperEntry(66, IRQH_JSR, <upperMultiplex, >upperMultiplex)
   scrollCode:
     // here we do the actual scrolling
     copperEntry(80, IRQH_JSR, <scrollBackground, >scrollBackground)
@@ -1182,6 +1285,9 @@ initLevel: {
   lda #PHASE_SHOW_0
   sta z_phase
 
+  lda #0
+  sta z_spritesStashed
+
   // set sprite enable ghost reg to 0
   lda #0
   sta z_spriteEnable
@@ -1253,6 +1359,13 @@ incrementX: {
   lda z_x + 1
   adc #0
   sta z_x + 1
+  rts
+}
+
+upperMultiplex: {
+  debugBorderStart()
+  popSprites(z_stashArea)
+  debugBorderEnd()
   rts
 }
 
@@ -1479,7 +1592,12 @@ switchPages: {
   sec
   lda #7
   sbc z_scrollReg
-  sta hScroll + 2
+  sta z_scrollReg
+  lda CONTROL_2
+  and #%11111000
+  ora z_scrollReg
+  sta CONTROL_2
+  //sta hScroll + 2
   lda z_acc0
   sta z_scrollReg
   endOfPhase:
@@ -1500,6 +1618,8 @@ switchPages: {
   jsr checkActorCollisions
 
   decrementScoreDelay()
+
+  stashSprites(z_stashArea)
 
   lda #0
   sta z_colorRAMShifted
@@ -1615,12 +1735,14 @@ endOfTRex:
 .assert "Code and music overlap", sfxEnd <= music.location, true
 
 // print memory map summary
+.print "header="+music.header
 .macro memSummary(name, address) {
+.print name + " = " + address + " ($" + toHexString(address, 4) + ")"
 .print name + " = " + address + " ($" + toHexString(address, 4) + ")"
 }
 
 .print "copyright="+music.copyright
-.print "header="+music.header
+.print "copyright="+music.copyright
 .print "--------"
 .print "init=$"+toHexString(music.init)
 .print "play=$"+toHexString(music.play)
