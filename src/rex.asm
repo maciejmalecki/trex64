@@ -35,7 +35,7 @@
 .label SCORE_FOR_PROGRESS = $0025
 // collision detection
 .label X_COLLISION_OFFSET = 12 - 24
-.label Y_COLLISION_OFFSET = 29 - 50
+.label Y_COLLISION_OFFSET = 29 - 50 - 6
 
 // ---- levels ----
 #import "levels/level1/data.asm"
