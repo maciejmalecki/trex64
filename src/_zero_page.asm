@@ -62,6 +62,7 @@
 
 // background scroller pov
 .label z_bgX = 54;            // $36, $37
+.label z_doGameOver = 56;     // $38
 
 .label z_spritesStashed = 127; // $7F
 .label z_stashArea = 128;     // $80

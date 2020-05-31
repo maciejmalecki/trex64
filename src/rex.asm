@@ -268,23 +268,32 @@ doIngame: {
   jmp mainMapLoop
 
   displayGameOver:
-    // TODO problem with multiplexer!
-    jsr act_reset
-    jsr spr_hidePlayers
-    lda SPRITE_ENABLE
-    and #%00000000
-    sta SPRITE_ENABLE
-    .for (var i = 4; i < 8; i++) {
-      ldx #i
-      jsr disableAnimation
-    }
-    jsr spr_showGameOver
+    lda #1
+    sta z_doGameOver
     wait #200
   gameOver:
     jsr stopCopper
     jsr spr_hidePlayers
     rts
 }
+
+  doGameOver: {
+    lda z_doGameOver
+    beq !+
+      jsr act_reset
+      jsr spr_hidePlayers
+      lda SPRITE_ENABLE
+      and #%00000000
+      sta SPRITE_ENABLE
+      .for (var i = 4; i < 8; i++) {
+        ldx #i
+        jsr disableAnimation
+      }
+      jsr spr_showGameOver
+    !:
+    rts
+  }
+
 
 // Initialize music player.
 initSound: {
@@ -1300,6 +1309,7 @@ initLevel: {
 
   lda #0
   sta z_spritesStashed
+  sta z_doGameOver
 
   // set sprite enable ghost reg to 0
   lda #0
@@ -1629,6 +1639,7 @@ switchPages: {
   jsr act_animate
   jsr enableActors
   jsr checkActorCollisions
+  jsr doGameOver
 
   decrementScoreDelay()
 
