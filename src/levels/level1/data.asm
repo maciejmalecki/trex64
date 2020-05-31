@@ -21,17 +21,17 @@
 
 .label MAP_2_WIDTH = _map2Data.getSize() / c64lib.MAP_HEIGHT
 .label MAP_2_ADDRESS = _map2
-.label MAP_2_DELTA_X = 1<<6 // x4
+.label MAP_2_DELTA_X = 1<<5 // x2
 .label MAP_2_WRAPPING_MARK = 0
-.label MAP_2_SCROLLING_MARK = 4
+.label MAP_2_SCROLLING_MARK = 6
 .label MAP_2_ACTORS = _map2Actors
 .label MAP_2_OBSTACLES_MARK = %11000000
 
 .label MAP_3_WIDTH = _map3Data.getSize() / c64lib.MAP_HEIGHT
 .label MAP_3_ADDRESS = _map3
-.label MAP_3_DELTA_X = 1<<5 // x2
+.label MAP_3_DELTA_X = 1<<6 // x4
 .label MAP_3_WRAPPING_MARK = 0
-.label MAP_3_SCROLLING_MARK = 6
+.label MAP_3_SCROLLING_MARK = 4
 .label MAP_3_ACTORS = _map3Actors
 .label MAP_3_OBSTACLES_MARK = %11000000
 
