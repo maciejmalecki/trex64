@@ -13,7 +13,7 @@
 .label PLAYER_COL1 = $7 // multi color 0
 .label PLAYER_COL2 = $8 // multi color 1
 .label PLAYER_X = 80
-.label PLAYER_Y = 164
+.label PLAYER_Y = 164 + 6
 .label PLAYER_BOTTOM_Y = PLAYER_Y + 21
 // animation phases
 .label ANIMATION_WALK = 1

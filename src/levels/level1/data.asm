@@ -55,9 +55,9 @@ _charset: .fill _charsetData.getSize(), _charsetData.get(i)
 // level 1-1
 _map1: .fill _map1Data.getSize(), _map1Data.get(i)
 _map1Actors:
-  actorDef(c64lib.EN_VOGEL, 43, 70, $40, WHITE)
-  actorDef(c64lib.EN_SNAKE, 70, 176, $30, LIGHT_GREEN)
-  actorDef(c64lib.EN_VOGEL, 91, 135, $40, WHITE)
+  actorDef(c64lib.EN_VOGEL, 43, 76, $40, WHITE)
+  actorDef(c64lib.EN_SNAKE, 70, 182, $30, LIGHT_GREEN)
+  actorDef(c64lib.EN_VOGEL, 91, 141, $40, WHITE)
   actorDefEnd()
 // level 1-2
 _map2: .fill _map2Data.getSize(), _map2Data.get(i)
@@ -66,9 +66,9 @@ _map2Actors:
 // level 1-3
 _map3: .fill _map3Data.getSize(), _map3Data.get(i)
 _map3Actors:
-  actorDef(c64lib.EN_SCORPIO, 5, 176, $40, PURPLE)
-  actorDef(c64lib.EN_SCORPIO, 10, 176, $40, WHITE)
-  actorDef(c64lib.EN_SCORPIO, 15, 176, $40, BLUE)
+  actorDef(c64lib.EN_SCORPIO, 5, 182, $40, PURPLE)
+  actorDef(c64lib.EN_SCORPIO, 10, 182, $40, WHITE)
+  actorDef(c64lib.EN_SCORPIO, 15, 182, $40, BLUE)
   actorDefEnd()
 _colors: .fill _tileColorsData.getSize(), _tileColorsData.get(i)
 _tiles:

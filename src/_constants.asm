@@ -24,6 +24,7 @@
 
 // ---- misc ----
 .label MAX_DELAY = 10
+.label DASHBOARD_Y = 50
 
 // ---- keyboard ----
 // title screen

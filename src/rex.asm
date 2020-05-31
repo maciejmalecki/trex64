@@ -1,4 +1,4 @@
-//#define VISUAL_DEBUG
+#define VISUAL_DEBUG
 #import "common/lib/common.asm"
 #import "common/lib/mem.asm"
 #import "common/lib/invoke.asm"
@@ -465,6 +465,10 @@ configureTitleVic2: {
   lda CONTROL_2
   ora #%00001000
   sta CONTROL_2
+  lda CONTROL_1
+  and #%11110000
+  ora #%00001000
+  sta CONTROL_1
   rts
 }
 
@@ -476,6 +480,10 @@ configureIngameVic2: {
   lda CONTROL_2
   and #%11110111
   sta CONTROL_2
+  lda CONTROL_1
+  and #%11110000
+  ora #%00000110
+  sta CONTROL_1
   rts
 }
 
@@ -658,7 +666,7 @@ prepareIngameScreen: {
   }
 
   // setup
-  lda #45
+  lda #DASHBOARD_Y
   sta SPRITE_4_Y
   sta SPRITE_5_Y
   sta SPRITE_6_Y
@@ -1189,16 +1197,12 @@ _copperListStart:
 // here we define layout of raster interrupt handlers
 ingameCopperList:
   hScroll:
-    // here we set scroll register to 5, but in fact this value will be modified by scrollBackground routine
-    //copperEntry(1, IRQH_HSCROLL, 5, 0)
     // play music
     copperEntry(0, IRQH_JSR, <playMusic, >playMusic)
-    copperEntry(66, IRQH_JSR, <upperMultiplex, >upperMultiplex)
+    copperEntry(DASHBOARD_Y + 20, IRQH_JSR, <upperMultiplex, >upperMultiplex)
   scrollCode:
     // here we do the actual scrolling
-    copperEntry(80, IRQH_JSR, <scrollBackground, >scrollBackground)
-    // at the top we reset HScroll register to 0
-    //copperEntry(241, IRQH_HSCROLL, 0, 0)
+    copperEntry(88, IRQH_JSR, <scrollBackground, >scrollBackground)
     // here we do the page switching when it's time for this
     copperEntry(260, IRQH_JSR, <switchPages, >switchPages)
     // here we loop and so on, so on, for each frame
