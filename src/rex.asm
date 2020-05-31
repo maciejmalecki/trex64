@@ -218,7 +218,6 @@ doEndGameScreen: {
 doIngame: {
   jsr configureIngameVic2
   jsr prepareIngameScreen
-  jsr initDashboard
   jsr updateScoreOnDashboard
   jsr setUpWorld
   jsr setUpMap
@@ -623,18 +622,6 @@ prepareIngameScreen: {
   rts
 }
 
-initDashboard: {
-  pushParamW(txt_dashboard)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 24*40)
-  jsr outText
-
-  pushParamW(txt_dashboard)
-  pushParamW(SCREEN_PAGE_ADDR_1 + 24*40)
-  jsr outText
-
-  rts
-}
-
 .macro stashSprites(stash) {
   // stash
   .for (var i = 0; i < 8; i++) {
@@ -736,29 +723,55 @@ initDashboard: {
   end:
 }
 
+// 48 -> 0, 49 -> -1 and so on...
+.macro drawLoDigitOnSprite(spriteAddr, numberAddr, charsetAddr) {
+  lda numberAddr
+  and #%00001111
+  asl
+  asl
+  asl
+  tax
+  ldy #0
+  !:
+    lda charsetAddr + 48*8,x
+    sta spriteAddr,y
+    inx
+    iny
+    iny
+    iny
+    cpy #(3*8)
+  bne !-
+}
+
+.macro drawHiDigitOnSprite(spriteAddr, numberAddr, charsetAddr) {
+  lda numberAddr
+  and #%11110000
+  lsr
+  tax
+  ldy #0
+  !:
+    lda charsetAddr + 48*8,x
+    sta spriteAddr,y
+    inx
+    iny
+    iny
+    iny
+    cpy #(3*8)
+  bne !-
+}
+
 updateScoreOnDashboard: {
-  .for (var i = 0; i < 3; i++) {
-    pushParamW(z_score + i)
-    pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 27 - i*2)
-    jsr outHex
-  }
-  .for (var i = 0; i < 3; i++) {
-    pushParamW(z_score + i)
-    pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 27 - i*2)
-    jsr outHex
-  }
+  drawLoDigitOnSprite( VIC_MEMORY_START + (SPRITE_SHAPES_START + SPR_DASHBOARD + 3)*64 + 20, z_score, CHARGEN_ADDR)
+  drawHiDigitOnSprite( VIC_MEMORY_START + (SPRITE_SHAPES_START + SPR_DASHBOARD + 3)*64 + 19, z_score, CHARGEN_ADDR)
+  drawLoDigitOnSprite( VIC_MEMORY_START + (SPRITE_SHAPES_START + SPR_DASHBOARD + 3)*64 + 18, z_score + 1, CHARGEN_ADDR)
+  drawHiDigitOnSprite( VIC_MEMORY_START + (SPRITE_SHAPES_START + SPR_DASHBOARD + 2)*64 + 20, z_score + 1, CHARGEN_ADDR)
+  drawLoDigitOnSprite( VIC_MEMORY_START + (SPRITE_SHAPES_START + SPR_DASHBOARD + 2)*64 + 19, z_score + 2, CHARGEN_ADDR)
+  drawHiDigitOnSprite( VIC_MEMORY_START + (SPRITE_SHAPES_START + SPR_DASHBOARD + 2)*64 + 18, z_score + 2, CHARGEN_ADDR)
   rts
 }
 
 updateDashboard: {
-  pushParamW(z_lives)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 7)
-  jsr outHexNibble
-
-  pushParamW(z_lives)
-  pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 7)
-  jsr outHexNibble
-
+  drawLoDigitOnSprite( VIC_MEMORY_START + (SPRITE_SHAPES_START + SPR_DASHBOARD)*64 + 20, z_lives, CHARGEN_ADDR)
   rts
 }
 // ---- END: graphics configuration ----
@@ -1707,8 +1720,6 @@ txt_startGame:        .text "f7      start  game"; .byte $ff
 // level start screen
 txt_entering:         .text "world  0-0"; .byte $ff
 txt_getReady:         .text "get ready!"; .byte $ff
-// ingame screen
-txt_dashboard:        .text " lives 0         score 000000 hi 000000"; .byte $FF
 // end game screen
 txt_endGame1:         .text "congratulations!"; .byte $ff
 txt_endGame2:         .text "you have finished the game"; .byte $ff
