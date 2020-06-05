@@ -277,22 +277,22 @@ doIngame: {
     rts
 }
 
-  doGameOver: {
-    lda z_doGameOver
-    beq !+
-      jsr act_reset
-      jsr spr_hidePlayers
-      lda SPRITE_ENABLE
-      and #%00000000
-      sta SPRITE_ENABLE
-      .for (var i = 4; i < 8; i++) {
-        ldx #i
-        jsr disableAnimation
-      }
-      jsr spr_showGameOver
-    !:
-    rts
-  }
+doGameOver: {
+  lda z_doGameOver
+  beq !+
+    jsr act_reset
+    jsr spr_hidePlayers
+    lda SPRITE_ENABLE
+    and #%00000000
+    sta SPRITE_ENABLE
+    .for (var i = 4; i < 8; i++) {
+      ldx #i
+      jsr disableAnimation
+    }
+    jsr spr_showGameOver
+  !:
+  rts
+}
 
 
 // Initialize music player.
@@ -638,7 +638,9 @@ prepareIngameScreen: {
 
   rts
 }
+// ---- END: graphics configuration ----
 
+// ---- BEGIN: dashboard ----
 .macro stashSprites(stash) {
   // stash
   .for (var i = 0; i < 8; i++) {
@@ -671,13 +673,13 @@ prepareIngameScreen: {
   sta SPRITE_5_Y
   sta SPRITE_6_Y
   sta SPRITE_7_Y
-  lda #32
+  lda #DASHBOARD_LEFT_X
   sta SPRITE_4_X
-  lda #8
+  lda #DASHBOARD_RIGHT_X
   sta SPRITE_5_X
-  lda #32
+  lda #(DASHBOARD_RIGHT_X + 24 + DASHBOARD_RIGHT_SPC)
   sta SPRITE_6_X
-  lda #56
+  lda #(DASHBOARD_RIGHT_X + 48 + DASHBOARD_RIGHT_SPC)
   sta SPRITE_7_X
   lda SPRITE_MSB_X
   and #%11101111
@@ -791,7 +793,7 @@ updateDashboard: {
   drawLoDigitOnSprite( VIC_MEMORY_START + (SPRITE_SHAPES_START + SPR_DASHBOARD)*64 + 20, z_lives, CHARGEN_ADDR)
   rts
 }
-// ---- END: graphics configuration ----
+// ---- END: dashboard ----
 
 // ---- actors handling ----
 

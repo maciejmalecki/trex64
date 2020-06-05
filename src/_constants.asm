@@ -22,9 +22,14 @@
 .label CFG_CONTROLS = %00000001
 .label CFG_SOUND = %00000010
 
+// ---- dashboard ----
+.label DASHBOARD_Y = 50
+.label DASHBOARD_LEFT_X = 34
+.label DASHBOARD_RIGHT_X = 4
+.label DASHBOARD_RIGHT_SPC = 2
+
 // ---- misc ----
 .label MAX_DELAY = 10
-.label DASHBOARD_Y = 50
 
 // ---- keyboard ----
 // title screen
