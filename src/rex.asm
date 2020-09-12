@@ -22,6 +22,7 @@
 
 .file [name="./rex.prg", segments="Code, Data, Charsets, LevelData, Sprites, Sfx, Music", modify="BasicUpstart", _start=$0810]
 .var music = LoadSid("music/rex.sid")
+.var charset = LoadBinary("charset/charset.bin")
 
 // ---- game parameters ----
 .label INVINCIBLE = 0
@@ -1753,10 +1754,13 @@ endOfMusicData:
 .segment Charsets
 beginOfChargen:
   // 0-63: letters, symbols, numbers
-  #import "fonts/regular/base.asm"
-.print "Chargen import size = " + (endOfChargen - beginOfChargen)
+  .fill charset.getSize(), charset.get(i)
 endOfChargen:
+beginOfInversedChargen:
+  .fill charset.getSize(), neg(charset.get(i))
+endOfInversedChargen:
 .print "Chargen import size = " + (endOfChargen - beginOfChargen)
+.print "Inversed chargen import size = " + (beginOfInversedChargen - endOfInversedChargen)
 // ---- END: chargen definition ----
 endOfTRex:
 

@@ -17,7 +17,5 @@ retroProject {
     libFromGitHub "c64lib/chipset", "develop"
     libFromGitHub "c64lib/text", "develop"
     libFromGitHub "c64lib/copper64", "develop"
-    libFromGitHub "c64lib/fonts", "develop"
-
 }
 
