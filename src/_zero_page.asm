@@ -64,6 +64,9 @@
 .label z_bgX = 54;            // $36, $37
 .label z_doGameOver = 56;     // $38
 
+// visual effects
+.label z_colorCycleDelay = 57; // $39
+
 .label z_spritesStashed = 127; // $7F
 .label z_stashArea = 128;     // $80
 

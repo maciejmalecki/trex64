@@ -37,6 +37,8 @@
 // collision detection
 .label X_COLLISION_OFFSET = 12 - 24
 .label Y_COLLISION_OFFSET = 29 - 50 - 6
+// visual effects
+.label COLOR_CYCLE_DELAY = 4
 
 // ---- levels ----
 #import "levels/level1/data.asm"
@@ -181,8 +183,11 @@ toggleLevel: {
 }
 
 doLevelScreen: {
+  lda #COLOR_CYCLE_DELAY
+  sta z_colorCycleDelay
+
   jsr configureTitleVic2
-  jsr startTitleCopper
+  jsr startLevelScreenCopper
   jsr prepareLevelScreen
   jsr io_resetControls
   jsr dly_wait10
@@ -195,6 +200,16 @@ doLevelScreen: {
   !:
   jsr dly_wait10
   jsr stopCopper
+  rts
+}
+
+scrollColorCycle2: {
+  dec z_colorCycleDelay 
+  bne !+
+    lda #COLOR_CYCLE_DELAY
+    sta z_colorCycleDelay
+    rotateMemRightFast(colorCycle2 + 1, 6)
+  !:
   rts
 }
 
@@ -470,6 +485,15 @@ configureTitleVic2: {
   and #%11110000
   ora #%00001000
   sta CONTROL_1
+  // copy inversed charset
+  sei
+  configureMemory(RAM_RAM_RAM)
+  pushParamW(beginOfInversedChargen)
+  pushParamW(CHARGEN_ADDR + (endOfChargen - beginOfChargen))
+  pushParamW(endOfInversedChargen - beginOfInversedChargen)
+  jsr copyLargeMemForward
+  configureMemory(RAM_IO_RAM)
+  cli
   rts
 }
 
@@ -584,8 +608,8 @@ drawConfig: {
 }
 
 prepareLevelScreen: {
-  lda #32
-  ldx #LIGHT_GRAY
+  lda #(32 + 64)
+  ldx #BLACK
   jsr clearBothScreens
 
   pushParamW(txt_entering)
@@ -598,11 +622,11 @@ prepareLevelScreen: {
 
   pushParamW(z_worldCounter)
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 22)
-  jsr outHexNibble
+  jsr outHexNibbleInversed
 
   pushParamW(z_levelCounter)
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 24)
-  jsr outHexNibble
+  jsr outHexNibbleInversed
 
   rts
 }
@@ -1158,6 +1182,7 @@ setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DEL
  #import "text/lib/sub/out-text.asm"
  #import "text/lib/sub/out-hex.asm"
  #import "text/lib/sub/out-hex-nibble.asm"
+ outHexNibbleInversed: outHexNibbleOfs(64)
 
 // ---- END: Utility subroutines ----
 
@@ -1180,11 +1205,20 @@ startTitleCopper: {
   rts
 }
 
+startLevelScreenCopper: {
+  lda #<levelScreenCopperList
+  sta z_displayListPtr
+  lda #>levelScreenCopperList
+  sta z_displayListPtr + 1
+  jsr startCopper
+  rts
+}
+
 startCopper: {
   startCopper(
     z_displayListPtr,
     z_listPtr,
-    List().add(c64lib.IRQH_HSCROLL, c64lib.IRQH_JSR).lock())
+    List().add(c64lib.IRQH_HSCROLL, c64lib.IRQH_JSR, c64lib.IRQH_BG_RASTER_BAR).lock())
   rts
 }
 
@@ -1216,6 +1250,16 @@ titleScreenCopperList:
     copperEntry(245, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
     // here we loop and so on, so on, for each frame
     copperLoop()
+
+levelScreenCopperList:
+    copperEntry(10, IRQH_JSR, <playMusic, >playMusic)
+    copperEntry(80, IRQH_JSR, <scrollColorCycle2, >scrollColorCycle2)
+    copperEntry(125, IRQH_BG_RASTER_BAR, <colorCycle1, >colorCycle1)
+    copperEntry(141, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
+    copperEntry(245, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
+    // here we loop and so on, so on, for each frame
+    copperLoop()
+
 _copperListEnd:
 .assert "Copper list must fit into single 256b page.", (_copperListEnd - _copperListStart)<256, true
 // ---- END: Copper Tables ----
@@ -1736,12 +1780,15 @@ txt_soundFx:          .text "fx   "; .byte $ff
 txt_startingLevel:    .text "f5      level  1-"; .byte $ff
 txt_startGame:        .text "f7      start  game"; .byte $ff
 // level start screen
-txt_entering:         .text "world  0-0"; .byte $ff
-txt_getReady:         .text "get ready!"; .byte $ff
+txt_entering:         incText("world  0-0", 64); .byte $ff
+txt_getReady:         incText("get ready!", 64); .byte $ff
 // end game screen
 txt_endGame1:         .text "congratulations!"; .byte $ff
 txt_endGame2:         .text "you have finished the game"; .byte $ff
 txt_pressAnyKey:      .text "hit the button"; .byte $ff
+// color cycles
+colorCycle1:          .byte GREY, LIGHT_GREY, WHITE, WHITE, LIGHT_GREY, GREY, GREY, BLACK, $ff
+colorCycle2:          .byte BLACK, LIGHT_RED, RED, LIGHT_RED, YELLOW, WHITE, YELLOW, YELLOW, BLACK, $ff
 
 .segment Music
 musicData:
@@ -1759,8 +1806,8 @@ endOfChargen:
 beginOfInversedChargen:
   .fill charset.getSize(), neg(charset.get(i))
 endOfInversedChargen:
-.print "Chargen import size = " + (endOfChargen - beginOfChargen)
 .print "Inversed chargen import size = " + (beginOfInversedChargen - endOfInversedChargen)
+.print "Chargen import size = " + (endOfChargen - beginOfChargen)
 // ---- END: chargen definition ----
 endOfTRex:
 
