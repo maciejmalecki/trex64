@@ -480,6 +480,7 @@ configureTitleVic2: {
   // turn on 40 columns visible
   lda CONTROL_2
   ora #%00001000
+  and #%11111000
   sta CONTROL_2
   lda CONTROL_1
   and #%11110000
@@ -655,12 +656,6 @@ prepareIngameScreen: {
   lda #32
   ldx #0
   jsr clearBothScreens
-  // hires colors for status bar
-  pushParamW(COLOR_RAM + 24*40)
-  lda #WHITE
-  ldx #40
-  jsr fillMem
-
   rts
 }
 // ---- END: graphics configuration ----
