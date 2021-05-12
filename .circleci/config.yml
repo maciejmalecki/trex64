@@ -17,7 +17,7 @@ jobs:
                 at: ./artifacts
             - run: mkdir out
             - run: ./gradlew charpad
-            - run: pwd && ls -al build/charpad/level1
+            - run: pwd && ls -al build/charpad/levels/level1
             - run: cd src && cp rex.prg ../out
             - persist-to-workspace:
                 root: .
