@@ -38,8 +38,6 @@ preprocess {
         useBuildDir = true
         outputs {
             charset {
-                start = 0
-                end = 64
                 output = file("levels/level1/charset.bin")
             }
             tiles {
