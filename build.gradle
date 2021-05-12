@@ -1,9 +1,22 @@
+// buildscript {
+//   repositories {
+//     mavenLocal()
+//     jcenter()
+//   }
+//   dependencies {
+//     classpath "com.github.c64lib.retro-assembler:com.github.c64lib.retro-assembler.gradle.plugin:1.1.0-SNAPSHOT"
+//   }
+// }
+
+// apply plugin: "com.github.c64lib.retro-assembler"
+
 plugins {
-    id "com.github.c64lib.retro-assembler" version "1.0.1"
+    id "com.github.c64lib.retro-assembler" version "1.1.0-rc04"
 }
 
 repositories {
-    jcenter()
+    mavenLocal()
+    //jcenter()
 }
 
 apply plugin: "com.github.c64lib.retro-assembler"
@@ -11,7 +24,7 @@ apply plugin: "com.github.c64lib.retro-assembler"
 retroProject {
     dialect = "KickAssembler"
     dialectVersion = "5.16"
-    libDirs = [".ra/deps/c64lib"]
+    libDirs = [".ra/deps/c64lib", "build/charpad"]
 
     libFromGitHub "c64lib/common", "develop"
     libFromGitHub "c64lib/chipset", "develop"
@@ -19,3 +32,55 @@ retroProject {
     libFromGitHub "c64lib/copper64", "develop"
 }
 
+preprocess {
+    charpad {
+        input = file("src/levels/level1/charpad.ctm")
+        useBuildDir = true
+        outputs {
+            charset {
+                start = 0
+                end = 64
+                output = file("levels/level1/charset.bin")
+            }
+            tiles {
+              interleaver {
+                output = file("levels/level1/tiles.bin")
+              }
+              interleaver {
+              }
+            }
+            tileColours {
+              output = file("levels/level1/colors.bin")
+            }
+            map {
+              right = 135
+              bottom = 12
+              interleaver {
+                output = file("levels/level1/map-1.bin")
+              }
+              interleaver {
+              }
+            }
+            map {
+              left = 136
+              right = 300
+              bottom = 12
+              interleaver {
+                output = file("levels/level1/map-2.bin")
+              }
+              interleaver {
+              }
+            }
+            map {
+              left = 136
+              right = 300
+              bottom = 12
+              interleaver {
+                output = file("levels/level1/map-3.bin")
+              }
+              interleaver {
+              }
+            }
+        }
+    }
+}
