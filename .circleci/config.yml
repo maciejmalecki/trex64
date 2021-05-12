@@ -16,7 +16,8 @@ jobs:
             - attach_workspace:
                 at: ./artifacts
             - run: mkdir out
-            - run: ./gradlew
+            - run: ./gradlew charpad
+            - run: pwd && ls -al build/charpad
             - run: cd src && cp rex.prg ../out
             - persist-to-workspace:
                 root: .
