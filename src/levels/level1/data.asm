@@ -3,12 +3,12 @@
 #import "../../_level-utils.asm"
 .filenamespace level1
 
-.var _charsetData = LoadBinary("levels\level1\charset.bin")
-.var _tileData = LoadBinary("levels\level1\tiles.bin")
-.var _tileColorsData = LoadBinary("levels\level1\colors.bin")
-.var _map1Data = LoadBinary("levels\level1\map-1.bin")
-.var _map2Data = LoadBinary("levels\level1\map-2.bin")
-.var _map3Data = LoadBinary("levels\level1\map-3.bin")
+.var _charsetData = LoadBinary("levels/level1/charset.bin")
+.var _tileData = LoadBinary("levels/level1/tiles.bin")
+.var _tileColorsData = LoadBinary("levels/level1/colors.bin")
+.var _map1Data = LoadBinary("levels/level1/map-1.bin")
+.var _map2Data = LoadBinary("levels/level1/map-2.bin")
+.var _map3Data = LoadBinary("levels/level1/map-3.bin")
 
 // level meta data
 .label MAP_1_WIDTH = _map1Data.getSize() / c64lib.MAP_HEIGHT
