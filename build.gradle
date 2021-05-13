@@ -11,19 +11,16 @@
 // apply plugin: "com.github.c64lib.retro-assembler"
 
 plugins {
-    id "com.github.c64lib.retro-assembler" version "1.1.0-rc04"
+    id "com.github.c64lib.retro-assembler" version "1.1.0"
 }
 
 repositories {
     mavenLocal()
-    //jcenter()
 }
-
-apply plugin: "com.github.c64lib.retro-assembler"
 
 retroProject {
     dialect = "KickAssembler"
-    dialectVersion = "5.16"
+    dialectVersion = "5.20"
     libDirs = [".ra/deps/c64lib", "build/charpad"]
 
     libFromGitHub "c64lib/common", "develop"
@@ -52,7 +49,6 @@ preprocess {
             }
             map {
               right = 135
-              bottom = 12
               interleaver {
                 output = file("levels/level1/map-1.bin")
               }
@@ -61,8 +57,6 @@ preprocess {
             }
             map {
               left = 136
-              right = 300
-              bottom = 12
               interleaver {
                 output = file("levels/level1/map-2.bin")
               }
@@ -71,8 +65,6 @@ preprocess {
             }
             map {
               left = 136
-              right = 300
-              bottom = 12
               interleaver {
                 output = file("levels/level1/map-3.bin")
               }
