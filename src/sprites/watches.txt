@@ -1,0 +1,9 @@
+0002 x-lo
+0003 x-hi
+000a phase
+000e delta-x
+000f acc0
+0021 x-pos
+0026 wrap-mark
+0032 scroll-mark
+0034 color-ram-shifted

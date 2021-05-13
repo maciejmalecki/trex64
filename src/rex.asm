@@ -1,4 +1,4 @@
-// #define VISUAL_DEBUG
+//#define VISUAL_DEBUG
 #import "common/lib/common.asm"
 #import "common/lib/mem.asm"
 #import "common/lib/invoke.asm"
@@ -20,8 +20,12 @@
 
 .filenamespace c64lib
 
-.file [name="./rex.prg", segments="Code, Data, Charsets, LevelData, Sprites", modify="BasicUpstart", _start=$0810]
-.var music = LoadSid("music/sixpack.sid")
+.file [name="./rex.prg", segments="Code, Data, Charsets, LevelData, Sprites, Sfx, Music", modify="BasicUpstart", _start=$0810]
+.var music = LoadSid("music/rex.sid")
+.var charset = LoadBinary("charset/charset.bin")
+.var titleCharset = LoadBinary("charset/game-logo-chars.bin")
+.var titleAttrs = LoadBinary("charset/game-logo-attr.bin")
+.var titleMap = LoadBinary("charset/game-logo-map.bin")
 
 // ---- game parameters ----
 .label INVINCIBLE = 0
@@ -34,13 +38,16 @@
 .label SCORE_FOR_PROGRESS_DELAY = 50
 .label SCORE_FOR_PROGRESS = $0025
 // collision detection
-.label X_COLLISION_OFFSET = 8 - 24
-.label Y_COLLISION_OFFSET = 29 - 50
-
-.label MUSIC_TARGET_ADDRESS = $6000
+.label X_COLLISION_OFFSET = 12 - 24
+.label Y_COLLISION_OFFSET = 29 - 50 - 6
+// visual effects
+.label COLOR_CYCLE_DELAY = 4
 
 // ---- levels ----
 #import "levels/level1/data.asm"
+
+// ---- sfx -----
+#import "sfx.asm"
 
 
 /*
@@ -179,8 +186,11 @@ toggleLevel: {
 }
 
 doLevelScreen: {
+  lda #COLOR_CYCLE_DELAY
+  sta z_colorCycleDelay
+
   jsr configureTitleVic2
-  jsr startTitleCopper
+  jsr startLevelScreenCopper
   jsr prepareLevelScreen
   jsr io_resetControls
   jsr dly_wait10
@@ -193,6 +203,16 @@ doLevelScreen: {
   !:
   jsr dly_wait10
   jsr stopCopper
+  rts
+}
+
+scrollColorCycle2: {
+  dec z_colorCycleDelay 
+  bne !+
+    lda #COLOR_CYCLE_DELAY
+    sta z_colorCycleDelay
+    rotateMemRightFast(colorCycle2 + 1, 6)
+  !:
   rts
 }
 
@@ -217,10 +237,10 @@ doEndGameScreen: {
 doIngame: {
   jsr configureIngameVic2
   jsr prepareIngameScreen
-  jsr initDashboard
   jsr updateScoreOnDashboard
   jsr setUpWorld
   jsr setUpMap
+  jsr setupSounds
   jsr initLevel
   jsr act_reset
   jsr io_resetControls
@@ -246,6 +266,7 @@ doIngame: {
       }
 
       jsr spr_showDeath
+      jsr playDeath
       // decrement lives
       dec z_lives
       bne livesLeft
@@ -266,6 +287,18 @@ doIngame: {
   jmp mainMapLoop
 
   displayGameOver:
+    lda #1
+    sta z_doGameOver
+    wait #200
+  gameOver:
+    jsr stopCopper
+    jsr spr_hidePlayers
+    rts
+}
+
+doGameOver: {
+  lda z_doGameOver
+  beq !+
     jsr act_reset
     jsr spr_hidePlayers
     lda SPRITE_ENABLE
@@ -276,12 +309,10 @@ doIngame: {
       jsr disableAnimation
     }
     jsr spr_showGameOver
-    wait #200
-  gameOver:
-    jsr stopCopper
-    jsr spr_hidePlayers
-    rts
+  !:
+  rts
 }
+
 
 // Initialize music player.
 initSound: {
@@ -292,10 +323,78 @@ initSound: {
   rts
 }
 
+setupSounds: {
+  lda #0
+  sta z_sfxChannel
+  rts
+}
+
 playMusic: {
   debugBorderStart()
   jsr music.play
   debugBorderEnd()
+  rts
+}
+
+playJump: {
+  lda #<sfxJump
+  ldy #>sfxJump
+  jmp playSfx
+}
+
+playDuck: {
+  lda #<sfxDuck
+  ldy #>sfxDuck
+  jmp playSfx
+}
+
+playDeath: {
+  lda #<sfxDeath
+  ldy #>sfxDeath
+  jmp playSfx
+}
+
+playLanding: {
+  lda #<sfxLanding
+  ldy #>sfxLanding
+  jmp playEnemy
+}
+
+playSfx: {
+  ldx #14
+  jsr music.init + 6
+  rts
+}
+
+playSnake: {
+  lda #<sfxSnake
+  ldy #>sfxSnake
+  jmp playEnemy
+}
+
+playVogel: {
+  lda #<sfxVogel
+  ldy #>sfxVogel
+  jmp playEnemy
+}
+
+playScorpio: {
+  lda #<sfxScorpio
+  ldy #>sfxScorpio
+  jmp playEnemy
+}
+
+playEnemy: {
+  ldx z_sfxChannel
+  beq !+
+    ldx #0
+    stx z_sfxChannel
+    jmp play
+  !:
+    ldx #7
+    stx z_sfxChannel
+  play:
+  jsr music.init + 6
   rts
 }
 
@@ -384,7 +483,21 @@ configureTitleVic2: {
   // turn on 40 columns visible
   lda CONTROL_2
   ora #%00001000
+  and #%11111000
   sta CONTROL_2
+  lda CONTROL_1
+  and #%11110000
+  ora #%00001000
+  sta CONTROL_1
+  // copy inversed charset
+  sei
+  configureMemory(RAM_RAM_RAM)
+  pushParamW(beginOfInversedChargen)
+  pushParamW(CHARGEN_ADDR + (endOfChargen - beginOfChargen))
+  pushParamW(endOfInversedChargen - beginOfInversedChargen)
+  jsr copyLargeMemForward
+  configureMemory(RAM_IO_RAM)
+  cli
   rts
 }
 
@@ -396,6 +509,10 @@ configureIngameVic2: {
   lda CONTROL_2
   and #%11110111
   sta CONTROL_2
+  lda CONTROL_1
+  and #%11110000
+  ora #%00000110
+  sta CONTROL_1
   rts
 }
 
@@ -495,8 +612,8 @@ drawConfig: {
 }
 
 prepareLevelScreen: {
-  lda #32
-  ldx #LIGHT_GRAY
+  lda #(32 + 64)
+  ldx #BLACK
   jsr clearBothScreens
 
   pushParamW(txt_entering)
@@ -509,11 +626,11 @@ prepareLevelScreen: {
 
   pushParamW(z_worldCounter)
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 22)
-  jsr outHexNibble
+  jsr outHexNibbleInversed
 
   pushParamW(z_levelCounter)
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 24)
-  jsr outHexNibble
+  jsr outHexNibbleInversed
 
   rts
 }
@@ -542,55 +659,183 @@ prepareIngameScreen: {
   lda #32
   ldx #0
   jsr clearBothScreens
-  // hires colors for status bar
-  pushParamW(COLOR_RAM + 24*40)
-  lda #WHITE
-  ldx #40
-  jsr fillMem
-
-  rts
-}
-
-initDashboard: {
-  pushParamW(txt_dashboard)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 24*40)
-  jsr outText
-
-  pushParamW(txt_dashboard)
-  pushParamW(SCREEN_PAGE_ADDR_1 + 24*40)
-  jsr outText
-
-  rts
-}
-
-updateScoreOnDashboard: {
-  .for (var i = 0; i < 3; i++) {
-    pushParamW(z_score + i)
-    pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 27 - i*2)
-    jsr outHex
-  }
-  .for (var i = 0; i < 3; i++) {
-    pushParamW(z_score + i)
-    pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 27 - i*2)
-    jsr outHex
-  }
-  rts
-}
-
-updateDashboard: {
-  pushParamW(z_lives)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 24*40 + 7)
-  jsr outHexNibble
-
-  pushParamW(z_lives)
-  pushParamW(SCREEN_PAGE_ADDR_1 + 24*40 + 7)
-  jsr outHexNibble
-
   rts
 }
 // ---- END: graphics configuration ----
 
+// ---- BEGIN: dashboard ----
+.macro stashSprites(stash) {
+  // stash
+  .for (var i = 0; i < 8; i++) {
+    lda SPRITE_4_X + i
+    sta stash + i
+  }
+  .for (var i = 0; i < 4; i++) {
+    lda SPRITE_4_COLOR + i
+    sta stash + 8 + i
+  }
+  lda SPRITE_MSB_X
+  sta stash + 12
+  lda SPRITE_ENABLE
+  sta stash + 13
+  lda SPRITE_COL_MODE
+  sta stash + 14
+
+  .for (var i = 0; i < 4; i++) {
+    lda SCREEN_PAGE_ADDR_0 + 1020 + i
+    sta stash + 15 + i
+  }
+  .for (var i = 0; i < 4; i++) {
+    lda SCREEN_PAGE_ADDR_1 + 1020 + i
+    sta stash + 19 + i
+  }
+
+  // setup
+  lda #DASHBOARD_Y
+  sta SPRITE_4_Y
+  sta SPRITE_5_Y
+  sta SPRITE_6_Y
+  sta SPRITE_7_Y
+  lda #DASHBOARD_LEFT_X
+  sta SPRITE_4_X
+  lda #DASHBOARD_RIGHT_X
+  sta SPRITE_5_X
+  lda #(DASHBOARD_RIGHT_X + 24 + DASHBOARD_RIGHT_SPC)
+  sta SPRITE_6_X
+  lda #(DASHBOARD_RIGHT_X + 48 + DASHBOARD_RIGHT_SPC)
+  sta SPRITE_7_X
+  lda SPRITE_MSB_X
+  and #%11101111
+  ora #%11100000
+  sta SPRITE_MSB_X
+  lda SPRITE_COL_MODE
+  and #%00001111
+  sta SPRITE_COL_MODE
+  lda #WHITE
+  .for(var i = 0; i < 4; i++) {
+    sta SPRITE_4_COLOR + i
+  }
+  // sprite shapes
+  .for(var i = 0; i < 4; i++) {
+    lda #(SPRITE_SHAPES_START + SPR_DASHBOARD + i)
+    sta SCREEN_PAGE_ADDR_0 + 1020 + i
+    sta SCREEN_PAGE_ADDR_1 + 1020 + i
+  }
+  lda SPRITE_ENABLE
+  ora #%11110000
+  sta SPRITE_ENABLE
+
+  lda #1
+  sta z_spritesStashed
+}
+
+.macro popSprites(stash) {
+  lda z_spritesStashed
+  bne !+
+    jmp end
+  !:
+  // pop
+  lda SPRITE_ENABLE
+  and #%00001111
+  sta SPRITE_ENABLE
+  .for (var i = 0; i < 8; i++) {
+    lda stash + i
+    sta SPRITE_4_X + i
+  }
+  .for (var i = 0; i < 4; i++) {
+    lda stash + 8 + i
+    sta SPRITE_4_COLOR + i
+  }
+  lda stash + 12
+  sta SPRITE_MSB_X
+  lda stash + 14
+  sta SPRITE_COL_MODE
+  .for (var i = 0; i < 4; i++) {
+    lda stash + 15 + i
+    sta SCREEN_PAGE_ADDR_0 + 1020 + i
+  }
+  .for (var i = 0; i < 4; i++) {
+    lda stash + 19 + i
+    sta SCREEN_PAGE_ADDR_1 + 1020 + i
+  }
+  lda stash + 13
+  sta SPRITE_ENABLE
+  lda #0
+  sta z_spritesStashed
+  end:
+}
+
+// 48 -> 0, 49 -> -1 and so on...
+.macro drawLoDigitOnSprite(spriteAddr, numberAddr, charsetAddr) {
+  lda numberAddr
+  and #%00001111
+  asl
+  asl
+  asl
+  tax
+  ldy #0
+  !:
+    lda charsetAddr + 48*8,x
+    sta spriteAddr,y
+    inx
+    iny
+    iny
+    iny
+    cpy #(3*8)
+  bne !-
+}
+
+.macro drawHiDigitOnSprite(spriteAddr, numberAddr, charsetAddr) {
+  lda numberAddr
+  and #%11110000
+  lsr
+  tax
+  ldy #0
+  !:
+    lda charsetAddr + 48*8,x
+    sta spriteAddr,y
+    inx
+    iny
+    iny
+    iny
+    cpy #(3*8)
+  bne !-
+}
+
+updateScoreOnDashboard: {
+  drawLoDigitOnSprite( VIC_MEMORY_START + (SPRITE_SHAPES_START + SPR_DASHBOARD + 3)*64 + 20, z_score, CHARGEN_ADDR)
+  drawHiDigitOnSprite( VIC_MEMORY_START + (SPRITE_SHAPES_START + SPR_DASHBOARD + 3)*64 + 19, z_score, CHARGEN_ADDR)
+  drawLoDigitOnSprite( VIC_MEMORY_START + (SPRITE_SHAPES_START + SPR_DASHBOARD + 3)*64 + 18, z_score + 1, CHARGEN_ADDR)
+  drawHiDigitOnSprite( VIC_MEMORY_START + (SPRITE_SHAPES_START + SPR_DASHBOARD + 2)*64 + 20, z_score + 1, CHARGEN_ADDR)
+  drawLoDigitOnSprite( VIC_MEMORY_START + (SPRITE_SHAPES_START + SPR_DASHBOARD + 2)*64 + 19, z_score + 2, CHARGEN_ADDR)
+  drawHiDigitOnSprite( VIC_MEMORY_START + (SPRITE_SHAPES_START + SPR_DASHBOARD + 2)*64 + 18, z_score + 2, CHARGEN_ADDR)
+  rts
+}
+
+updateDashboard: {
+  drawLoDigitOnSprite( VIC_MEMORY_START + (SPRITE_SHAPES_START + SPR_DASHBOARD)*64 + 20, z_lives, CHARGEN_ADDR)
+  rts
+}
+// ---- END: dashboard ----
+
 // ---- actors handling ----
+
+.macro playEnemy(enemyRoutine) {
+  txa
+  pha
+  playSfx(enemyRoutine)
+  pla
+  tax
+}
+
+.macro playSfx(enemyRoutine) {
+  lda z_gameConfig
+  and #CFG_SOUND
+  bne !+
+    jsr enemyRoutine
+  !:
+}
+
 checkForNewActors: {
   ldy #0
   lda (z_actorsBase),y
@@ -612,9 +857,9 @@ checkForNewActors: {
     lda (z_actorsBase),y
     pha
     // actor X position
-    lda #70 // #87 TODO: to make it visible from behind the border
+    lda #$60 // #87 TODO: to make it visible from behind the border
     pha
-    lda #1
+    lda #$14
     pha
     // actor Y position
     iny
@@ -638,12 +883,30 @@ checkForNewActors: {
     sta SPRITE_0_COLOR,x
     ldy #0
     lda (z_actorsBase),y
-    cmp #1
+    cmp #EN_VOGEL
     beq vogel
+    cmp #EN_SCORPIO
+    beq scorpio
+    cmp #EN_SNAKE
+    beq snake
     jmp moveActorsBase
     vogel:
       jsr spr_showVogel
-      jmp moveActorsBase
+      playEnemy(playVogel)
+      jmp showEnemy
+    scorpio:
+      jsr spr_showScorpio
+      playEnemy(playScorpio)
+      jmp showEnemy
+    snake:
+      jsr spr_showSnake
+      playEnemy(playSnake)
+      jmp showEnemy
+    showEnemy:
+      // sprite enable
+      lda z_spriteEnable
+      ora bitMaskTable,x
+      sta z_spriteEnable
     moveActorsBase:
     // move actors base to the next entry
     clc
@@ -662,9 +925,10 @@ disposeActors: {
     lda act_code,x
     beq next
     lda act_xHi,x
+    and #%00010000
     bne next
-    lda act_xLo,x
-    and #%11110000
+    lda act_xHi,x
+    and #%00001111
     bne next
     lda act_sprite,x
     pha
@@ -706,10 +970,23 @@ drawActors: {
     sta spriteX
     lda act_y,y
     sta spriteY:$d000
+    // round
     lda act_xLo,y
+    lsr
+    lsr
+    lsr
+    lsr
+    sta tempX
+    lda act_xHi,y
+    asl
+    asl
+    asl
+    asl
+    ora tempX
     sta spriteX:$d000
     lda act_xHi,y
-    beq hiZero
+    and #%00010000
+    beq hiZero // TODO: branch on carry should work as well
       // X bigger than 255
       lda SPRITE_MSB_X
       ora bitMaskTable,x
@@ -725,6 +1002,8 @@ drawActors: {
     jmp loop
   end:
   rts
+  // local vars
+    tempX: .byte $00
 }
 
 enableActors: {
@@ -796,7 +1075,7 @@ nextLevel: {
   rts
 }
 
-.macro setUpMap(mapAddress, mapWidth, deltaX, wrappingMark, mapActors) {
+.macro setUpMap(mapAddress, mapWidth, deltaX, wrappingMark, scrollingMark, obstaclesMark, mapActors) {
   // set map definition pointer
   lda #<mapAddress
   sta z_map
@@ -810,8 +1089,14 @@ nextLevel: {
   // set delta X
   lda #deltaX
   sta z_deltaX
+
+  // set marks
   lda #wrappingMark
   sta z_wrappingMark
+  lda #scrollingMark
+  sta z_scrollingMark
+  lda #obstaclesMark
+  sta z_obstaclesMark
 
   // set actors base and pointer
   lda #<mapActors
@@ -873,9 +1158,9 @@ setUpMap: {
   rts
 }
 
-setUpMap1_1: setUpMap(level1.MAP_1_ADDRESS, level1.MAP_1_WIDTH, level1.MAP_1_DELTA_X, level1.MAP_1_WRAPPING_MARK, level1.MAP_1_ACTORS)
-setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH, level1.MAP_2_DELTA_X, level1.MAP_2_WRAPPING_MARK, level1.MAP_2_ACTORS)
-setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DELTA_X, level1.MAP_3_WRAPPING_MARK, level1.MAP_3_ACTORS)
+setUpMap1_1: setUpMap(level1.MAP_1_ADDRESS, level1.MAP_1_WIDTH, level1.MAP_1_DELTA_X, level1.MAP_1_WRAPPING_MARK, level1.MAP_1_SCROLLING_MARK, level1.MAP_1_OBSTACLES_MARK, level1.MAP_1_ACTORS)
+setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH, level1.MAP_2_DELTA_X, level1.MAP_2_WRAPPING_MARK, level1.MAP_2_SCROLLING_MARK, level1.MAP_2_OBSTACLES_MARK, level1.MAP_2_ACTORS)
+setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DELTA_X, level1.MAP_3_WRAPPING_MARK, level1.MAP_3_SCROLLING_MARK, level1.MAP_3_OBSTACLES_MARK, level1.MAP_3_ACTORS)
 
 // ---- END: level handling ----
 
@@ -895,6 +1180,7 @@ setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DEL
  #import "text/lib/sub/out-text.asm"
  #import "text/lib/sub/out-hex.asm"
  #import "text/lib/sub/out-hex-nibble.asm"
+ outHexNibbleInversed: outHexNibbleOfs(64)
 
 // ---- END: Utility subroutines ----
 
@@ -917,11 +1203,20 @@ startTitleCopper: {
   rts
 }
 
+startLevelScreenCopper: {
+  lda #<levelScreenCopperList
+  sta z_displayListPtr
+  lda #>levelScreenCopperList
+  sta z_displayListPtr + 1
+  jsr startCopper
+  rts
+}
+
 startCopper: {
   startCopper(
     z_displayListPtr,
     z_listPtr,
-    List().add(c64lib.IRQH_HSCROLL, c64lib.IRQH_JSR).lock())
+    List().add(c64lib.IRQH_HSCROLL, c64lib.IRQH_JSR, c64lib.IRQH_BG_RASTER_BAR).lock())
   rts
 }
 
@@ -936,17 +1231,15 @@ stopCopper: {
 _copperListStart:
 // here we define layout of raster interrupt handlers
 ingameCopperList:
-    copperEntry(10, IRQH_JSR, <playMusic, >playMusic)
-    // here we set scroll register to 5, but in fact this value will be modified by scrollBackground routine
   hScroll:
-    copperEntry(50, IRQH_HSCROLL, 5, 0)
-    // here we do the actual scrolling
+    // play music
+    copperEntry(0, IRQH_JSR, <playMusic, >playMusic)
+    copperEntry(DASHBOARD_Y + 20, IRQH_JSR, <upperMultiplex, >upperMultiplex)
   scrollCode:
-    copperEntry(54, IRQH_JSR, <scrollBackground, >scrollBackground)
-    // at the top we reset HScroll register to 0
-    copperEntry(241, IRQH_HSCROLL, 0, 0)
+    // here we do the actual scrolling
+    copperEntry(88, IRQH_JSR, <scrollBackground, >scrollBackground)
     // here we do the page switching when it's time for this
-    copperEntry(245, IRQH_JSR, <switchPages, >switchPages)
+    copperEntry(260, IRQH_JSR, <switchPages, >switchPages)
     // here we loop and so on, so on, for each frame
     copperLoop()
 
@@ -955,6 +1248,16 @@ titleScreenCopperList:
     copperEntry(245, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
     // here we loop and so on, so on, for each frame
     copperLoop()
+
+levelScreenCopperList:
+    copperEntry(10, IRQH_JSR, <playMusic, >playMusic)
+    copperEntry(80, IRQH_JSR, <scrollColorCycle2, >scrollColorCycle2)
+    copperEntry(125, IRQH_BG_RASTER_BAR, <colorCycle1, >colorCycle1)
+    copperEntry(141, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
+    copperEntry(245, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
+    // here we loop and so on, so on, for each frame
+    copperLoop()
+
 _copperListEnd:
 .assert "Copper list must fit into single 256b page.", (_copperListEnd - _copperListStart)<256, true
 // ---- END: Copper Tables ----
@@ -976,7 +1279,7 @@ tileDefinition:
 .eval tilesCfg.page1 = SCREEN_PAGE_1
 .eval tilesCfg.startRow = 0
 .eval tilesCfg.endRow = 23
-.eval tilesCfg.x = z_x
+.eval tilesCfg.x = z_bgX
 .eval tilesCfg.y = z_y
 .eval tilesCfg.width = z_width
 .eval tilesCfg.height = z_height
@@ -989,12 +1292,6 @@ tileDefinition:
 
 checkBGCollisions: {
   cld
-  lda #(PLAYER_X + X_COLLISION_OFFSET)
-  lsr
-  lsr
-  lsr
-  lsr
-  tax
   lda #(PLAYER_Y + Y_COLLISION_OFFSET)
   sec
   sbc z_yPos
@@ -1003,15 +1300,37 @@ checkBGCollisions: {
   lsr
   lsr
   tay
+  lda #(PLAYER_X + X_COLLISION_OFFSET)
+  lsr
+  lsr
+  lsr
+  lsr
+  tax
   decodeTile(tilesCfg)
-  and #%10000000
-  beq !+
+  and z_obstaclesMark
+  cmp z_obstaclesMark
+  bne !+
+    lda #GAME_STATE_KILLED
+    .if (INVINCIBLE == 0) {
+      sta z_gameState
+    }
+    rts
+  !:
+  lda #(PLAYER_X + X_COLLISION_OFFSET - 8)
+  lsr
+  lsr
+  lsr
+  lsr
+  tax
+  decodeTile(tilesCfg)
+  and z_obstaclesMark
+  cmp z_obstaclesMark
+  bne !+
     lda #GAME_STATE_KILLED
     .if (INVINCIBLE == 0) {
       sta z_gameState
     }
   !:
-  sta z_collisionTile
   rts
 }
 
@@ -1037,16 +1356,27 @@ initLevel: {
   lda #PHASE_SHOW_0
   sta z_phase
 
+  lda #0
+  sta z_spritesStashed
+  sta z_doGameOver
+
   // set sprite enable ghost reg to 0
   lda #0
   sta z_spriteEnable
 
+  lda #0
+  sta z_colorRAMShifted
+
   // set [x,y] = [0,0]
+  lda #$ff
+  sta z_oldX
   lda #0
   sta z_x
   sta z_x + 1
   sta z_y
   sta z_y + 1
+  sta z_bgX
+  sta z_bgX + 1
 
   // set xpos
   lda #PLAYER_X
@@ -1104,17 +1434,64 @@ incrementX: {
   rts
 }
 
+upperMultiplex: {
+  debugBorderStart()
+  popSprites(z_stashArea)
+  debugBorderEnd()
+  rts
+}
+
+detectPhases: {
+
+  lda z_phase
+  and #%10111110
+  sta z_phase
+  // detect page switching phase
+  lda z_acc0
+  cmp z_wrappingMark
+  bne notSeven
+    lda z_phase
+    ora #%01000000
+    sta z_phase
+  notSeven:
+
+  // detect scrolling phase
+  lda z_acc0
+  cmp z_scrollingMark
+  bne notZero
+    lda z_phase
+    ora #%00000001
+    sta z_phase
+  notZero:
+  rts
+}
+
 scrollBackground: {
   debugBorderStart()
+
+  jsr detectPhases
+
+  // are we actually moving?
+  lda z_x
+  cmp z_oldX
+  bne !+
+    // no movement -> no page switching - to disable strange artifacts when scrolling is stopped
+    jmp end2
+  !:
+
   // test phase flags
   lda #1
   bit z_phase
-  beq scrolling
-    jmp end
+  bne scrolling
+    jmp end2
   scrolling:
-  bpl page0
+    bpl page0
   // we're on page 1
   page1: {
+    lda z_x
+    sta z_bgX
+    lda z_x + 1
+    sta z_bgX + 1
       // if scrolling
       lda z_phase
       and #%11111110
@@ -1123,6 +1500,10 @@ scrollBackground: {
   }
   // we're on page 0
   page0: {
+    lda z_x
+    sta z_bgX
+    lda z_x + 1
+    sta z_bgX + 1
       // if scrolling
       lda z_phase
       and #%11111110
@@ -1138,28 +1519,42 @@ scrollBackground: {
     _t2_shiftScreenLeft(tilesCfg, 1, 0)
 
   end:
-    lda #1
-    bit z_phase
-    bvc noSwitching
-      // setup IRQ handler back to scrollColorRam
-      lda #<scrollColorRam
-      sta scrollCode + 2
-      lda #>scrollColorRam
-      sta scrollCode + 3
-    noSwitching:
+    // setup IRQ handler back to scrollColorRam
+    lda #<scrollColorRam
+    sta scrollCode + 2
+    lda #>scrollColorRam
+    sta scrollCode + 3
+  end2:
+
     debugBorderEnd()
     rts
 }
 
 scrollColorRam: {
   debugBorderEnd()
+
+  jsr detectPhases
+
+  // are we actually moving?
+  lda z_x
+  cmp z_oldX
+  bne !+
+    // no movement -> no page switching - to disable strange artifacts when scrolling is stopped
+    jmp switchBackIrq
+  !:
+
+  lda #1
+  sta z_colorRAMShifted
+
   _t2_shiftColorRamLeft(tilesCfg, 2)
   _t2_decodeColorRight(tilesCfg, COLOR_RAM)
+  switchBackIrq:
   // setup IRQ handler back to scrollBackground
   lda #<scrollBackground
   sta scrollCode + 2
   lda #>scrollBackground
   sta scrollCode + 3
+  end:
   debugBorderStart()
   rts
 }
@@ -1167,6 +1562,19 @@ scrollColorRam: {
 switchPages: {
   debugBorderStart()
   doSwitching:
+  // are we actually moving?
+  lda z_x
+  cmp z_oldX
+  bne !+
+    // no movement -> no page switching - to disable strange artifacts when scrolling is stopped
+    jmp end
+  !:
+  sta z_oldX
+  lda z_colorRAMShifted
+  bne !+
+    // switch pages only if color RAM have been shifted
+    jmp end
+  !:
   // test phase
   lda #1
   bit z_phase
@@ -1207,6 +1615,15 @@ switchPages: {
     sta MEMORY_CONTROL
   end:
 
+  // calculate scroll register
+  lda z_x
+  and #%01110000
+  lsr
+  lsr
+  lsr
+  lsr
+  sta z_acc0
+
   // increment X coordinate
   lda z_gameState
   cmp #GAME_STATE_LIVE
@@ -1227,26 +1644,6 @@ switchPages: {
       jmp endOfPhase
   endOfIncrementX:
 
-  // calculate scroll register
-  lda z_x
-  and #%01110000
-  lsr
-  lsr
-  lsr
-  lsr
-  sta z_acc0
-
-  // detect page switching phase
-  lda z_acc0
-  cmp z_wrappingMark
-  bne notSeven
-    lda z_phase
-    and #%11111110
-    ora #%01000000
-    sta z_phase
-  notSeven:
-
-
   // check end of level condition
   clc
   cld
@@ -1263,27 +1660,25 @@ switchPages: {
     !:
   dontReset:
 
-  // detect scrolling phase
-  lda z_acc0
-  bne notZero
-    lda z_phase
-    ora #%00000001
-    sta z_phase
-  notZero:
-
   // update scroll register for scrollable area
   sec
-  cld
   lda #7
-  sbc z_acc0
-  sta hScroll + 2
+  sbc z_scrollReg
+  sta z_scrollReg
+  lda CONTROL_2
+  and #%11111000
+  ora z_scrollReg
+  sta CONTROL_2
+  //sta hScroll + 2
+  lda z_acc0
+  sta z_scrollReg
   endOfPhase:
 
   jsr updateDashboard
   jsr io_scanControls
   jsr handleControls
   jsr animate
-  jsr phy_performJump
+  jsr phy_performProgressiveJump
   jsr phy_updateSpriteY
   jsr dly_handleDelay
 
@@ -1293,8 +1688,14 @@ switchPages: {
   jsr act_animate
   jsr enableActors
   jsr checkActorCollisions
+  jsr doGameOver
 
   decrementScoreDelay()
+
+  stashSprites(z_stashArea)
+
+  lda #0
+  sta z_colorRAMShifted
 
   debugBorderEnd()
   rts
@@ -1316,7 +1717,10 @@ handleControls: {
       sta z_mode
       lda #0
       sta z_jumpFrame
+      sta z_jumpPhase
+      sta z_jumpLinear
       jsr spr_showPlayerJump
+      jsr playJump
       jmp end
     !:
     end:
@@ -1331,6 +1735,7 @@ handleControls: {
   !:
   jsr io_checkDoduck
   beq !+
+    jsr playDuck
     jsr spr_showPlayerDuck
   !:
 
@@ -1340,6 +1745,7 @@ handleControls: {
   beq !+
     lda z_mode
     bne stillInAir
+      playSfx(playLanding)
       jsr spr_showPlayerWalkLeft
     stillInAir:
   !:
@@ -1372,19 +1778,20 @@ txt_soundFx:          .text "fx   "; .byte $ff
 txt_startingLevel:    .text "f5      level  1-"; .byte $ff
 txt_startGame:        .text "f7      start  game"; .byte $ff
 // level start screen
-txt_entering:         .text "world  0-0"; .byte $ff
-txt_getReady:         .text "get ready!"; .byte $ff
-// ingame screen
-txt_dashboard:        .text " lives 0         score 000000 hi 000000"; .byte $FF
+txt_entering:         incText("world  0-0", 64); .byte $ff
+txt_getReady:         incText("get ready!", 64); .byte $ff
 // end game screen
 txt_endGame1:         .text "congratulations!"; .byte $ff
 txt_endGame2:         .text "you have finished the game"; .byte $ff
 txt_pressAnyKey:      .text "hit the button"; .byte $ff
+// color cycles
+colorCycle1:          .byte GREY, LIGHT_GREY, WHITE, WHITE, LIGHT_GREY, GREY, GREY, BLACK, $ff
+colorCycle2:          .byte BLACK, LIGHT_RED, RED, LIGHT_RED, YELLOW, WHITE, YELLOW, YELLOW, BLACK, $ff
+
+.segment Music
 musicData:
                       .fill music.size, music.getData(i)
 endOfMusicData:
-
-// -- animations --
 
 // ---- END:DATA ----
 
@@ -1392,19 +1799,49 @@ endOfMusicData:
 .segment Charsets
 beginOfChargen:
   // 0-63: letters, symbols, numbers
-  #import "fonts/regular/base.asm"
-.print "Chargen import size = " + (endOfChargen - beginOfChargen)
+  .fill charset.getSize(), charset.get(i)
 endOfChargen:
+beginOfInversedChargen:
+  .fill charset.getSize(), neg(charset.get(i))
+endOfInversedChargen:
+beginOfTitleScreenChargen:
+  .fill titleCharset.getSize(), titleCharset.get(i)
+endOfTitleScreenChargen:
+.print "Inversed chargen import size = " + (beginOfInversedChargen - endOfInversedChargen)
 .print "Chargen import size = " + (endOfChargen - beginOfChargen)
 // ---- END: chargen definition ----
 endOfTRex:
 
+.assert "Code and music overlap", sfxEnd <= music.location, true
 
 // print memory map summary
+.print "header="+music.header
 .macro memSummary(name, address) {
+.print name + " = " + address + " ($" + toHexString(address, 4) + ")"
 .print name + " = " + address + " ($" + toHexString(address, 4) + ")"
 }
 
+.print "copyright="+music.copyright
+.print "copyright="+music.copyright
+.print "--------"
+.print "init=$"+toHexString(music.init)
+.print "play=$"+toHexString(music.play)
+.print "songs="+music.songs
+.print "startSong="+music.startSong
+.print "size=$"+toHexString(music.size)
+.print "name="+music.name
+.print "author="+music.author
+.print "copyright="+music.copyright
+.print "header="+music.header
+.print "header version="+music.version
+.print "flags="+toBinaryString(music.flags)
+.print "speed="+toBinaryString(music.speed)
+.print "startpage="+music.startpage
+.print "pagelength="+music.pagelength
+.print ""
+.print "Memory summary"
+.print "--------------"
+memSummary("        total size", (endOfTRex - start))
 memSummary("       tile colors", tileColors)
 memSummary("      mapOffsetsLo", mapOffsetsLo)
 memSummary("      mapOffsetsHi", mapOffsetsHi)
@@ -1415,31 +1852,10 @@ memSummary("SCREEN_PAGE_ADDR_0", SCREEN_PAGE_ADDR_0)
 memSummary("SCREEN_PAGE_ADDR_1", SCREEN_PAGE_ADDR_1)
 memSummary("      CHARGEN_ADDR", CHARGEN_ADDR)
 memSummary("       SPRITE_ADDR", SPRITE_ADDR)
-
-.print ("total size = " + (endOfTRex - start) + " bytes")
-
-.print "SID Data"
-.print "SID Data"
-.print "--------"
-.print "location=$"+toHexString(music.location)
-.print "init=$"+toHexString(music.init)
-.print "play=$"+toHexString(music.play)
-.print "songs="+music.songs
-.print "startSong="+music.startSong
-.print "size=$"+toHexString(music.size)
-.print "name="+music.name
-.print "author="+music.author
-.print "copyright="+music.copyright
 .print ""
-.print "Additional tech data"
-.print "--------------------"
-.print "header="+music.header
-.print "header version="+music.version
-.print "flags="+toBinaryString(music.flags)
-.print "speed="+toBinaryString(music.speed)
-.print "startpage="+music.startpage
-.print "pagelength="+music.pagelength
-
 .print "BREAKPOINTS"
 .print "-----------"
-.print "inGame.brkInGame=$" + toHexString(doIngame.mainMapLoop, 4)
+.print "inGame.brkInGame = $" + toHexString(doIngame.mainMapLoop, 4)
+.print "scrollBackground = $" + toHexString(scrollBackground, 4)
+.print "  scrollColorRAM = $" + toHexString(scrollColorRam, 4)
+.print "     switchPages = $" + toHexString(switchPages, 4)

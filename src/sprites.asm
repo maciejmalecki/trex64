@@ -16,6 +16,9 @@
 .label SPR_DEATH = SPR_DINO_DUCK + 8
 .label SPR_GAME_OVER = SPR_DEATH + 4
 .label SPR_VOGEL = SPR_GAME_OVER + (_b_vogel - _b_gameOver)/64
+.label SPR_SCORPIO = SPR_VOGEL + (_b_scorpio - _b_vogel)/64
+.label SPR_SNAKE = SPR_SCORPIO + (_b_snake - _b_scorpio)/64
+.label SPR_DASHBOARD = SPR_SNAKE + (_b_dashboard - _b_snake)/64
 
 .macro _setSpriteShape(spriteNum, shapeNum) {
   lda #shapeNum
@@ -82,12 +85,16 @@ _spr_setNormalPosition: {
   sta spriteXReg(PLAYER_SPRITE_BOTTOM)
   sta spriteXReg(PLAYER_SPRITE_BOTTOM_OVL)
   // set Y coord
+  cld
   lda #PLAYER_Y
   sta z_yPosTop
+  sbc z_yPos
   sta spriteYReg(PLAYER_SPRITE_TOP)
   sta spriteYReg(PLAYER_SPRITE_TOP_OVL)
+  clc
   lda #PLAYER_BOTTOM_Y
   sta z_yPosBottom
+  sbc z_yPos
   sta spriteYReg(PLAYER_SPRITE_BOTTOM)
   sta spriteYReg(PLAYER_SPRITE_BOTTOM_OVL)
   rts
@@ -201,10 +208,30 @@ spr_showVogel: {
   pushParamW(vogel)
   lda #$43
   jsr setAnimation
-  // sprite enable
-  lda z_spriteEnable
-  ora bitMaskTable,x
-  sta z_spriteEnable
+  rts
+}
+
+spr_showScorpio: {
+  // set sprite hires
+  lda SPRITE_COL_MODE
+  and bitMaskInvertedTable,x
+  sta SPRITE_COL_MODE
+  // set animation
+  pushParamW(scorpio)
+  lda #$43
+  jsr setAnimation
+  rts
+}
+
+spr_showSnake: {
+  // set sprite hires
+  lda SPRITE_COL_MODE
+  and bitMaskInvertedTable,x
+  sta SPRITE_COL_MODE
+  // set animation
+  pushParamW(snake)
+  lda #$43
+  jsr setAnimation
   rts
 }
 
@@ -259,6 +286,9 @@ spr_showGameOver: {
     lda #(_GAME_OVER_X + 20 + i*24)
     sta spriteXReg(4 + i)
   }
+  lda SPRITE_MSB_X
+  and #%00001111
+  sta SPRITE_MSB_X
   lda #%11111111
   sta SPRITE_ENABLE
   rts
@@ -274,18 +304,18 @@ spr_hidePlayers: {
 .segment Sprites
 beginOfSprites:
   _b_dino:
-  //#import "sprites/dino.asm"
   .import binary "sprites/dino.bin"
-  //_b_dinoJump:
-  //#import "sprites/dino-jump.asm"
-  //_b_dinoDuck:
-  //#import "sprites/dino-duck.asm"
-  //_b_death:
-  //#import "sprites/death.asm"
   _b_gameOver:
   #import "sprites/gameover.asm"
   _b_vogel:
   #import "sprites/vogel.asm"
+  _b_scorpio:
+  .import binary "sprites/scorpio.bin"
+  _b_snake:
+  .import binary "sprites/snake.bin"
+  _b_dashboard:
+  .import binary "sprites/dashboard.bin"
+  .fill 2*64, 0
 endOfSprites:
 .print "Sprites import size = " + (endOfSprites - beginOfSprites)
 // ---- END: Sprites definition ----
@@ -361,5 +391,17 @@ vogel:
   .byte SPRITE_SHAPES_START + SPR_VOGEL + 3
   .byte SPRITE_SHAPES_START + SPR_VOGEL + 2
   .byte SPRITE_SHAPES_START + SPR_VOGEL + 1
+  .byte $ff
+scorpio:
+  .byte SPRITE_SHAPES_START + SPR_SCORPIO
+  .byte SPRITE_SHAPES_START + SPR_SCORPIO + 1
+  .byte SPRITE_SHAPES_START + SPR_SCORPIO + 2
+  .byte SPRITE_SHAPES_START + SPR_SCORPIO + 1
+  .byte $ff
+snake:
+  .byte SPRITE_SHAPES_START + SPR_SNAKE
+  .byte SPRITE_SHAPES_START + SPR_SNAKE + 1
+  .byte SPRITE_SHAPES_START + SPR_SNAKE + 2
+  .byte SPRITE_SHAPES_START + SPR_SNAKE + 1
   .byte $ff
 // ----- END: Animation sequences -----
