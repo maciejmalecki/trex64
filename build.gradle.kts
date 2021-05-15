@@ -1,7 +1,6 @@
 // buildscript {
 //   repositories {
 //     mavenLocal()
-//     jcenter()
 //   }
 //   dependencies {
 //     classpath "com.github.c64lib.retro-assembler:com.github.c64lib.retro-assembler.gradle.plugin:1.1.0-SNAPSHOT"
@@ -11,7 +10,7 @@
 // apply plugin: "com.github.c64lib.retro-assembler"
 
 plugins {
-    id "com.github.c64lib.retro-assembler" version "1.1.0"
+    id("com.github.c64lib.retro-assembler") version "1.1.0"
 }
 
 repositories {
@@ -19,20 +18,20 @@ repositories {
 }
 
 retroProject {
-    dialect = "KickAssembler"
+    dialect = com.github.c64lib.retroassembler.domain.AssemblerType.KickAssembler
     dialectVersion = "5.20"
-    libDirs = [".ra/deps/c64lib", "build/charpad"]
+    libDirs = arrayOf(".ra/deps/c64lib", "build/charpad")
 
-    libFromGitHub "c64lib/common", "develop"
-    libFromGitHub "c64lib/chipset", "develop"
-    libFromGitHub "c64lib/text", "develop"
-    libFromGitHub "c64lib/copper64", "develop"
+    libFromGitHub("c64lib/common", "develop")
+    libFromGitHub("c64lib/chipset", "develop")
+    libFromGitHub("c64lib/text", "develop")
+    libFromGitHub("c64lib/copper64", "develop")
 }
 
 preprocess {
     charpad {
-        input = file("src/levels/level1/charpad.ctm")
-        useBuildDir = true
+        getInput().set(file("src/levels/level1/charpad.ctm"))
+        getUseBuildDir().set(true)
         outputs {
             charset {
                 output = file("levels/level1/charset.bin")
