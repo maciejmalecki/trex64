@@ -1,3 +1,5 @@
+import com.github.c64lib.retroassembler.domain.AssemblerType
+
 // buildscript {
 //   repositories {
 //     mavenLocal()
@@ -18,7 +20,7 @@ repositories {
 }
 
 retroProject {
-    dialect = com.github.c64lib.retroassembler.domain.AssemblerType.KickAssembler
+    dialect = AssemblerType.KickAssembler
     dialectVersion = "5.20"
     libDirs = arrayOf(".ra/deps/c64lib", "build/charpad")
 
@@ -29,6 +31,17 @@ retroProject {
 }
 
 preprocess {
+    // game font
+    charpad {
+      getInput().set(file("src/charset/charset.ctm"))
+      getUseBuildDir().set(true)
+      outputs {
+        charset {
+          output = file("charset/charset.bin")
+        }
+      }
+    }
+    // level 1
     charpad {
         getInput().set(file("src/levels/level1/charpad.ctm"))
         getUseBuildDir().set(true)
