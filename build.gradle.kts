@@ -41,6 +41,30 @@ preprocess {
         }
       }
     }
+    // title screen
+    charpad {
+      getInput().set(file("src/charset/game-logo.ctm"))
+      getUseBuildDir().set(true)
+      outputs {
+        charset {
+          output = file("charset/game-logo-chars.bin")
+        }
+        charsetAttributes {
+          nybbler {
+            loOutput = file("charset/game-logo-attr.bin")
+          }
+        }
+        map {
+          right = 40
+          bottom = 10
+          interleaver {
+            output = file("charset/game-logo-map.bin")
+          }
+          interleaver {
+          }
+        }
+      }
+    }
     // level 1
     charpad {
         getInput().set(file("src/levels/level1/charpad.ctm"))

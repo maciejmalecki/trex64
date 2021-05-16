@@ -42,6 +42,10 @@
 .label Y_COLLISION_OFFSET = 29 - 50 - 6
 // visual effects
 .label COLOR_CYCLE_DELAY = 4
+// title screen layout
+.label TITLE_TOP = 12
+.label AUTHOR_TOP = 14
+.label MENU_TOP = 18
 
 // ---- levels ----
 #import "levels/level1/data.asm"
@@ -548,32 +552,28 @@ prepareTitleScreen: {
   jsr clearBothScreens
 
   pushParamW(txt_title)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*3 + 14)
-  jsr outText
-
-  pushParamW(txt_subTitle)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*5 + 14)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*TITLE_TOP + 6)
   jsr outText
 
   pushParamW(txt_author)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 11)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*AUTHOR_TOP + 11)
   jsr outText
 
   pushParamW(txt_originalConcept)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*12 + 4)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*(AUTHOR_TOP + 2) + 4)
   jsr outText
 
   pushParamW(txt_controls)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*18 + 6)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*MENU_TOP + 6)
   jsr outText
   pushParamW(txt_sound)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*20 + 6)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*(MENU_TOP + 1) + 6)
   jsr outText
   pushParamW(txt_startingLevel)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*22 + 6)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*(MENU_TOP + 2) + 6)
   jsr outText
   pushParamW(txt_startGame)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*24 + 6)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*(MENU_TOP + 3) + 6)
   jsr outText
 
   jsr drawConfig
@@ -590,7 +590,7 @@ drawConfig: {
   keys:
     pushParamW(txt_controlsKey)
   controlMethodSelected:
-    pushParamW(SCREEN_PAGE_ADDR_0 + 40*18 + 21)
+    pushParamW(SCREEN_PAGE_ADDR_0 + 40*MENU_TOP + 21)
     jsr outText
   // sound
   lda z_gameConfig
@@ -601,11 +601,11 @@ drawConfig: {
   soundFx:
     pushParamW(txt_soundFx)
   soundSelected:
-    pushParamW(SCREEN_PAGE_ADDR_0 + 40*20 + 21)
+    pushParamW(SCREEN_PAGE_ADDR_0 + 40*(MENU_TOP + 1) + 21)
     jsr outText
   // starting level
   pushParamW(z_startingLevel)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*22 + 23)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*(MENU_TOP + 2) + 23)
   jsr outHexNibble
 
   rts
@@ -1252,8 +1252,8 @@ titleScreenCopperList:
 levelScreenCopperList:
     copperEntry(10, IRQH_JSR, <playMusic, >playMusic)
     copperEntry(80, IRQH_JSR, <scrollColorCycle2, >scrollColorCycle2)
-    copperEntry(125, IRQH_BG_RASTER_BAR, <colorCycle1, >colorCycle1)
-    copperEntry(141, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
+    copperEntry(124, IRQH_BG_RASTER_BAR, <colorCycle1, >colorCycle1)
+    copperEntry(140, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
     copperEntry(245, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
     // here we loop and so on, so on, for each frame
     copperLoop()
@@ -1764,8 +1764,7 @@ spriteYPosRegisters:
   .byte <SPRITE_4_Y; .byte <SPRITE_5_Y; .byte <SPRITE_6_Y; .byte <SPRITE_7_Y
 // ---- texts ----
 // title screen
-txt_title:            .text "t-rex runner"; .byte $ff
-txt_subTitle:         .text "c64  edition"; .byte $ff
+txt_title:            .text "t-rex runner    c64 edition"; .byte $ff
 txt_author:           .text "by  maciej malecki"; .byte $ff
 txt_originalConcept:  .text "based on google chrome easter egg"; .byte $ff
 // title screen menu
@@ -1785,7 +1784,7 @@ txt_endGame1:         .text "congratulations!"; .byte $ff
 txt_endGame2:         .text "you have finished the game"; .byte $ff
 txt_pressAnyKey:      .text "hit the button"; .byte $ff
 // color cycles
-colorCycle1:          .byte GREY, LIGHT_GREY, WHITE, WHITE, LIGHT_GREY, GREY, GREY, BLACK, $ff
+colorCycle1:          .byte GREY, GREY, LIGHT_GREY, WHITE, WHITE, LIGHT_GREY, GREY, GREY, BLACK, $ff
 colorCycle2:          .byte BLACK, LIGHT_RED, RED, LIGHT_RED, YELLOW, WHITE, YELLOW, YELLOW, BLACK, $ff
 
 .segment Music
