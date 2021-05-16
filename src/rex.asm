@@ -20,7 +20,7 @@
 
 .filenamespace c64lib
 
-.file [name="./rex.prg", segments="Code, Data, Charsets, LevelData, Sprites, Sfx, Music", modify="BasicUpstart", _start=$0810]
+.file [name="./rex.prg", segments="Code, Data, Charsets, LevelData, Sprites, AuxGfx, Sfx, Music", modify="BasicUpstart", _start=$0810]
 .var music = LoadSid("music/consultant.sid")
 .var charset = LoadBinary("charset/charset.bin")
 .var titleCharset = LoadBinary("charset/game-logo-chars.bin")
@@ -42,7 +42,9 @@
 .label Y_COLLISION_OFFSET = 29 - 50 - 6
 // visual effects
 .label COLOR_CYCLE_DELAY = 4
+.label TITLE_COLOR_CYCLE_DELAY = 3
 // title screen layout
+.label LOGO_TOP = 1
 .label TITLE_TOP = 12
 .label AUTHOR_TOP = 14
 .label MENU_TOP = 18
@@ -125,6 +127,8 @@ doTitleScreen: {
   lda #0
   sta z_previousKeys
   sta z_currentKeys
+  lda #TITLE_COLOR_CYCLE_DELAY
+  sta z_colorCycleDelay
 
   jsr configureTitleVic2
   jsr initSound
@@ -217,6 +221,20 @@ scrollColorCycle2: {
     sta z_colorCycleDelay
     rotateMemRightFast(colorCycle2 + 1, 6)
   !:
+  rts
+}
+
+rotateColors: {
+  dec z_colorCycleDelay
+  beq !+
+  jmp next
+    !:
+    lda #TITLE_COLOR_CYCLE_DELAY
+    sta z_colorCycleDelay
+    rotateMemRightFast(COLOR_RAM + 40*(TITLE_TOP), 40)
+    rotateMemRightFast(COLOR_RAM + 40*(AUTHOR_TOP), 40)
+    rotateMemRightFast(COLOR_RAM + 40*(AUTHOR_TOP + 2), 40)
+  next:
   rts
 }
 
@@ -498,7 +516,7 @@ configureTitleVic2: {
   configureMemory(RAM_RAM_RAM)
   pushParamW(beginOfInversedChargen)
   pushParamW(CHARGEN_ADDR + (endOfChargen - beginOfChargen))
-  pushParamW(endOfInversedChargen - beginOfInversedChargen)
+  pushParamW(endOfTitleScreenChargen - beginOfInversedChargen)
   jsr copyLargeMemForward
   configureMemory(RAM_IO_RAM)
   cli
@@ -548,8 +566,76 @@ clearBothScreens: {
 
 prepareTitleScreen: {
   lda #32
-  ldx #LIGHT_GRAY
+  ldx #YELLOW
   jsr clearBothScreens
+
+  // decode coloring for logo
+  .for (var line = 0; line < 10; line++) {
+    ldx #0
+    nextChar:
+      lda (beginOfTitleMap + line*40),x
+      and #$7F
+      tay
+      lda beginOfTitleAttr,y
+      sta COLOR_RAM + 40*(LOGO_TOP + line),x
+      inx
+      cpx #40
+    bne nextChar
+  }
+
+  // set up colors for title
+  {
+    ldy #0
+    nextChar:
+      ldx #(endOfTitleColorRainbow - beginOfTitleColorRainbow)
+      nextColor:
+        lda beginOfTitleColorRainbow - 1, x
+        sta COLOR_RAM + (40*TITLE_TOP), y
+        iny
+        cpy #40
+        beq end
+        dex
+      bne nextColor
+    jmp nextChar
+    end:
+  }
+
+  {
+    ldy #0
+    nextChar:
+      ldx #(endOfAuthorColorRainbow - beginOfAuthorColorRainbow)
+      nextColor:
+        lda beginOfAuthorColorRainbow - 1, x
+        sta COLOR_RAM + (40*AUTHOR_TOP), y
+        iny
+        cpy #40
+        beq end
+        dex
+      bne nextColor
+    jmp nextChar
+    end:
+  }
+
+  {
+    ldy #0
+    nextChar:
+      ldx #(endOfAuthor2ColorRainbow - beginOfAuthor2ColorRainbow)
+      nextColor:
+        lda beginOfAuthor2ColorRainbow - 1, x
+        sta COLOR_RAM + (40*(AUTHOR_TOP + 2)), y
+        iny
+        cpy #40
+        beq end
+        dex
+      bne nextColor
+    jmp nextChar
+    end:
+  }
+
+  pushParamW(beginOfTitleMap)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*LOGO_TOP)
+  pushParamW(400)
+  jsr copyLargeMemForward
 
   pushParamW(txt_title)
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*TITLE_TOP + 6)
@@ -1245,6 +1331,7 @@ ingameCopperList:
 
 titleScreenCopperList:
     copperEntry(10, IRQH_JSR, <playMusic, >playMusic)
+    copperEntry(200, IRQH_JSR, <rotateColors, >rotateColors)
     copperEntry(245, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
     // here we loop and so on, so on, for each frame
     copperLoop()
@@ -1806,9 +1893,31 @@ endOfInversedChargen:
 beginOfTitleScreenChargen:
   .fill titleCharset.getSize(), titleCharset.get(i)
 endOfTitleScreenChargen:
-.print "Inversed chargen import size = " + (beginOfInversedChargen - endOfInversedChargen)
+.print "Inversed chargen import size = " + (endOfInversedChargen - beginOfInversedChargen)
 .print "Chargen import size = " + (endOfChargen - beginOfChargen)
+.print "Title Screen Chargen import size = " + (endOfTitleScreenChargen - beginOfTitleScreenChargen)
 // ---- END: chargen definition ----
+
+// ---- Aux Graphics definition ----
+.segment AuxGfx
+beginOfTitleAttr:
+  .fill titleAttrs.getSize(), titleAttrs.get(i)
+endOfTitleAttr:
+beginOfTitleMap:
+  .fill titleMap.getSize(), titleMap.get(i) + 128
+endOfTitleMap:
+beginOfTitleColorRainbow:
+  .byte BLUE, BLUE, BLUE, LIGHT_BLUE, WHITE, LIGHT_BLUE
+endOfTitleColorRainbow:
+beginOfAuthorColorRainbow:
+  .byte GREEN, GREEN, GREEN, LIGHT_GREEN, WHITE, LIGHT_GREEN
+endOfAuthorColorRainbow:
+beginOfAuthor2ColorRainbow:
+  .byte RED, RED, RED, LIGHT_RED, WHITE, LIGHT_RED
+endOfAuthor2ColorRainbow:
+
+// ---- END: Aux Graphics definition ----
+
 endOfTRex:
 
 .assert "Code and music overlap", sfxEnd <= music.location, true
@@ -1816,7 +1925,6 @@ endOfTRex:
 // print memory map summary
 .print "header="+music.header
 .macro memSummary(name, address) {
-.print name + " = " + address + " ($" + toHexString(address, 4) + ")"
 .print name + " = " + address + " ($" + toHexString(address, 4) + ")"
 }
 
@@ -1851,6 +1959,10 @@ memSummary("SCREEN_PAGE_ADDR_0", SCREEN_PAGE_ADDR_0)
 memSummary("SCREEN_PAGE_ADDR_1", SCREEN_PAGE_ADDR_1)
 memSummary("      CHARGEN_ADDR", CHARGEN_ADDR)
 memSummary("       SPRITE_ADDR", SPRITE_ADDR)
+
+memSummary("TITLE SCR ATTR ST:", beginOfTitleAttr)
+memSummary("TITLE SCR MAP ST: ", beginOfTitleMap)
+
 .print ""
 .print "BREAKPOINTS"
 .print "-----------"

@@ -6,5 +6,6 @@
 .segmentdef LevelData [startAfter="Data"]
 .segmentdef Charsets [startAfter="LevelData"]
 .segmentdef Sprites [startAfter="Charsets"]
-.segmentdef Sfx [startAfter="Sprites"]
+.segmentdef AuxGfx [startAfter="Sprites"]
+.segmentdef Sfx [startAfter="AuxGfx"]
 .segmentdef Music [startAfter="Sfx"]
