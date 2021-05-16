@@ -1913,7 +1913,7 @@ beginOfAuthorColorRainbow:
   .byte GREEN, GREEN, GREEN, LIGHT_GREEN, WHITE, LIGHT_GREEN
 endOfAuthorColorRainbow:
 beginOfAuthor2ColorRainbow:
-  .byte RED, RED, RED, LIGHT_RED, WHITE, LIGHT_RED
+  .byte GREY, DARK_GREY, GREY, LIGHT_GREY, WHITE, LIGHT_GREY
 endOfAuthor2ColorRainbow:
 
 // ---- END: Aux Graphics definition ----
