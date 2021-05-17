@@ -1,22 +1,11 @@
 import com.github.c64lib.retroassembler.domain.AssemblerType
 
-// buildscript {
-//   repositories {
-//     mavenLocal()
-//   }
-//   dependencies {
-//     classpath "com.github.c64lib.retro-assembler:com.github.c64lib.retro-assembler.gradle.plugin:1.1.0-SNAPSHOT"
-//   }
-// }
-
-// apply plugin: "com.github.c64lib.retro-assembler"
-
 plugins {
-    id("com.github.c64lib.retro-assembler") version "1.1.0"
+    id("com.github.c64lib.retro-assembler") version "1.1.1"
 }
 
 repositories {
-    mavenLocal()
+     mavenCentral()
 }
 
 retroProject {

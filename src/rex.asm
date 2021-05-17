@@ -45,8 +45,7 @@
 .label TITLE_COLOR_CYCLE_DELAY = 3
 // title screen layout
 .label LOGO_TOP = 1
-.label TITLE_TOP = 12
-.label AUTHOR_TOP = 14
+.label AUTHOR_TOP = 12
 .label MENU_TOP = 18
 
 // ---- levels ----
@@ -231,7 +230,6 @@ rotateColors: {
     !:
     lda #TITLE_COLOR_CYCLE_DELAY
     sta z_colorCycleDelay
-    rotateMemRightFast(COLOR_RAM + 40*(TITLE_TOP), 40)
     rotateMemRightFast(COLOR_RAM + 40*(AUTHOR_TOP), 40)
     rotateMemRightFast(COLOR_RAM + 40*(AUTHOR_TOP + 2), 40)
   next:
@@ -587,22 +585,6 @@ prepareTitleScreen: {
   {
     ldy #0
     nextChar:
-      ldx #(endOfTitleColorRainbow - beginOfTitleColorRainbow)
-      nextColor:
-        lda beginOfTitleColorRainbow - 1, x
-        sta COLOR_RAM + (40*TITLE_TOP), y
-        iny
-        cpy #40
-        beq end
-        dex
-      bne nextColor
-    jmp nextChar
-    end:
-  }
-
-  {
-    ldy #0
-    nextChar:
       ldx #(endOfAuthorColorRainbow - beginOfAuthorColorRainbow)
       nextColor:
         lda beginOfAuthorColorRainbow - 1, x
@@ -637,12 +619,8 @@ prepareTitleScreen: {
   pushParamW(400)
   jsr copyLargeMemForward
 
-  pushParamW(txt_title)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*TITLE_TOP + 6)
-  jsr outText
-
   pushParamW(txt_author)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*AUTHOR_TOP + 11)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*AUTHOR_TOP + 10)
   jsr outText
 
   pushParamW(txt_originalConcept)
@@ -1851,8 +1829,7 @@ spriteYPosRegisters:
   .byte <SPRITE_4_Y; .byte <SPRITE_5_Y; .byte <SPRITE_6_Y; .byte <SPRITE_7_Y
 // ---- texts ----
 // title screen
-txt_title:            .text "t-rex runner    c64 edition"; .byte $ff
-txt_author:           .text "by  maciej malecki"; .byte $ff
+txt_author:           .text "by zuza, ola & maciek"; .byte $ff
 txt_originalConcept:  .text "based on google chrome easter egg"; .byte $ff
 // title screen menu
 txt_controls:         .text "f1   controls"; .byte $ff
@@ -1906,11 +1883,8 @@ endOfTitleAttr:
 beginOfTitleMap:
   .fill titleMap.getSize(), titleMap.get(i) + 128
 endOfTitleMap:
-beginOfTitleColorRainbow:
-  .byte BLUE, BLUE, BLUE, LIGHT_BLUE, WHITE, LIGHT_BLUE
-endOfTitleColorRainbow:
 beginOfAuthorColorRainbow:
-  .byte GREEN, GREEN, GREEN, LIGHT_GREEN, WHITE, LIGHT_GREEN
+  .byte BLUE, BLUE, BLUE, LIGHT_BLUE, WHITE, LIGHT_BLUE
 endOfAuthorColorRainbow:
 beginOfAuthor2ColorRainbow:
   .byte GREY, DARK_GREY, GREY, LIGHT_GREY, WHITE, LIGHT_GREY
