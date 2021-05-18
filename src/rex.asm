@@ -129,6 +129,10 @@ doTitleScreen: {
   lda #TITLE_COLOR_CYCLE_DELAY
   sta z_colorCycleDelay
 
+  lda #32
+  ldx #YELLOW
+  jsr clearBothScreens
+
   jsr configureTitleVic2
   jsr initSound
   jsr startTitleCopper
@@ -196,9 +200,13 @@ doLevelScreen: {
   lda #COLOR_CYCLE_DELAY
   sta z_colorCycleDelay
 
+  jsr screenOff
   jsr configureTitleVic2
+
   jsr startLevelScreenCopper
   jsr prepareLevelScreen
+  jsr screenOn
+  
   jsr io_resetControls
   jsr dly_wait10
 
@@ -237,6 +245,11 @@ rotateColors: {
 }
 
 doEndGameScreen: {
+  lda #32
+  ldx #LIGHT_GRAY
+
+  jsr clearBothScreens
+
   jsr configureTitleVic2
   jsr startTitleCopper
   jsr prepareEndGameScreen
@@ -254,7 +267,22 @@ doEndGameScreen: {
   rts
 }
 
+screenOff: {
+  lda CONTROL_1
+  and #neg(CONTROL_1_DEN)
+  sta CONTROL_1
+  rts
+}
+
+screenOn: {
+  lda CONTROL_1
+  ora #CONTROL_1_DEN
+  sta CONTROL_1
+  rts
+}
+
 doIngame: {
+  jsr screenOff
   jsr configureIngameVic2
   jsr prepareIngameScreen
   jsr updateScoreOnDashboard
@@ -262,6 +290,7 @@ doIngame: {
   jsr setUpMap
   jsr setupSounds
   jsr initLevel
+  jsr screenOn
   jsr act_reset
   jsr io_resetControls
   jsr spr_showPlayer
@@ -563,10 +592,6 @@ clearBothScreens: {
 }
 
 prepareTitleScreen: {
-  lda #32
-  ldx #YELLOW
-  jsr clearBothScreens
-
   // decode coloring for logo
   .for (var line = 0; line < 10; line++) {
     ldx #0
@@ -700,9 +725,6 @@ prepareLevelScreen: {
 }
 
 prepareEndGameScreen: {
-  lda #32
-  ldx #LIGHT_GRAY
-  jsr clearBothScreens
 
   pushParamW(txt_endGame1)
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 12)
@@ -723,6 +745,7 @@ prepareIngameScreen: {
   lda #32
   ldx #0
   jsr clearBothScreens
+
   rts
 }
 // ---- END: graphics configuration ----
@@ -1099,8 +1122,8 @@ nextLevel: {
       lda #GAME_STATE_GAME_FINISHED
       sta z_gameState
       jmp end
-  end:
   rts
+  end:
 }
 
 .macro setUpWorld(levelCfg) {
