@@ -66,9 +66,9 @@ _map2Actors:
 // level 1-3
 _map3: .fill _map3Data.getSize(), _map3Data.get(i)
 _map3Actors:
-  actorDef(c64lib.EN_SCORPIO, 5, 182, $40, PURPLE)
-  actorDef(c64lib.EN_SCORPIO, 10, 182, $40, WHITE)
-  actorDef(c64lib.EN_SCORPIO, 15, 182, $40, BLUE)
+  actorDef(c64lib.EN_SCORPIO, 5, 182, $60, PURPLE)
+  actorDef(c64lib.EN_SCORPIO, 10, 182, $60, WHITE)
+  actorDef(c64lib.EN_SCORPIO, 15, 182, $60, BLUE)
   actorDefEnd()
 _colors: .fill _tileColorsData.getSize(), _tileColorsData.get(i)
 _tiles:
