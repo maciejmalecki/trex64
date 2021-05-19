@@ -267,20 +267,6 @@ doEndGameScreen: {
   rts
 }
 
-screenOff: {
-  lda CONTROL_1
-  and #neg(CONTROL_1_DEN)
-  sta CONTROL_1
-  rts
-}
-
-screenOn: {
-  lda CONTROL_1
-  ora #CONTROL_1_DEN
-  sta CONTROL_1
-  rts
-}
-
 doIngame: {
   jsr screenOff
   jsr configureIngameVic2
@@ -1260,14 +1246,8 @@ setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DEL
 // ---- END: import modules ----
 
 // ---- Utility subroutines ----
+#import "subroutines.asm"
 .segment Code
- #import "common/lib/sub/copy-large-mem-forward.asm"
- #import "common/lib/sub/fill-screen.asm"
- #import "common/lib/sub/fill-mem.asm"
- #import "text/lib/sub/out-text.asm"
- #import "text/lib/sub/out-hex.asm"
- #import "text/lib/sub/out-hex-nibble.asm"
- outHexNibbleInversed: outHexNibbleOfs(64)
 
 // ---- END: Utility subroutines ----
 
