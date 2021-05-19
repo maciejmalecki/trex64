@@ -1,7 +1,9 @@
 #import "text/lib/text.asm"
 #import "chipset/lib/vic2.asm"
+#import "copper64/lib/copper64.asm"
 
 #import "_segments.asm"
+#import "_zero_page.asm"
 #importonce
 
 .filenamespace c64lib
@@ -30,5 +32,18 @@ screenOn: {
   ora #CONTROL_1_DEN
   sta CONTROL_1
   rts
+}
+
+startCopper: {
+  startCopper(
+    z_displayListPtr,
+    z_listPtr,
+    List().add(c64lib.IRQH_HSCROLL, c64lib.IRQH_JSR, c64lib.IRQH_BG_RASTER_BAR).lock())
+  rts
+}
+
+stopCopper: {
+  // TODO inconsistency, stopCopper shouldn't do rts inside, fix copper64 lib
+  stopCopper()
 }
 
