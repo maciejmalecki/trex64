@@ -4,6 +4,7 @@
 
 #import "_segments.asm"
 #import "_zero_page.asm"
+#import "_vic_layout.asm"
 #importonce
 
 .filenamespace c64lib
@@ -34,16 +35,29 @@ screenOn: {
   rts
 }
 
-startCopper: {
-  startCopper(
-    z_displayListPtr,
-    z_listPtr,
-    List().add(c64lib.IRQH_HSCROLL, c64lib.IRQH_JSR, c64lib.IRQH_BG_RASTER_BAR).lock())
-  rts
-}
+/*
+ * In:  - A char code
+ *      - X color code
+ */
+clearBothScreens: {
+  sta charCode
+  stx colorCode
+  // clear page 0
+  pushParamW(SCREEN_PAGE_ADDR_0)
+  lda charCode
+  jsr fillScreen
+  // clear page 1
+  pushParamW(SCREEN_PAGE_ADDR_1)
+  lda charCode
+  jsr fillScreen
+  // set up playfield color to GREY
+  pushParamW(COLOR_RAM)
+  lda colorCode
+  jsr fillScreen
 
-stopCopper: {
-  // TODO inconsistency, stopCopper shouldn't do rts inside, fix copper64 lib
-  stopCopper()
+  rts
+  // private data
+  charCode: .byte $00
+  colorCode: .byte $00
 }
 
