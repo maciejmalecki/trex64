@@ -1,5 +1,5 @@
-#import "chipset\lib\vic2.asm"
-#import "text\lib\text.asm"
+#import "chipset/lib/vic2.asm"
+#import "text/lib/text.asm"
 #import "_segments.asm"
 #importonce
 
