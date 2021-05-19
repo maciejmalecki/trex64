@@ -66,56 +66,8 @@ start:
     lda #GAME_STATE_LIVE
     sta z_gameState
     jsr doEndGameScreen
-    jmp titleScreen
+  jmp titleScreen
   // end of main loop
-
-doLevelScreen: {
-  lda #COLOR_CYCLE_DELAY
-  sta z_colorCycleDelay
-
-  jsr screenOff
-  jsr configureTitleVic2
-
-  jsr startLevelScreenCopper
-  jsr prepareLevelScreen
-  jsr screenOn
-  
-  jsr io_resetControls
-  jsr dly_wait10
-
-  !:
-    jsr io_scanControls
-    jsr io_checkAnyKeyHit
-    bne !+
-    jmp !-
-  !:
-  jsr dly_wait10
-  jsr stopCopper
-  rts
-}
-
-doEndGameScreen: {
-  lda #32
-  ldx #LIGHT_GRAY
-
-  jsr clearBothScreens
-
-  jsr configureTitleVic2
-  jsr startTitleCopper
-  jsr prepareEndGameScreen
-  jsr io_resetControls
-  jsr dly_wait10
-
-  !:
-    jsr io_scanControls
-    jsr io_checkAnyKeyHit
-    bne !+
-    jmp !-
-  !:
-  jsr dly_wait10
-  jsr stopCopper
-  rts
-}
 
 doIngame: {
   jsr screenOff
