@@ -272,48 +272,6 @@ configureIngameVic2: {
   rts
 }
 
-
-prepareLevelScreen: {
-  lda #(32 + 64)
-  ldx #BLACK
-  jsr clearBothScreens
-
-  pushParamW(txt_entering)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 15)
-  jsr outText
-
-  pushParamW(txt_getReady)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*12 + 15)
-  jsr outText
-
-  pushParamW(z_worldCounter)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 22)
-  jsr outHexNibbleInversed
-
-  pushParamW(z_levelCounter)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 24)
-  jsr outHexNibbleInversed
-
-  rts
-}
-
-prepareEndGameScreen: {
-
-  pushParamW(txt_endGame1)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 12)
-  jsr outText
-
-  pushParamW(txt_endGame2)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*12 + 7)
-  jsr outText
-
-  pushParamW(txt_pressAnyKey)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*15 + 13)
-  jsr outText
-
-  rts
-}
-
 prepareIngameScreen: {
   lda #32
   ldx #0
