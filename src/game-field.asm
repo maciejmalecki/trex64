@@ -453,7 +453,7 @@ switchPages: {
   cmp z_oldX
   bne !+
     // no movement -> no page switching - to disable strange artifacts when scrolling is stopped
-    jmp end
+    jmp endOfPhase
   !:
   sta z_oldX
   lda z_colorRAMShifted
@@ -510,6 +510,20 @@ switchPages: {
   lsr
   sta z_acc0
 
+  // update scroll register for scrollable area
+  sec
+  lda #7
+  sbc z_scrollReg
+  sta z_scrollReg
+  lda CONTROL_2
+  and #%11111000
+  ora z_scrollReg
+  sta CONTROL_2
+  //sta hScroll + 2
+  lda z_acc0
+  sta z_scrollReg
+  endOfPhase:
+
   // increment X coordinate
   lda z_gameState
   cmp #GAME_STATE_LIVE
@@ -527,7 +541,7 @@ switchPages: {
     nextLevel:
       lda #GAME_STATE_NEXT_LEVEL
       sta z_gameState
-      jmp endOfPhase
+      jmp dontReset
   endOfIncrementX:
 
   // check end of level condition
@@ -545,20 +559,6 @@ switchPages: {
       jsr spr_showPlayerWalkLeft
     !:
   dontReset:
-
-  // update scroll register for scrollable area
-  sec
-  lda #7
-  sbc z_scrollReg
-  sta z_scrollReg
-  lda CONTROL_2
-  and #%11111000
-  ora z_scrollReg
-  sta CONTROL_2
-  //sta hScroll + 2
-  lda z_acc0
-  sta z_scrollReg
-  endOfPhase:
 
   jsr updateDashboard
   jsr io_scanControls
