@@ -82,6 +82,7 @@ preprocess {
             }
             map {
               left = 136
+              right = 271
               interleaver {
                 output = file("levels/level1/map-2.bin")
               }
@@ -89,7 +90,7 @@ preprocess {
               }
             }
             map {
-              left = 136
+              left = 272
               interleaver {
                 output = file("levels/level1/map-3.bin")
               }
