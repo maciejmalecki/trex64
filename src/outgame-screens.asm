@@ -56,6 +56,7 @@ doTitleScreen: {
   jsr clearBothScreens
 
   jsr configureTitleVic2
+  lda #TITLE_TUNE
   jsr initSound
   jsr startTitleCopper
   jsr prepareTitleScreen

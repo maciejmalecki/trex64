@@ -20,7 +20,6 @@ endOfMusicData:
 initSound: {
   ldx #0
   ldy #0
-  lda #music.startSong-1
   jsr music.init
   rts
 }

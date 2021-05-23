@@ -76,6 +76,8 @@ doIngame: {
   jsr updateScoreOnDashboard
   jsr setUpWorld
   jsr setUpMap
+  lda #INGAME_TUNE
+  jsr initSound
   jsr setupSounds
   jsr initLevel
   jsr screenOn

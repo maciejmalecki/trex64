@@ -51,6 +51,10 @@
 // ---- misc ----
 .label MAX_DELAY = 10
 
+// ---- music ----
+.label TITLE_TUNE = 0
+.label INGAME_TUNE = 1
+
 // ---- keyboard ----
 // title screen
 .label KEY_F1 = %00010000
