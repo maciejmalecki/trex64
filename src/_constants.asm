@@ -55,7 +55,7 @@
 .label TITLE_TUNE = 0
 .label INGAME_TUNE = 0
 .label INGAME_SFX_TUNE = 2
-.label NEXT_LEVEL_TUNE = 0
+.label NEXT_LEVEL_TUNE = 3
 .label GAME_OVER_TUNE = 1
 .label END_GAME_TUNE = 0
 
