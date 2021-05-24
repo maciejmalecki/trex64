@@ -106,6 +106,13 @@ doIngame: {
 
       jsr spr_showDeath
       jsr playDeath
+
+      // remember death position
+      lda z_x
+      sta z_hiScoreMark
+      lda z_x + 1
+      sta z_hiScoreMark + 1
+
       // decrement lives
       dec z_lives
       bne livesLeft
@@ -167,6 +174,19 @@ initGame: {
 // ---- END: game flow ----
 
 updateScore: {
+
+  // compare with last saved position
+  lda z_hiScoreMark
+  cmp z_x
+  lda z_hiScoreMark + 1
+  sbc z_x + 1
+  bvc !+
+  eor #$80
+  !:
+  bmi !+
+    rts
+  !:
+  // do the score
   lda z_scoreDelay
   bne !+
     setScoreDelay #SCORE_FOR_PROGRESS_DELAY
@@ -238,6 +258,11 @@ prepareIngameScreen: {
 
 // ---- level handling ----
 nextLevel: {
+  // zero hi-score counter
+  lda #0
+  sta z_hiScoreMark
+  sta z_hiScoreMark + 1
+
   lda z_worldCounter
   // cmp #3
   // cmp #2
