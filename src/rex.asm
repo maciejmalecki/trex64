@@ -76,8 +76,18 @@ doIngame: {
   jsr updateScoreOnDashboard
   jsr setUpWorld
   jsr setUpMap
+
+  // setup ingame tune according to cfg
+  lda z_gameConfig
+  and #CFG_SOUND
+  bne !+
+    lda #INGAME_SFX_TUNE
+    jmp snd
+  !:
   lda #INGAME_TUNE
+  snd:
   jsr initSound
+
   jsr setupSounds
   jsr initLevel
   jsr screenOn
@@ -133,6 +143,10 @@ doIngame: {
   jmp mainMapLoop
 
   displayGameOver:
+    // play game over tune
+    lda #GAME_OVER_TUNE
+    jsr initSound
+    // display text and wait
     lda #1
     sta z_doGameOver
     wait #200
@@ -250,7 +264,6 @@ prepareIngameScreen: {
   lda #32
   ldx #0
   jsr clearBothScreens
-
   rts
 }
 // ---- END: graphics configuration ----

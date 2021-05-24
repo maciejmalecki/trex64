@@ -100,6 +100,9 @@ doLevelScreen: {
   jsr screenOff
   jsr configureTitleVic2
 
+  lda #NEXT_LEVEL_TUNE
+  jsr initSound
+
   jsr startLevelScreenCopper
   jsr prepareLevelScreen
   jsr screenOn
@@ -126,6 +129,10 @@ doEndGameScreen: {
 
   jsr configureTitleVic2
   jsr startTitleCopper
+
+  lda #END_GAME_TUNE
+  jsr initSound
+
   jsr prepareEndGameScreen
   jsr io_resetControls
   jsr dly_wait10
