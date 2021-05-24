@@ -53,7 +53,7 @@
 
 // ---- music ----
 .label TITLE_TUNE = 0
-.label INGAME_TUNE = 1
+.label INGAME_TUNE = 0
 
 // ---- keyboard ----
 // title screen
