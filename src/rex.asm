@@ -149,7 +149,7 @@ doIngame: {
     // display text and wait
     lda #1
     sta z_doGameOver
-    wait #200
+    wait #255
   gameOver:
     jsr stopCopper
     jsr spr_hidePlayers
