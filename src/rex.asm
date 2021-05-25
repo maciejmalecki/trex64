@@ -42,6 +42,7 @@ start:
   // main loop
   titleScreen:
     jsr doTitleScreen
+    jsr checkNewHiScore
     jsr initGame
   levelScreen:
     lda z_gameState
@@ -74,6 +75,7 @@ doIngame: {
   jsr configureIngameVic2
   jsr prepareIngameScreen
   jsr updateScoreOnDashboard
+  jsr updateHiScoreOnDashboard
   jsr setUpWorld
   jsr setUpMap
 
@@ -162,6 +164,11 @@ initConfig: {
   sta z_gameConfig
   lda #STARTING_LEVEL
   sta z_startingLevel
+  // hi score
+  lda #0
+  sta z_hiScore
+  sta z_hiScore + 1
+  sta z_hiScore + 2
   rts
 }
 
@@ -182,10 +189,40 @@ initGame: {
   // set score to 0
   resetScore()
 
+  // zero hi-score counter
+  lda #0
+  sta z_hiScoreMark
+  sta z_hiScoreMark + 1
+
   rts
 }
 
 // ---- END: game flow ----
+
+checkNewHiScore: {
+
+  lda z_hiScore + 2
+  cmp z_score + 2
+  bcc newHiScoreFound
+  bne noNewHiScore
+  lda z_hiScore + 1
+  cmp z_score + 1
+  bcc newHiScoreFound
+  bne noNewHiScore
+  lda z_hiScore
+  cmp z_score
+  bcc newHiScoreFound
+  noNewHiScore:
+    rts
+  newHiScoreFound:
+    lda z_score
+    sta z_hiScore
+    lda z_score + 1
+    sta z_hiScore + 1
+    lda z_score + 2
+    sta z_hiScore + 2
+    rts
+}
 
 updateScore: {
 

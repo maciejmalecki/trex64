@@ -53,6 +53,16 @@ updateScoreOnDashboard: {
   rts
 }
 
+updateHiScoreOnDashboard: {
+  drawLoDigitOnSprite( VIC_MEMORY_START + (SPRITE_SHAPES_START + SPR_DASHBOARD + 3)*64 + 20 + 3*8, z_hiScore, CHARGEN_ADDR)
+  drawHiDigitOnSprite( VIC_MEMORY_START + (SPRITE_SHAPES_START + SPR_DASHBOARD + 3)*64 + 19 + 3*8, z_hiScore, CHARGEN_ADDR)
+  drawLoDigitOnSprite( VIC_MEMORY_START + (SPRITE_SHAPES_START + SPR_DASHBOARD + 3)*64 + 18 + 3*8, z_hiScore + 1, CHARGEN_ADDR)
+  drawHiDigitOnSprite( VIC_MEMORY_START + (SPRITE_SHAPES_START + SPR_DASHBOARD + 2)*64 + 20 + 3*8, z_hiScore + 1, CHARGEN_ADDR)
+  drawLoDigitOnSprite( VIC_MEMORY_START + (SPRITE_SHAPES_START + SPR_DASHBOARD + 2)*64 + 19 + 3*8, z_hiScore + 2, CHARGEN_ADDR)
+  drawHiDigitOnSprite( VIC_MEMORY_START + (SPRITE_SHAPES_START + SPR_DASHBOARD + 2)*64 + 18 + 3*8, z_hiScore + 2, CHARGEN_ADDR)
+  rts
+}
+
 updateDashboard: {
   drawLoDigitOnSprite( VIC_MEMORY_START + (SPRITE_SHAPES_START + SPR_DASHBOARD)*64 + 20, z_lives, CHARGEN_ADDR)
   rts
