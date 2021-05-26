@@ -113,6 +113,15 @@ startLevelScreenCopper: {
   jsr startCopper
   rts
 }
+
+startEndGameScreenCopper: {
+  lda #<endGameScreenCopperList
+  sta z_displayListPtr
+  lda #>endGameScreenCopperList
+  sta z_displayListPtr + 1
+  jsr startCopper
+  rts
+}
 // ---- END: Copper handling ----
 
 .align $100
@@ -135,7 +144,6 @@ titleScreenCopperList:
     copperEntry(10, IRQH_JSR, <playMusic, >playMusic)
     copperEntry(200, IRQH_JSR, <rotateColors, >rotateColors)
     copperEntry(245, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
-    // here we loop and so on, so on, for each frame
     copperLoop()
 
 levelScreenCopperList:
@@ -144,7 +152,15 @@ levelScreenCopperList:
     copperEntry(124, IRQH_BG_RASTER_BAR, <colorCycle1, >colorCycle1)
     copperEntry(140, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
     copperEntry(245, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
-    // here we loop and so on, so on, for each frame
+    copperLoop()
+
+endGameScreenCopperList:
+    copperEntry(10, IRQH_JSR, <playMusic, >playMusic)
+    copperEntry(80, IRQH_JSR, <scrollColorCycle2, >scrollColorCycle2)
+    copperEntry(92, IRQH_BG_RASTER_BAR, <colorCycle1, >colorCycle1)
+    copperEntry(108, IRQH_BG_RASTER_BAR, <colorCycle1, >colorCycle1)
+    copperEntry(204, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
+    copperEntry(245, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
     copperLoop()
 
 _copperListEnd:

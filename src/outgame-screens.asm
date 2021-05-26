@@ -122,18 +122,20 @@ doLevelScreen: {
 }
 
 doEndGameScreen: {
-  lda #32
-  ldx #LIGHT_GRAY
+  lda #COLOR_CYCLE_DELAY
+  sta z_colorCycleDelay
 
-  jsr clearBothScreens
-
-  jsr configureTitleVic2
-  jsr startTitleCopper
+  jsr screenOff
 
   lda #END_GAME_TUNE
   jsr initSound
 
+  jsr configureTitleVic2
+  jsr startEndGameScreenCopper
+
   jsr prepareEndGameScreen
+  jsr screenOn
+
   jsr io_resetControls
   jsr dly_wait10
 
@@ -279,16 +281,34 @@ prepareLevelScreen: {
 
 prepareEndGameScreen: {
 
+  lda #(32 + 64)
+  ldx #BLACK
+  jsr clearBothScreens
+
+
   pushParamW(txt_endGame1)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 12)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*6 + 12)
   jsr outText
 
   pushParamW(txt_endGame2)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*12 + 7)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*8 + 7)
   jsr outText
 
+  pushParamW(COLOR_RAM + 40*11 + 11); lda #YELLOW; ldx #17; jsr fillMem
+  pushParamW(txt_fullGame0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*11 + 11); jsr outText
+  pushParamW(COLOR_RAM + 40*13 + 11); lda #YELLOW; ldx #11; jsr fillMem
+  pushParamW(txt_fullGame1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*13 + 11); jsr outText
+  pushParamW(COLOR_RAM + 40*14 + 11); lda #YELLOW; ldx #11; jsr fillMem
+  pushParamW(txt_fullGame2); pushParamW(SCREEN_PAGE_ADDR_0 + 40*14 + 11); jsr outText
+  pushParamW(COLOR_RAM + 40*15 + 11); lda #YELLOW; ldx #12; jsr fillMem
+  pushParamW(txt_fullGame3); pushParamW(SCREEN_PAGE_ADDR_0 + 40*15 + 11); jsr outText
+  pushParamW(COLOR_RAM + 40*16 + 11); lda #YELLOW; ldx #12; jsr fillMem
+  pushParamW(txt_fullGame4); pushParamW(SCREEN_PAGE_ADDR_0 + 40*16 + 11); jsr outText
+  pushParamW(COLOR_RAM + 40*17 + 11); lda #WHITE; ldx #19; jsr fillMem
+  pushParamW(txt_fullGame5); pushParamW(SCREEN_PAGE_ADDR_0 + 40*17 + 11); jsr outText
+
   pushParamW(txt_pressAnyKey)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*15 + 13)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*20 + 13)
   jsr outText
 
   rts
