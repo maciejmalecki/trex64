@@ -18,11 +18,20 @@ x64 rex.prg
 If you decided to build T-Rex 64 from sources, go into `src` directory and find `rex.prg` file there.
 
 ## How to play
-There are currently a few options on title screen but actually only F1 "controls" and F7 "start game" are supported.
+There are currently a few options on title screen.
 
-By pressing F1 you can toggle control methods: for Joystick port 2 up and fire are used for jumping. For keyboard use Space key for jumping.
+By pressing F1 you can toggle control methods: for Joystick port 2 up and fire are used for jumping. 
+For keyboard use Space key for jumping.
 
-Goals of the game: you control running dino. The dino must jump over obstacles (cactuses) otherwise he will die. Run as far as you can.
+Use F3 for either music or SFX option.
+
+Use F5 for starting level selection.
+
+Hit F7 to start the game.
+
+Goals of the game: you control running dino. 
+The dino must jump over obstacles (cactuses) otherwise he will die. 
+Run as far as you can.
 
 ## How to build
 All you need to build it is to have Java (JDK) version 8 or higher. Clone the repository, enter it and then run following command:
@@ -38,4 +47,7 @@ for Unix-like systems.
 ## Tools
 
 * Charpad
-* Spritemate
+* Spritepad
+* Goat Tracker
+* Kick Assembler
+* Gradle Retro Assembler Plugin
