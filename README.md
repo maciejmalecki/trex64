@@ -8,7 +8,7 @@ A Commodore 64 version of offline mode jumping dinosaur single button game ;-) W
 ## How to run it
 Download `rex.prg` file from https://github.com/maciejmalecki/trex64/releases (look for assets section).
 
-You need a Commodore 64 emulator such as Vice (see: https://vice-emu.sourceforge.io/) or, preferably, a real machine..
+You need a Commodore 64 emulator such as Vice (see: https://vice-emu.sourceforge.io/) or, preferably, a real machine.
 
 Run prg file with Vice:
 ```bash
