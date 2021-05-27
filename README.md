@@ -6,12 +6,16 @@ A Commodore 64 version of offline mode jumping dinosaur single button game ;-) W
 [![CircleCI](https://circleci.com/gh/maciejmalecki/trex64/tree/develop.svg?style=svg)](https://circleci.com/gh/maciejmalecki/trex64/tree/develop)
 
 ## How to run it
-Download `rex.prg` file from https://github.com/maciejmalecki/trex64/releases
+Download `rex.prg` file from https://github.com/maciejmalecki/trex64/releases (look for assets section).
 
-You need a Commodore 64 emulator such as Vice (see: https://vice-emu.sourceforge.io/). Once T-Rex 64 is built, go into `src` directory and find `rex.prg` file - this is the one you need to run with Vice:
+You need a Commodore 64 emulator such as Vice (see: https://vice-emu.sourceforge.io/) or, preferably, a real machine..
+
+Run prg file with Vice:
 ```bash
 x64 rex.prg
 ```
+
+If you decided to build T-Rex 64 from sources, go into `src` directory and find `rex.prg` file there.
 
 ## How to play
 There are currently a few options on title screen but actually only F1 "controls" and F7 "start game" are supported.
