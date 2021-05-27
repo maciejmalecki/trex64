@@ -61,14 +61,18 @@
 .label z_scrollReg = 53       // $35
 
 // background scroller pov
-.label z_bgX = 54;            // $36, $37
-.label z_doGameOver = 56;     // $38
+.label z_bgX = 54             // $36, $37
+.label z_doGameOver = 56      // $38
 
 // visual effects
-.label z_colorCycleDelay = 57; // $39
+.label z_colorCycleDelay = 57 // $39
 
-.label z_spritesStashed = 127; // $7F
-.label z_stashArea = 128;     // $80
+// high score counter
+.label z_hiScoreMark = 58     // $3A, $3B
+.label z_hiScore = 60         // $3C, $3D, $3E
+
+.label z_spritesStashed = 127 // $7F
+.label z_stashArea = 128      // $80
 
 #if use_watches
   .watch z_x

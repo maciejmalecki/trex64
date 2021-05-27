@@ -29,9 +29,9 @@
 
 .label MAP_3_WIDTH = _map3Data.getSize() / c64lib.MAP_HEIGHT
 .label MAP_3_ADDRESS = _map3
-.label MAP_3_DELTA_X = 1<<6 // x4
+.label MAP_3_DELTA_X = 1<<5 // x4 (x4 = 1<<6)
 .label MAP_3_WRAPPING_MARK = 0
-.label MAP_3_SCROLLING_MARK = 4
+.label MAP_3_SCROLLING_MARK = 6 // (x4 = 4)
 .label MAP_3_ACTORS = _map3Actors
 .label MAP_3_OBSTACLES_MARK = %11000000
 
@@ -55,20 +55,23 @@ _charset: .fill _charsetData.getSize(), _charsetData.get(i)
 // level 1-1
 _map1: .fill _map1Data.getSize(), _map1Data.get(i)
 _map1Actors:
-  actorDef(c64lib.EN_VOGEL, 43, 76, $40, WHITE)
-  actorDef(c64lib.EN_SNAKE, 70, 182, $30, LIGHT_GREEN)
-  actorDef(c64lib.EN_VOGEL, 91, 141, $40, WHITE)
+  actorDef(c64lib.EN_VOGEL, 80, 76, $40, BLACK)
   actorDefEnd()
 // level 1-2
 _map2: .fill _map2Data.getSize(), _map2Data.get(i)
 _map2Actors:
+  actorDef(c64lib.EN_VOGEL, 43, 76, $40, WHITE)
+  actorDef(c64lib.EN_SNAKE, 70, 182, $30, LIGHT_GREEN)
+  actorDef(c64lib.EN_VOGEL, 91, 141, $40, WHITE)
   actorDefEnd()
 // level 1-3
 _map3: .fill _map3Data.getSize(), _map3Data.get(i)
 _map3Actors:
-  actorDef(c64lib.EN_SCORPIO, 5, 182, $40, PURPLE)
-  actorDef(c64lib.EN_SCORPIO, 10, 182, $40, WHITE)
-  actorDef(c64lib.EN_SCORPIO, 15, 182, $40, BLUE)
+  actorDef(c64lib.EN_VOGEL, 25, 76, $40, WHITE)
+  actorDef(c64lib.EN_SCORPIO, 43, 182, $30, BLACK)
+  actorDef(c64lib.EN_SCORPIO, 80, 182, $30, BLACK)
+  actorDef(c64lib.EN_SCORPIO, 99, 182, $30, BLACK)
+  actorDef(c64lib.EN_VOGEL, 100, 76, $40, WHITE)
   actorDefEnd()
 _colors: .fill _tileColorsData.getSize(), _tileColorsData.get(i)
 _tiles:

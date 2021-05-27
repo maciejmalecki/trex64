@@ -1,5 +1,104 @@
+#import "chipset/lib/vic2.asm"
 #import "_segments.asm"
+#import "_zero_page.asm"
+#importonce
+
 .filenamespace c64lib
+
+.var music = LoadSid("music/trex2.sid")
+
+.label musicLocation = music.location
+.label musicSize = music.size
+
+.segment Music
+musicData:
+                      .fill music.size, music.getData(i)
+endOfMusicData:
+
+.segment Code
+// Initialize music player.
+initSound: {
+  ldx #0
+  ldy #0
+  jsr music.init
+  rts
+}
+
+setupSounds: {
+  lda #0
+  sta z_sfxChannel
+  rts
+}
+
+playMusic: {
+  debugBorderStart()
+  jsr music.play
+  debugBorderEnd()
+  rts
+}
+
+playJump: {
+  lda #<sfxJump
+  ldy #>sfxJump
+  jmp playSfx
+}
+
+playDuck: {
+  lda #<sfxDuck
+  ldy #>sfxDuck
+  jmp playSfx
+}
+
+playDeath: {
+  lda #<sfxDeath
+  ldy #>sfxDeath
+  jmp playSfx
+}
+
+playLanding: {
+  lda #<sfxLanding
+  ldy #>sfxLanding
+  jmp playEnemy
+}
+
+playSfx: {
+  ldx #14
+  jsr music.init + 6
+  rts
+}
+
+playSnake: {
+  lda #<sfxSnake
+  ldy #>sfxSnake
+  jmp playEnemy
+}
+
+playVogel: {
+  lda #<sfxVogel
+  ldy #>sfxVogel
+  jmp playEnemy
+}
+
+playScorpio: {
+  lda #<sfxScorpio
+  ldy #>sfxScorpio
+  jmp playEnemy
+}
+
+playEnemy: {
+  ldx z_sfxChannel
+  beq !+
+    ldx #0
+    stx z_sfxChannel
+    jmp play
+  !:
+    ldx #7
+    stx z_sfxChannel
+  play:
+  jsr music.init + 6
+  rts
+}
+
 .segment Sfx
 
 .label SFX_CHANNEL = 14

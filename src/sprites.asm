@@ -7,6 +7,7 @@
 #import "_zero_page.asm"
 #import "_sprites.asm"
 #import "_animate.asm"
+#importonce
 
 .filenamespace c64lib
 

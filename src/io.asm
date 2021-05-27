@@ -2,6 +2,7 @@
 #import "_zero_page.asm"
 #import "_constants.asm"
 #import "_segments.asm"
+#importonce
 
 .filenamespace c64lib
 

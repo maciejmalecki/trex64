@@ -1,6 +1,13 @@
 #importonce
 .filenamespace c64lib
 
+// ---- game parameters ----
+.label INVINCIBLE = 0
+
+// scoring
+.label SCORE_FOR_PROGRESS_DELAY = 50
+.label SCORE_FOR_PROGRESS = $0025
+
 // ---- game state constants ----
 .label GAME_STATE_LIVE = 1
 .label GAME_STATE_KILLED = 2
@@ -22,14 +29,35 @@
 .label CFG_CONTROLS = %00000001
 .label CFG_SOUND = %00000010
 
+// collision detection
+.label X_COLLISION_OFFSET = 12 - 24
+.label Y_COLLISION_OFFSET = 29 - 50 - 6
+
 // ---- dashboard ----
 .label DASHBOARD_Y = 50
 .label DASHBOARD_LEFT_X = 34
 .label DASHBOARD_RIGHT_X = 4
 .label DASHBOARD_RIGHT_SPC = 2
 
+// visual effects
+.label COLOR_CYCLE_DELAY = 4
+.label TITLE_COLOR_CYCLE_DELAY = 3
+
+// title screen layout
+.label LOGO_TOP = 1
+.label AUTHOR_TOP = 12
+.label MENU_TOP = 18
+
 // ---- misc ----
 .label MAX_DELAY = 10
+
+// ---- music ----
+.label TITLE_TUNE = 4
+.label INGAME_TUNE = 0
+.label INGAME_SFX_TUNE = 2
+.label NEXT_LEVEL_TUNE = 3
+.label GAME_OVER_TUNE = 1
+.label END_GAME_TUNE = 4
 
 // ---- keyboard ----
 // title screen
