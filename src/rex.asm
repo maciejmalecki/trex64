@@ -152,6 +152,9 @@ doIngame: {
     lda #1
     sta z_doGameOver
     wait #255
+    // hack to fix #54
+    lda #GAME_STATE_GAME_OVER
+    sta z_gameState
   gameOver:
     jsr stopCopper
     jsr spr_hidePlayers
