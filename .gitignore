@@ -18,6 +18,7 @@ gradle-app.setting
 *.sym
 *.dbg
 *.vs
+*.d64
 *.specOut
 .asminfo.txt
 .source.txt

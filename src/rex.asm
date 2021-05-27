@@ -19,6 +19,11 @@
 .filenamespace c64lib
 
 .file [name="./rex.prg", segments="Code, Data, Charsets, LevelData, Sprites, AuxGfx, Sfx, Music", modify="BasicUpstart", _start=$0810]
+.disk [filename="./rex.d64", name="T-REX 64", id="C2021"] {
+  [name="----------------", type="rel"],
+  [name="T-REX 64", type="prg", segments="Code, Data, Charsets, LevelData, Sprites, AuxGfx, Sfx, Music", modify="BasicUpstart", _start=$0810],
+  [name="----------------", type="rel"]
+}
 
 // starting amount of lives
 .label LIVES = 3

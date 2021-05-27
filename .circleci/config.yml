@@ -18,7 +18,7 @@ jobs:
             - run: mkdir out
             - run: ./gradlew build
             - run: pwd && ls -al build/charpad/levels/level1
-            - run: cd src && cp rex.prg ../out
+            - run: cd src && cp rex.prg ../out && cp rex.d64 ../out
             - persist-to-workspace:
                 root: .
                 paths:
