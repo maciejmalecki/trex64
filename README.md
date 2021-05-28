@@ -36,7 +36,7 @@ The dino must jump over obstacles (cactuses) otherwise he will die.
 Run as far as you can.
 
 ## How to build
-All you need to build it is to have Java (JDK) version 8 or higher. Clone the repository, enter it and then run following command:
+All you need to build it is to have Java (JDK) version 11 or higher. Clone the repository, enter it and then run following command:
 ```bash
 gradlew build
 ```
