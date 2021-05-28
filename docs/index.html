@@ -5,7 +5,7 @@
         <!-- Global site tag (gtag.js) - Google Analytics -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-1T4LE5HDF3"></script>
         <script>
-            var useCookies = (localStorage.getItem('useCookies') === 'true');
+            var useCookies = (localStorage.getItem('trex64-useCookies') === 'true');
             if (useCookies) {
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
@@ -195,11 +195,11 @@
                     <input type="checkbox" id="enableGA"> Enable Google Analytics
                 </p>
                 <script>
-                    var useCookies = localStorage.getItem('useCookies');
+                    var useCookies = localStorage.getItem('trex64-useCookies');
                     document.getElementById('enableGA').checked = (useCookies === 'true');
                     var checkbox = document.getElementById('enableGA');
                     checkbox.addEventListener('change', function() {
-                        localStorage.setItem('useCookies', this.checked);
+                        localStorage.setItem('trex64-useCookies', this.checked);
                     });
                 </script>
                   
@@ -220,10 +220,10 @@
             <button id="gdprClose">Close</button>
         </div>
         <script>
-            var useCookies = localStorage.getItem('useCookies');
+            var useCookies = localStorage.getItem('trex64-useCookies');
             document.getElementById('gdprClose').addEventListener('click', function() {
                 document.getElementById('gdpr').style.display = 'none';
-                localStorage.setItem('useCookies', 'true');
+                localStorage.setItem('trex64-useCookies', 'true');
             });
             if (!useCookies) {
                 document.getElementById('gdpr').style.display = 'block';
