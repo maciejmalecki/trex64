@@ -60,6 +60,18 @@
             h2 {
                 font-size: 1em;
             }
+            .gallery {
+                display: flex;
+                align-items: center;
+                align-content: space-between;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: space-evenly;
+            }
+            .gallery img {
+                max-width: 320px;
+                margin: 0.7em;
+            }
         </style>
     </head>
     <body>
@@ -77,8 +89,16 @@
             <section>
                 <h1>Download</h1>
                 <div class="buttons">
-                    <a href="https://github.com/maciejmalecki/trex64/releases/download/0.4.0/rex.prg">PRG file</a>
-                    <a href="https://github.com/maciejmalecki/trex64/releases/download/0.4.0/rex.d64">D64 file</a>
+                    <a href="https://github.com/maciejmalecki/trex64/releases/download/0.3.1/rex.prg">PRG file</a>
+                    <a href="https://github.com/maciejmalecki/trex64/releases/download/0.3.1/rex.d64">D64 file</a>
+                </div>
+            </section>
+            <section>
+                <div class="gallery">
+                    <img src="background.jpg" alt="Desert">
+                    <img src="background.jpg" alt="Desert">
+                    <img src="background.jpg" alt="Desert">
+                    <img src="background.jpg" alt="Desert">
                 </div>
             </section>
             <section>
@@ -102,6 +122,14 @@
             </section>
             <section>
                 <h1>Credits</h1>
+                <ul>
+                    <li>Maciek (code, music, gfx)</li>
+                    <li>Zuza (gfx, level design)</li>
+                    <li>Ola (gfz, level design)</li>
+                </ul>
+            </section>
+            <section>
+                <p>&copy; 2021 Maciej Małecki</p>
             </section>
         </article>
     </body>
