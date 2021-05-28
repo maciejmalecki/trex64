@@ -48,16 +48,27 @@
             .buttons {
                 display: flex;
                 flex-direction: row;
+                flex-wrap: nowrap;
             }
             .buttons a {
                 flex-grow: 1;
+                flex-basis: 0;
                 text-align: center;
-                background-color: lightslategrey;
+                background-color: black;
                 margin: 0.3em;
                 padding: 0.3em;
+                font-size: 32px;
                 border-radius: 0.3em;
-                color: black;
+                color: white;
                 text-decoration: none;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+            .buttons a img {
+                position: relative;
+                bottom: -4px;
             }
             .buttons a:first-child {
                 margin-left: 0;
@@ -97,8 +108,9 @@
             <section>
                 <h1>Download</h1>
                 <div class="buttons">
-                    <a href="https://github.com/maciejmalecki/trex64/releases/download/0.3.1/rex.prg">PRG file</a>
-                    <a href="https://github.com/maciejmalecki/trex64/releases/download/0.3.1/rex.d64">D64 file</a>
+                    <a href="https://github.com/maciejmalecki/trex64/releases/download/0.3.1/rex.prg">PRG</a>
+                    <a href="https://github.com/maciejmalecki/trex64/releases/download/0.3.1/rex.d64">D64</a>
+                    <a href="https://github.com/maciejmalecki/trex64/"><img src="GitHub-Mark-Light-32px.png" alt="GH"> Source</a>
                 </div>
             </section>
             <section>
