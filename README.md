@@ -52,4 +52,4 @@ for Unix-like systems.
 * Spritepad
 * Goat Tracker
 * Kick Assembler
-* Gradle Retro Assembler Plugin
+* [Gradle Retro Assembler Plugin](https://c64lib.github.io/gradle-retro-assembler-plugin/)
