@@ -5,6 +5,8 @@ A Commodore 64 version of offline mode jumping dinosaur single button game ;-) W
 [![CircleCI](https://circleci.com/gh/maciejmalecki/trex64/tree/master.svg?style=svg)](https://circleci.com/gh/maciejmalecki/trex64/tree/master)
 [![CircleCI](https://circleci.com/gh/maciejmalecki/trex64/tree/develop.svg?style=svg)](https://circleci.com/gh/maciejmalecki/trex64/tree/develop)
 
+Visit our website: https://maciejmalecki.github.io/trex64/
+
 ## How to run it
 Download `rex.prg` file from https://github.com/maciejmalecki/trex64/releases (look for assets section).
 
