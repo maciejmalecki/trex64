@@ -54,6 +54,14 @@
                 flex-direction: column;
                 flex-wrap: nowrap;
             }
+            a,a:visited {
+                text-decoration: none;
+                color: navy;
+            }
+            a:hover {
+                text-decoration: underline;
+                color: navy;
+            }
             .buttons a {
                 flex-grow: 1;
                 flex-basis: 0;
@@ -86,7 +94,10 @@
                 /*max-width: 320px;*/
                 margin: 0.5em;
             }
-            @media screen and (min-width: 600px) {
+            code {
+                color: black;
+            }
+            @media screen and (min-width: 800px) {
                 section {
                     width: 70%;
                 }
@@ -172,6 +183,36 @@
                     <li>Joystick: up or fire - jump; down - duck.</li>
                     <li>Keyboard: SPACE - jump, CBM key - duck.</li>
                 </ul>
+                <h2>Running the game</h2>
+                <p>
+                    Easiest way to run the game on PC is to use Vice emulator
+                    to run PRG executable:
+                </p>
+                <code>x64 rex.prg</code>
+                <p>
+                    Use D64 image to run T-Rex on real Commodore 64.
+                    Copy the file to the USB drive / SD card and use it with Ultimate 1541 or SD2EIC.
+                    Once mounted, the game can be loaded simply by:
+                </p>
+                <p>
+                    <code>LOAD"*",8</code>
+                </p>
+                <p>
+                    <code>RUN</code>
+                </p>
+                <p>
+                    For really classy experience you can also transfer D64 directly into 5.25 floppy disk
+                    and run it from 1541.
+                </p>
+                <h2>Building from sources</h2>
+                <p>
+                    You need JDK (Java) 11 or higher in order to build T-Rex from sources.
+                    Checkout sources from GitHub, enter the project directory and execute from command line:
+                </p>
+                <code>gradlew build</code>
+                <p>
+                    Assembled PRG and D64 files can be found in <code>src</code> directory.
+                </p>
             </section>
             <section>
                 <h1>Credits</h1>
@@ -180,6 +221,19 @@
                     <li>Zuza (gfx, level design)</li>
                     <li>Ola (gfz, level design)</li>
                 </ul>
+                <p>
+                    T-Rex project uses <a href="https://theweb.dk/KickAssembler">KickAssembler</a>,
+                    <a href="https://subchristsoftware.itch.io/charpad-free-edition">Charpad</a>,
+                    Spritepad,
+                    GoatTracker2 and <a href="https://c64lib.github.io/gradle-retro-assembler-plugin/">Retro Assembler gradle plugin</a> for build automation.
+                </p>
+                <p>
+                    I (Maciek) would like to thank to Paul Hocker for his KickAssembler plugin for Visual Studio Code.
+                </p>
+                <p>
+                    Big thanks to Skoe: The EasyFlash<sup>3</sup> makes the cross development process neat due to
+                    Easy Transfer software and PRG execution directly on real Commodore machines.
+                </p>
             </section>
             <section>
                 <h1>GDPR - privacy policy</h1>
