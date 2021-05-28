@@ -32,7 +32,7 @@
                 z-index: -1;
             }
             section {
-                width: 70%;
+                width: 90%;
                 margin-left: auto;
                 margin-right: auto;
                 margin-top: 2em;
@@ -51,7 +51,7 @@
             }
             .buttons {
                 display: flex;
-                flex-direction: row;
+                flex-direction: column;
                 flex-wrap: nowrap;
             }
             .buttons a {
@@ -71,12 +71,6 @@
                 flex-wrap: wrap;
                 flex-direction: row;
             }
-            .buttons a:first-child {
-                margin-left: 0;
-            }
-            .buttons a:last-child {
-                margin-right: 0;
-            }
             h2 {
                 font-size: 1em;
             }
@@ -89,8 +83,23 @@
                 justify-content: space-evenly;
             }
             .gallery img {
-                max-width: 320px;
-                margin: 0.7em;
+                /*max-width: 320px;*/
+                margin: 0.5em;
+            }
+            @media screen and (min-width: 600px) {
+                section {
+                    width: 70%;
+                }
+                .buttons {
+                    flex-direction: row;
+                    flex-wrap: nowrap;
+                }
+                .buttons a:first-child {
+                    margin-left: 0;
+                }
+                .buttons a:last-child {
+                    margin-right: 0;
+                }
             }
             #gdpr {
                 position: fixed;
