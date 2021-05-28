@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <meta charset="UTF-8">
         <!-- Global site tag (gtag.js) - Google Analytics -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-1T4LE5HDF3"></script>
         <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-1T4LE5HDF3');
+            var useCookies = (localStorage.getItem('useCookies') === 'true');
+            if (useCookies) {
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', 'G-1T4LE5HDF3');
+            }
         </script>        
         <link rel="preconnect" href="https://fonts.gstatic.com">
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;400&display=swap" rel="stylesheet">
@@ -88,6 +92,24 @@
                 max-width: 320px;
                 margin: 0.7em;
             }
+            #gdpr {
+                position: fixed;
+                background-color: white;
+                padding: 1em;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                text-align: center;
+            }
+            #gdpr button {
+                border: none;
+                background-color: black;
+                color: white;
+                font-family: 'Roboto', sans-serif;
+                font-size: 1em;
+                padding: 0.6em;
+                border-radius: 0.6em;
+            }
         </style>
     </head>
     <body>
@@ -151,8 +173,61 @@
                 </ul>
             </section>
             <section>
+                <h1>GDPR - privacy policy</h1>
+                <p>
+                    This page is hosted on GitHub/GitHub Pages.
+                </p>
+                <p>
+                    GitHub, as any other hosting company, can have full insight in visitor data, like connecting IP addresses, visited pages, etc.
+                    Note that Github is not known to actively profile visitors. 
+                    By using a VPN you can (try to) prevent this.
+                </p>
+                <h2>Google Analytics</h2>
+                <p>
+                    This website uses Google Analytics. 
+                    This happens only if you accept third party cookies.
+                    I have configured Google Analytics so that IP addresses are anonymized.
+                </p>
+                <p>
+                    Use the following option to grant or revoke collecting data and using cookies.
+                </p>
+                <p>
+                    <input type="checkbox" id="enableGA"> Enable Google Analytics
+                </p>
+                <script>
+                    var useCookies = localStorage.getItem('useCookies');
+                    document.getElementById('enableGA').checked = (useCookies === 'true');
+                    var checkbox = document.getElementById('enableGA');
+                    checkbox.addEventListener('change', function() {
+                        localStorage.setItem('useCookies', this.checked);
+                    });
+                </script>
+                  
+            </section>
+            <section>
                 <p>&copy; 2021 Maciej Małecki</p>
             </section>
         </article>
+
+        <div id="gdpr" style="display: none;">
+            <p>
+              This web page uses cookies to track anonymous user activities. By continuing using this site
+              or by closing this banner you indicate your consent to use these cookies.
+            </p>
+            <p>
+              You can change settings, i.e. disable user tracking in GDPR section of this page.
+            </p>
+            <button id="gdprClose">Close</button>
+        </div>
+        <script>
+            var useCookies = localStorage.getItem('useCookies');
+            document.getElementById('gdprClose').addEventListener('click', function() {
+                document.getElementById('gdpr').style.display = 'none';
+                localStorage.setItem('useCookies', 'true');
+            });
+            if (!useCookies) {
+                document.getElementById('gdpr').style.display = 'block';
+            }
+        </script>
     </body>
 </html>
