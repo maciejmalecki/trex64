@@ -62,7 +62,7 @@ start:
     sta z_gameState
     jsr doLevelScreen
   ingame:
-    jsr doIngame
+    jsr doIngame 
     lda z_gameState
     cmp #GAME_STATE_GAME_OVER
     bne levelScreen

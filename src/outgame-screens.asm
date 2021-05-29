@@ -50,6 +50,7 @@ doTitleScreen: {
   sta z_currentKeys
   lda #TITLE_COLOR_CYCLE_DELAY
   sta z_colorCycleDelay
+  sta z_colorCycleDelay2
 
   lda #32
   ldx #YELLOW
@@ -61,31 +62,43 @@ doTitleScreen: {
   jsr startTitleCopper
   jsr prepareTitleScreen
   endlessTitle:
-    // scan keyboard
+    // scan start game
+    jsr io_scanIngameKeys
+    jsr io_checkJump
+    beq !+
+      jmp startIngame
+    !:
+    jsr io_scanJoy
+    jsr io_checkJump
+    beq !+
+      jmp startIngame
+    !:
+    // scan menu
     jsr io_scanFunctionKeys
     lda z_previousKeys
-    bne endlessTitle
-    lda z_currentKeys
-    and #KEY_F7
-    bne startIngame
+    bne storePreviousState
     lda z_currentKeys
     and #KEY_F1
     beq !+
       jsr toggleControls
-      jmp endlessTitle
+      jmp storePreviousState
     !:
     lda z_currentKeys
     and #KEY_F5
     beq !+
       jsr toggleLevel
-      jmp endlessTitle
+      jmp storePreviousState
     !:
     lda z_currentKeys
     and #KEY_F3
     beq !+
       jsr toggleSound
-      jmp endlessTitle
+      jmp storePreviousState
     !:
+    storePreviousState:
+    // copy current state to previous state
+    lda z_currentKeys
+    sta z_previousKeys
     jmp endlessTitle
   startIngame:
   jsr dly_wait10
@@ -96,6 +109,7 @@ doTitleScreen: {
 doLevelScreen: {
   lda #COLOR_CYCLE_DELAY
   sta z_colorCycleDelay
+  sta z_colorCycleDelay2
 
   jsr screenOff
   jsr configureTitleVic2
@@ -124,6 +138,7 @@ doLevelScreen: {
 doEndGameScreen: {
   lda #COLOR_CYCLE_DELAY
   sta z_colorCycleDelay
+  sta z_colorCycleDelay2
 
   jsr screenOff
 
@@ -237,17 +252,14 @@ prepareTitleScreen: {
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*(AUTHOR_TOP + 2) + 4)
   jsr outText
 
-  pushParamW(txt_controls)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*MENU_TOP + 6)
+  pushParamW(txt_menu)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*MENU_TOP)
   jsr outText
-  pushParamW(txt_sound)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*(MENU_TOP + 1) + 6)
-  jsr outText
-  pushParamW(txt_startingLevel)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*(MENU_TOP + 2) + 6)
-  jsr outText
+
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*(MENU_TOP+1)); lda #(32 + 64); ldx #80; jsr fillMem
+  pushParamW(COLOR_RAM + 40*(MENU_TOP+1)); lda #BLACK; ldx #80; jsr fillMem
   pushParamW(txt_startGame)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*(MENU_TOP + 3) + 6)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*(MENU_TOP+2) + 7)
   jsr outText
 
   jsr drawConfig
@@ -324,7 +336,7 @@ drawConfig: {
   keys:
     pushParamW(txt_controlsKey)
   controlMethodSelected:
-    pushParamW(SCREEN_PAGE_ADDR_0 + 40*MENU_TOP + 21)
+    pushParamW(SCREEN_PAGE_ADDR_0 + 40*MENU_TOP + 7)
     jsr outText
   // sound
   lda z_gameConfig
@@ -335,11 +347,11 @@ drawConfig: {
   soundFx:
     pushParamW(txt_soundFx)
   soundSelected:
-    pushParamW(SCREEN_PAGE_ADDR_0 + 40*(MENU_TOP + 1) + 21)
+    pushParamW(SCREEN_PAGE_ADDR_0 + 40*MENU_TOP + 17)
     jsr outText
   // starting level
   pushParamW(z_startingLevel)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*(MENU_TOP + 2) + 23)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*MENU_TOP + 35)
   jsr outHexNibble
 
   rts

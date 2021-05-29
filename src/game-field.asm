@@ -63,10 +63,10 @@ stopCopper: {
 }
 
 scrollColorCycle2: {
-  dec z_colorCycleDelay 
+  dec z_colorCycleDelay2 
   bne !+
     lda #COLOR_CYCLE_DELAY
-    sta z_colorCycleDelay
+    sta z_colorCycleDelay2
     rotateMemRightFast(colorCycle2 + 1, 6)
   !:
   rts
@@ -142,8 +142,10 @@ ingameCopperList:
 
 titleScreenCopperList:
     copperEntry(10, IRQH_JSR, <playMusic, >playMusic)
+    copperEntry(80, IRQH_JSR, <scrollColorCycle2, >scrollColorCycle2)
     copperEntry(200, IRQH_JSR, <rotateColors, >rotateColors)
-    copperEntry(245, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
+    copperEntry(236, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
+    copperEntry(250, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
     copperLoop()
 
 levelScreenCopperList:
