@@ -50,6 +50,7 @@ doTitleScreen: {
   sta z_currentKeys
   lda #TITLE_COLOR_CYCLE_DELAY
   sta z_colorCycleDelay
+  sta z_colorCycleDelay2
 
   lda #32
   ldx #YELLOW
@@ -96,6 +97,7 @@ doTitleScreen: {
 doLevelScreen: {
   lda #COLOR_CYCLE_DELAY
   sta z_colorCycleDelay
+  sta z_colorCycleDelay2
 
   jsr screenOff
   jsr configureTitleVic2
@@ -124,6 +126,7 @@ doLevelScreen: {
 doEndGameScreen: {
   lda #COLOR_CYCLE_DELAY
   sta z_colorCycleDelay
+  sta z_colorCycleDelay2
 
   jsr screenOff
 
@@ -237,17 +240,14 @@ prepareTitleScreen: {
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*(AUTHOR_TOP + 2) + 4)
   jsr outText
 
-  pushParamW(txt_controls)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*MENU_TOP + 6)
+  pushParamW(txt_menu)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*MENU_TOP)
   jsr outText
-  pushParamW(txt_sound)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*(MENU_TOP + 1) + 6)
-  jsr outText
-  pushParamW(txt_startingLevel)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*(MENU_TOP + 2) + 6)
-  jsr outText
+
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*(MENU_TOP+1)); lda #(32 + 64); ldx #80; jsr fillMem
+  pushParamW(COLOR_RAM + 40*(MENU_TOP+1)); lda #BLACK; ldx #80; jsr fillMem
   pushParamW(txt_startGame)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*(MENU_TOP + 3) + 6)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*(MENU_TOP+2) + 7)
   jsr outText
 
   jsr drawConfig
@@ -324,7 +324,7 @@ drawConfig: {
   keys:
     pushParamW(txt_controlsKey)
   controlMethodSelected:
-    pushParamW(SCREEN_PAGE_ADDR_0 + 40*MENU_TOP + 21)
+    pushParamW(SCREEN_PAGE_ADDR_0 + 40*MENU_TOP + 7)
     jsr outText
   // sound
   lda z_gameConfig
@@ -335,11 +335,11 @@ drawConfig: {
   soundFx:
     pushParamW(txt_soundFx)
   soundSelected:
-    pushParamW(SCREEN_PAGE_ADDR_0 + 40*(MENU_TOP + 1) + 21)
+    pushParamW(SCREEN_PAGE_ADDR_0 + 40*MENU_TOP + 17)
     jsr outText
   // starting level
   pushParamW(z_startingLevel)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*(MENU_TOP + 2) + 23)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*MENU_TOP + 35)
   jsr outHexNibble
 
   rts

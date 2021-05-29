@@ -17,14 +17,12 @@ spriteYPosRegisters:
 txt_author:           .text "by zuza, ola & maciek"; .byte $ff
 txt_originalConcept:  .text "based on google chrome easter egg"; .byte $ff
 // title screen menu
-txt_controls:         .text "f1   controls"; .byte $ff
-txt_controlsJoy:      .text "joystick 2"; .byte $ff
-txt_controlsKey:      .text "keyboard  "; .byte $ff
-txt_sound:            .text "f3     ingame"; .byte $ff
+txt_menu:             .text "    f1        f3        f5 world 1-"; .byte $ff
+txt_controlsJoy:      .text "joy 2"; .byte $ff
+txt_controlsKey:      .text "keys "; .byte $ff
 txt_soundMus:         .text "music"; .byte $ff
 txt_soundFx:          .text "fx   "; .byte $ff
-txt_startingLevel:    .text "f5      level  1-"; .byte $ff
-txt_startGame:        .text "f7      start  game"; .byte $ff
+txt_startGame:        incText("hit fire or space to start", 64); .byte $ff
 // level start screen
 txt_entering:         incText("world  0-0", 64); .byte $ff
 txt_getReady:         incText("get ready!", 64); .byte $ff

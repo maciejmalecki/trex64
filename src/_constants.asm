@@ -46,7 +46,7 @@
 // title screen layout
 .label LOGO_TOP = 1
 .label AUTHOR_TOP = 12
-.label MENU_TOP = 18
+.label MENU_TOP = 22
 
 // ---- misc ----
 .label MAX_DELAY = 10
