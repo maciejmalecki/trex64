@@ -70,7 +70,7 @@
 // high score counter
 .label z_hiScoreMark = 58     // $3A, $3B
 .label z_hiScore = 60         // $3C, $3D, $3E
-.label z_colorCycleDelay2 = 61// $3F
+.label z_colorCycleDelay2 = 63// $3F
 
 .label z_spritesStashed = 127 // $7F
 .label z_stashArea = 128      // $80
