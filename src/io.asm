@@ -113,9 +113,6 @@ io_checkUnduck: {
 }
 
 io_scanFunctionKeys: {
-  // copy current state to previous state
-  lda z_currentKeys
-  sta z_previousKeys
   // set up data direction
   lda #$ff
   sta CIA1_DATA_DIR_A

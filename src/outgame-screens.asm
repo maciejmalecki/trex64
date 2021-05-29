@@ -62,31 +62,43 @@ doTitleScreen: {
   jsr startTitleCopper
   jsr prepareTitleScreen
   endlessTitle:
-    // scan keyboard
+    // scan start game
+    jsr io_scanIngameKeys
+    jsr io_checkJump
+    beq !+
+      jmp startIngame
+    !:
+    jsr io_scanJoy
+    jsr io_checkJump
+    beq !+
+      jmp startIngame
+    !:
+    // scan menu
     jsr io_scanFunctionKeys
     lda z_previousKeys
-    bne endlessTitle
-    lda z_currentKeys
-    and #KEY_F7
-    bne startIngame
+    bne storePreviousState
     lda z_currentKeys
     and #KEY_F1
     beq !+
       jsr toggleControls
-      jmp endlessTitle
+      jmp storePreviousState
     !:
     lda z_currentKeys
     and #KEY_F5
     beq !+
       jsr toggleLevel
-      jmp endlessTitle
+      jmp storePreviousState
     !:
     lda z_currentKeys
     and #KEY_F3
     beq !+
       jsr toggleSound
-      jmp endlessTitle
+      jmp storePreviousState
     !:
+    storePreviousState:
+    // copy current state to previous state
+    lda z_currentKeys
+    sta z_previousKeys
     jmp endlessTitle
   startIngame:
   jsr dly_wait10
