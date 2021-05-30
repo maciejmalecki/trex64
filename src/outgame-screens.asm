@@ -12,6 +12,8 @@
 #import "music.asm"
 #import "game-field.asm"
 
+.importonce
+
 .filenamespace c64lib
 .segment Code
 
@@ -53,14 +55,16 @@ doTitleScreen: {
   sta z_colorCycleDelay2
 
   lda #32
-  ldx #YELLOW
+  ldx #BLACK
   jsr clearBothScreens
 
+  jsr screenOff
   jsr configureTitleVic2
   lda #TITLE_TUNE
   jsr initSound
-  jsr startTitleCopper
+  jsr screenOn
   jsr prepareTitleScreen
+  jsr startTitleCopper
   endlessTitle:
     // scan start game
     jsr io_scanIngameKeys
@@ -245,17 +249,23 @@ prepareTitleScreen: {
   jsr copyLargeMemForward
 
   pushParamW(txt_author)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*AUTHOR_TOP + 10)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*AUTHOR_TOP)
   jsr outText
 
   pushParamW(txt_originalConcept)
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*(AUTHOR_TOP + 2) + 4)
   jsr outText
 
+  pushParamW(COLOR_RAM + 40*MENU_TOP); lda #WHITE; ldx #40; jsr fillMem
+
   pushParamW(txt_menu)
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*MENU_TOP)
   jsr outText
 
+  // prepare credits
+  jsr initCredits
+
+  // prepare press to play
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*(MENU_TOP+1)); lda #(32 + 64); ldx #80; jsr fillMem
   pushParamW(COLOR_RAM + 40*(MENU_TOP+1)); lda #BLACK; ldx #80; jsr fillMem
   pushParamW(txt_startGame)
@@ -356,3 +366,4 @@ drawConfig: {
 
   rts
 }
+

@@ -72,6 +72,12 @@
 .label z_hiScore = 60         // $3C, $3D, $3E
 .label z_colorCycleDelay2 = 63// $3F
 
+// credits display
+.label z_creditsPhase = 64    // $40
+.label z_creditsFadeCtr = 65  // $41
+.label z_creditsDelayCtr = 66 // $42
+
+// used by sprite multiplexer
 .label z_spritesStashed = 127 // $7F
 .label z_stashArea = 128      // $80
 
