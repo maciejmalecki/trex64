@@ -59,7 +59,7 @@
 .label CREDITS_PAGE_2 = $30
 .label CREDITS_FADE_DELAY = 4
 .label CREDITS_PAGE_DISPLAY_TIME = 200
-.label CREDITS_LAST = $30 // -1
+.label CREDITS_LAST = $60 // -$10
 
 // ---- misc ----
 .label MAX_DELAY = 10

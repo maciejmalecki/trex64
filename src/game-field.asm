@@ -914,15 +914,27 @@ handleCredits: {
 
   lda z_creditsPhase
   and #$f0
-  cmp #$10
+  cmp #$00
   bne !+
     jmp displayPage0
   !:  
-  cmp #$20
+  cmp #$10
   bne !+
     jmp displayPage1
   !:
-  jmp displayPage2
+  cmp #$20
+  bne !+
+    jmp displayPage2
+  !:
+  cmp #$30
+  bne !+
+    jmp displayPage3
+  !:
+  cmp #$40
+  bne !+
+    jmp displayPage4
+  !:
+  jmp displayPage5
 
   // -----------------------
   displayPage0: {
@@ -932,7 +944,8 @@ handleCredits: {
   }
   displayPage1: {
     jsr clearCredits
-    pushParamW(txt_page_1_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 16); jsr outText
+    pushParamW(txt_page_1_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 1) + 16); jsr outText
+    pushParamW(txt_page_1_1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 3) + 16); jsr outText
     jmp initFadeIn
   }
   displayPage2: {
@@ -940,6 +953,23 @@ handleCredits: {
     pushParamW(txt_page_2_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 1) + 5); jsr outText
     pushParamW(txt_page_2_1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 5) ; jsr outText
     pushParamW(txt_page_2_2); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 3) + 5); jsr outText
+    jmp initFadeIn
+  }
+  displayPage3: {
+    jsr clearCredits
+    pushParamW(txt_page_3_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 5); jsr outText
+    jmp initFadeIn
+  }
+  displayPage4: {
+    jsr clearCredits
+    pushParamW(txt_page_4_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 5); jsr outText
+    jmp initFadeIn
+  }
+  displayPage5: {
+    jsr clearCredits
+    pushParamW(txt_page_5_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 1)); jsr outText
+    pushParamW(txt_page_5_1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2)) ; jsr outText
+    pushParamW(txt_page_5_2); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 3)); jsr outText
     jmp initFadeIn
   }
   initFadeIn: {
@@ -1014,7 +1044,7 @@ initCredits: {
   lda #0
   sta z_creditsFadeCtr
   sta z_creditsDelayCtr
-  lda #(CREDITS_LAST + CREDITS_FADE_OUT - $20)
+  lda #0
   sta z_creditsPhase
 
   pushParamW(COLOR_RAM + 40*CREDITS_TOP)
