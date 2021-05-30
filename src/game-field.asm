@@ -8,6 +8,7 @@
 #import "_sprites.asm"
 #import "_score.asm"
 
+#import "subroutines.asm"
 #import "data.asm"
 #import "delays.asm"
 #import "music.asm"
@@ -53,7 +54,7 @@ startCopper: {
   startCopper(
     z_displayListPtr,
     z_listPtr,
-    List().add(c64lib.IRQH_HSCROLL, c64lib.IRQH_JSR, c64lib.IRQH_BG_RASTER_BAR).lock())
+    List().add(c64lib.IRQH_HSCROLL, c64lib.IRQH_JSR, c64lib.IRQH_BG_RASTER_BAR, c64lib.IRQH_BG_COL_0).lock())
   rts
 }
 
@@ -141,12 +142,16 @@ ingameCopperList:
     copperLoop()
 
 titleScreenCopperList:
-    copperEntry(10, IRQH_JSR, <playMusic, >playMusic)
-    copperEntry(80, IRQH_JSR, <scrollColorCycle2, >scrollColorCycle2)
-    copperEntry(200, IRQH_JSR, <rotateColors, >rotateColors)
-    copperEntry(236, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
-    copperEntry(250, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
-    copperLoop()
+      copperEntry(10, IRQH_JSR, <playMusic, >playMusic)
+      copperEntry(80, IRQH_JSR, <scrollColorCycle2, >scrollColorCycle2)
+    fadeEffectColor:
+      copperEntry(174, IRQH_BG_COL_0, BLACK, 0)
+      copperEntry(190, IRQH_JSR, <rotateColors, >rotateColors)
+      copperEntry(214, IRQH_BG_COL_0, BLACK, 0)
+      copperEntry(236, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
+      copperEntry(250, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
+      copperEntry(270, IRQH_JSR, <handleCredits, >handleCredits)
+      copperLoop()
 
 levelScreenCopperList:
     copperEntry(10, IRQH_JSR, <playMusic, >playMusic)
@@ -886,3 +891,146 @@ doGameOver: {
   rts
 }
 
+// shouldn't be in this file!
+handleCredits: {
+  lda z_creditsPhase
+  and #CREDITS_FADE_IN
+  cmp #CREDITS_FADE_IN
+  bne !+
+    jmp handleFadeIn
+  !:
+  lda z_creditsPhase
+  and #CREDITS_FADE_OUT
+  cmp #CREDITS_FADE_OUT
+  bne !+
+    jmp handleFadeOut
+  !:
+  lda z_creditsPhase
+  and #CREDITS_DISPLAY
+  cmp #CREDITS_DISPLAY
+  bne !+
+    jmp handleDelayCtr
+  !:
+
+  lda z_creditsPhase
+  and #$f0
+  cmp #$10
+  bne !+
+    jmp displayPage0
+  !:  
+  cmp #$20
+  bne !+
+    jmp displayPage1
+  !:
+  jmp displayPage2
+
+  // -----------------------
+  displayPage0: {
+    jsr clearCredits
+    pushParamW(txt_page_0_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP+2) + 6); jsr outText
+    jmp initFadeIn
+  }
+  displayPage1: {
+    jsr clearCredits
+    pushParamW(txt_page_1_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 16); jsr outText
+    jmp initFadeIn
+  }
+  displayPage2: {
+    jsr clearCredits
+    pushParamW(txt_page_2_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 1) + 5); jsr outText
+    pushParamW(txt_page_2_1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 5) ; jsr outText
+    pushParamW(txt_page_2_2); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 3) + 5); jsr outText
+    jmp initFadeIn
+  }
+  initFadeIn: {
+    lda z_creditsPhase
+    ora #CREDITS_FADE_IN
+    sta z_creditsPhase
+    lda #0
+    sta z_creditsFadeCtr
+    rts
+  }
+
+  handleDelayCtr: {
+    dec z_creditsDelayCtr
+    lda z_creditsDelayCtr
+    cmp #0
+    bne !+
+      lda z_creditsPhase
+      and #$f0
+      // increment page
+      clc
+      adc #$10
+      cmp #CREDITS_LAST
+      bne initFadeOut
+        // after last: back to page 0
+        lda #0
+      initFadeOut:
+      ora #CREDITS_FADE_OUT
+      sta z_creditsPhase
+      lda #0
+      sta z_creditsFadeCtr
+      rts
+    !:
+    rts
+  }
+  handleFadeIn: {
+    ldx z_creditsFadeCtr
+    lda fadeIn, x
+    cmp #$ff
+    beq fadeInEnd
+      sta fadeEffectColor + 2
+      inx
+      stx z_creditsFadeCtr
+      rts
+    fadeInEnd:
+      lda z_creditsPhase
+      and #neg(CREDITS_FADE_IN)
+      ora #CREDITS_DISPLAY
+      sta z_creditsPhase
+      lda #CREDITS_PAGE_DISPLAY_TIME
+      sta z_creditsDelayCtr
+      rts
+  }
+  handleFadeOut: {
+    ldx z_creditsFadeCtr
+    lda fadeOut, x
+    cmp #$ff
+    beq fadeOutEnd
+      sta fadeEffectColor + 2
+      inx
+      stx z_creditsFadeCtr
+      rts
+    fadeOutEnd:
+      lda z_creditsPhase
+      and #neg(CREDITS_FADE_OUT)
+      and #neg(CREDITS_DISPLAY)
+      sta z_creditsPhase
+      rts
+  }
+}
+
+initCredits: {
+  lda #0
+  sta z_creditsFadeCtr
+  sta z_creditsDelayCtr
+  lda #(CREDITS_LAST + CREDITS_FADE_OUT - $20)
+  sta z_creditsPhase
+
+  pushParamW(COLOR_RAM + 40*CREDITS_TOP)
+  lda #BLACK
+  ldx #(CREDITS_SIZE*40)
+  jsr fillMem
+
+  jsr clearCredits
+
+  rts
+}
+
+clearCredits: {
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*CREDITS_TOP); 
+  lda #(32 + 64); 
+  ldx #(CREDITS_SIZE*40); 
+  jsr fillMem
+  rts
+}

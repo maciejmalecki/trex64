@@ -12,6 +12,8 @@
 #import "music.asm"
 #import "game-field.asm"
 
+.importonce
+
 .filenamespace c64lib
 .segment Code
 
@@ -245,7 +247,7 @@ prepareTitleScreen: {
   jsr copyLargeMemForward
 
   pushParamW(txt_author)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*AUTHOR_TOP + 10)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*AUTHOR_TOP)
   jsr outText
 
   pushParamW(txt_originalConcept)
@@ -256,6 +258,10 @@ prepareTitleScreen: {
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*MENU_TOP)
   jsr outText
 
+  // prepare credits
+  jsr initCredits
+
+  // prepare menu
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*(MENU_TOP+1)); lda #(32 + 64); ldx #80; jsr fillMem
   pushParamW(COLOR_RAM + 40*(MENU_TOP+1)); lda #BLACK; ldx #80; jsr fillMem
   pushParamW(txt_startGame)
@@ -356,3 +362,4 @@ drawConfig: {
 
   rts
 }
+

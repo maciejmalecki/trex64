@@ -46,7 +46,20 @@
 // title screen layout
 .label LOGO_TOP = 1
 .label AUTHOR_TOP = 12
+.label CREDITS_TOP = 16
+.label CREDITS_SIZE = 5
 .label MENU_TOP = 22
+
+// credits display handling
+.label CREDITS_FADE_IN  = %00000001
+.label CREDITS_FADE_OUT = %00000010
+.label CREDITS_DISPLAY  = %00000100
+.label CREDITS_PAGE_0 = $10
+.label CREDITS_PAGE_1 = $20
+.label CREDITS_PAGE_2 = $30
+.label CREDITS_FADE_DELAY = 4
+.label CREDITS_PAGE_DISPLAY_TIME = 200
+.label CREDITS_LAST = $30 // -1
 
 // ---- misc ----
 .label MAX_DELAY = 10
