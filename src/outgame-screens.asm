@@ -216,24 +216,8 @@ prepareTitleScreen: {
     nextChar:
       ldx #(endOfAuthorColorRainbow - beginOfAuthorColorRainbow)
       nextColor:
-        lda beginOfAuthorColorRainbow - 1, x
-        sta COLOR_RAM + (40*AUTHOR_TOP), y
-        iny
-        cpy #40
-        beq end
-        dex
-      bne nextColor
-    jmp nextChar
-    end:
-  }
-
-  {
-    ldy #0
-    nextChar:
-      ldx #(endOfAuthor2ColorRainbow - beginOfAuthor2ColorRainbow)
-      nextColor:
         lda beginOfAuthor2ColorRainbow - 1, x
-        sta COLOR_RAM + (40*(AUTHOR_TOP + 2)), y
+        sta COLOR_RAM + (40*AUTHOR_TOP), y
         iny
         cpy #40
         beq end
@@ -250,10 +234,6 @@ prepareTitleScreen: {
 
   pushParamW(txt_author)
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*AUTHOR_TOP)
-  jsr outText
-
-  pushParamW(txt_originalConcept)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*(AUTHOR_TOP + 2) + 4)
   jsr outText
 
   pushParamW(COLOR_RAM + 40*MENU_TOP); lda #WHITE; ldx #40; jsr fillMem

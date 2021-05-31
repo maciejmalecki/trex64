@@ -81,7 +81,6 @@ rotateColors: {
     lda #TITLE_COLOR_CYCLE_DELAY
     sta z_colorCycleDelay
     rotateMemRightFast(COLOR_RAM + 40*(AUTHOR_TOP), 40)
-    rotateMemRightFast(COLOR_RAM + 40*(AUTHOR_TOP + 2), 40)
   next:
   rts
 }
@@ -145,9 +144,9 @@ titleScreenCopperList:
       copperEntry(10, IRQH_JSR, <playMusic, >playMusic)
       copperEntry(80, IRQH_JSR, <scrollColorCycle2, >scrollColorCycle2)
     fadeEffectColor:
-      copperEntry(174, IRQH_BG_COL_0, BLACK, 0)
+      copperEntry(166, IRQH_BG_COL_0, BLACK, 0)
       copperEntry(190, IRQH_JSR, <rotateColors, >rotateColors)
-      copperEntry(214, IRQH_BG_COL_0, BLACK, 0)
+      copperEntry(206, IRQH_BG_COL_0, BLACK, 0)
       copperEntry(236, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
       copperEntry(250, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
       copperEntry(270, IRQH_JSR, <handleCredits, >handleCredits)
@@ -934,7 +933,11 @@ handleCredits: {
   bne !+
     jmp displayPage4
   !:
-  jmp displayPage5
+  cmp #$50
+  bne !+
+    jmp displayPage5
+  !:
+  jmp displayPage6
 
   // -----------------------
   displayPage0: {
@@ -950,14 +953,14 @@ handleCredits: {
   }
   displayPage2: {
     jsr clearCredits
-    pushParamW(txt_page_2_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 1) + 5); jsr outText
-    pushParamW(txt_page_2_1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 5) ; jsr outText
-    pushParamW(txt_page_2_2); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 3) + 5); jsr outText
+    pushParamW(txt_page_2_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 4); jsr outText
     jmp initFadeIn
   }
   displayPage3: {
     jsr clearCredits
-    pushParamW(txt_page_3_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 5); jsr outText
+    pushParamW(txt_page_3_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 1) + 5); jsr outText
+    pushParamW(txt_page_3_1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 5) ; jsr outText
+    pushParamW(txt_page_3_2); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 3) + 5); jsr outText
     jmp initFadeIn
   }
   displayPage4: {
@@ -967,9 +970,14 @@ handleCredits: {
   }
   displayPage5: {
     jsr clearCredits
-    pushParamW(txt_page_5_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 1)); jsr outText
-    pushParamW(txt_page_5_1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2)) ; jsr outText
-    pushParamW(txt_page_5_2); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 3)); jsr outText
+    pushParamW(txt_page_5_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 5); jsr outText
+    jmp initFadeIn
+  }
+  displayPage6: {
+    jsr clearCredits
+    pushParamW(txt_page_6_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP)); jsr outText
+    pushParamW(txt_page_6_1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2)) ; jsr outText
+    pushParamW(txt_page_6_2); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 3)); jsr outText
     jmp initFadeIn
   }
   initFadeIn: {
