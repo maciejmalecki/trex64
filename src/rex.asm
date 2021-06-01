@@ -29,7 +29,7 @@
 .label LIVES = 3
 // starting level
 .label STARTING_WORLD = 1
-.label STARTING_LEVEL = 1
+.label STARTING_LEVEL = 4
 
 // ---- levels ----
 #import "levels/level1/data.asm"
@@ -326,7 +326,7 @@ nextLevel: {
   // cmp #2
   world1:
     lda z_levelCounter
-    cmp #3
+    cmp #5
     beq level1_end
       inc z_levelCounter
       jmp end
@@ -441,6 +441,10 @@ setUpMap: {
     beq level1_2
     cmp #3
     beq level1_3
+    cmp #4
+    beq level1_4
+    cmp #5
+    beq level1_5
     level1_1:
       jsr setUpMap1_1
       jmp end
@@ -449,6 +453,12 @@ setUpMap: {
       jmp end
     level1_3:
       jsr setUpMap1_3
+      jmp end
+    level1_4:
+      jsr setUpMap1_4
+      jmp end
+    level1_5:
+      jsr setUpMap1_5
       jmp end
   world2:
     jmp end
@@ -460,6 +470,8 @@ setUpMap: {
 setUpMap1_1: setUpMap(level1.MAP_1_ADDRESS, level1.MAP_1_WIDTH, level1.MAP_1_DELTA_X, level1.MAP_1_WRAPPING_MARK, level1.MAP_1_SCROLLING_MARK, level1.MAP_1_OBSTACLES_MARK, level1.MAP_1_ACTORS)
 setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH, level1.MAP_2_DELTA_X, level1.MAP_2_WRAPPING_MARK, level1.MAP_2_SCROLLING_MARK, level1.MAP_2_OBSTACLES_MARK, level1.MAP_2_ACTORS)
 setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DELTA_X, level1.MAP_3_WRAPPING_MARK, level1.MAP_3_SCROLLING_MARK, level1.MAP_3_OBSTACLES_MARK, level1.MAP_3_ACTORS)
+setUpMap1_4: setUpMap(level1.MAP_4_ADDRESS, level1.MAP_4_WIDTH, level1.MAP_4_DELTA_X, level1.MAP_4_WRAPPING_MARK, level1.MAP_4_SCROLLING_MARK, level1.MAP_4_OBSTACLES_MARK, level1.MAP_4_ACTORS)
+setUpMap1_5: setUpMap(level1.MAP_5_ADDRESS, level1.MAP_5_WIDTH, level1.MAP_5_DELTA_X, level1.MAP_5_WRAPPING_MARK, level1.MAP_5_SCROLLING_MARK, level1.MAP_5_OBSTACLES_MARK, level1.MAP_5_ACTORS)
 
 // ---- END: level handling ----
 

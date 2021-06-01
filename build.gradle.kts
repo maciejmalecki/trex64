@@ -91,8 +91,26 @@ preprocess {
             }
             map {
               left = 272
+              right = 434
               interleaver {
                 output = file("levels/level1/map-3.bin")
+              }
+              interleaver {
+              }
+            }
+            map {
+              left = 435
+              right = 598
+              interleaver {
+                output = file("levels/level1/map-4.bin")
+              }
+              interleaver {
+              }
+            }
+            map {
+              left = 599
+              interleaver {
+                output = file("levels/level1/map-5.bin")
               }
               interleaver {
               }
