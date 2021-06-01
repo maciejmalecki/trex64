@@ -25,22 +25,25 @@ txt_startGame:        incText("hit fire or space to start", 64); .byte $ff
 // title credits
 txt_page_0_0:         incText("the lockdown studio presents", 64); .byte $ff
 
-txt_page_1_0:         incText("t-rex  64", 64); .byte $ff
-txt_page_1_1:         incText(" preview", 64); .byte $ff
+txt_page_1_0:         incText("a 2021 production", 64); .byte $ff
 
-txt_page_2_0:         incText("based on google chrome easter egg", 64); .byte $ff
+txt_page_2_0:         incText("t-rex  64", 64); .byte $ff
+txt_page_2_1:         incText("preview", 64); .byte $ff
 
-txt_page_3_0:         incText("  graphics:     zuza malecka", 64); .byte $ff
-txt_page_3_1:         incText("                 ola malecka", 64); .byte $ff
-txt_page_3_2:         incText("              maciej malecki", 64); .byte $ff
+txt_page_3_0:         incText("based on google chrome easter egg", 64); .byte $ff
 
-txt_page_4_0:         incText(" music & sfx:  maciej malecki", 64); .byte $ff
+txt_page_4_0:         incText("graphics:  zuza malecka", 64); .byte $ff
+txt_page_4_1:         incText("ola malecka", 64); .byte $ff
+txt_page_4_2:         incText("maciej malecki", 64); .byte $ff
 
-txt_page_5_0:         incText("    code:   maciej malecki", 64); .byte $ff
+txt_page_5_0:         incText("music & sfx:  maciej malecki", 64); .byte $ff
+txt_page_5_1:         incText("playroutine:  lasse oorni", 64); .byte $ff
 
-txt_page_6_0:         incText("              how to play?", 64); .byte $ff
-txt_page_6_1:         incText("use fire or up to jump and down to duck", 64); .byte $ff
-txt_page_6_2:         incText("or space/cbm respectively when on keys", 64); .byte $ff
+txt_page_6_0:         incText("code:  maciej malecki", 64); .byte $ff
+
+txt_page_7_0:         incText("how to play?", 64); .byte $ff
+txt_page_7_1:         incText("use fire or up to jump and down to duck", 64); .byte $ff
+txt_page_7_2:         incText("or space/cbm respectively when on keys", 64); .byte $ff
 
 // level start screen
 txt_entering:         incText("world  0-0", 64); .byte $ff

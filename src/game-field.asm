@@ -937,7 +937,11 @@ handleCredits: {
   bne !+
     jmp displayPage5
   !:
-  jmp displayPage6
+  cmp #$60
+  bne !+
+    jmp displayPage6
+  !:
+  jmp displayPage7
 
   // -----------------------
   displayPage0: {
@@ -947,37 +951,43 @@ handleCredits: {
   }
   displayPage1: {
     jsr clearCredits
-    pushParamW(txt_page_1_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 1) + 16); jsr outText
-    pushParamW(txt_page_1_1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 3) + 16); jsr outText
+    pushParamW(txt_page_1_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 11); jsr outText
     jmp initFadeIn
   }
   displayPage2: {
     jsr clearCredits
-    pushParamW(txt_page_2_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 4); jsr outText
+    pushParamW(txt_page_2_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 1) + 15); jsr outText
+    pushParamW(txt_page_2_1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 3) + 16); jsr outText
     jmp initFadeIn
   }
   displayPage3: {
     jsr clearCredits
-    pushParamW(txt_page_3_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 1) + 5); jsr outText
-    pushParamW(txt_page_3_1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 5) ; jsr outText
-    pushParamW(txt_page_3_2); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 3) + 5); jsr outText
+    pushParamW(txt_page_3_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 3); jsr outText
     jmp initFadeIn
   }
   displayPage4: {
     jsr clearCredits
-    pushParamW(txt_page_4_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 5); jsr outText
+    pushParamW(txt_page_4_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 0) + 7); jsr outText
+    pushParamW(txt_page_4_1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 18) ; jsr outText
+    pushParamW(txt_page_4_2); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 4) + 18); jsr outText
     jmp initFadeIn
   }
   displayPage5: {
     jsr clearCredits
-    pushParamW(txt_page_5_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 5); jsr outText
+    pushParamW(txt_page_5_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 1) + 6); jsr outText
+    pushParamW(txt_page_5_1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 3) + 6); jsr outText
     jmp initFadeIn
   }
   displayPage6: {
     jsr clearCredits
-    pushParamW(txt_page_6_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP)); jsr outText
-    pushParamW(txt_page_6_1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2)) ; jsr outText
-    pushParamW(txt_page_6_2); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 3)); jsr outText
+    pushParamW(txt_page_6_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 10); jsr outText
+    jmp initFadeIn
+  }
+  displayPage7: {
+    jsr clearCredits
+    pushParamW(txt_page_7_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP) + 13); jsr outText
+    pushParamW(txt_page_7_1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2)) ; jsr outText
+    pushParamW(txt_page_7_2); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 4)); jsr outText
     jmp initFadeIn
   }
   initFadeIn: {
