@@ -101,8 +101,8 @@ _map5Actors:
   actorDefEnd()
 _colors: .fill _tileColorsData.getSize(), _tileColorsData.get(i)
 _tiles:
-  .fill _tileData.getSize() / 4, _tileData.get(i*4) + c64lib.MAP_CHARSET_OFFSET
-  .fill _tileData.getSize() / 4, _tileData.get(i*4 + 1) + c64lib.MAP_CHARSET_OFFSET
-  .fill _tileData.getSize() / 4, _tileData.get(i*4 + 2) + c64lib.MAP_CHARSET_OFFSET
-  .fill _tileData.getSize() / 4, _tileData.get(i*4 + 3) + c64lib.MAP_CHARSET_OFFSET
+  .fill _tileData.getSize() / 4, _tileData.get(i*4)
+  .fill _tileData.getSize() / 4, _tileData.get(i*4 + 1)
+  .fill _tileData.getSize() / 4, _tileData.get(i*4 + 2)
+  .fill _tileData.getSize() / 4, _tileData.get(i*4 + 3)
 

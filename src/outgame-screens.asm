@@ -33,6 +33,8 @@ configureTitleVic2: {
   and #%11110000
   ora #%00001000
   sta CONTROL_1
+  
+  jsr unpackChargen
   // copy inversed charset
   sei
   configureMemory(RAM_RAM_RAM)

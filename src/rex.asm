@@ -29,7 +29,7 @@
 .label LIVES = 3
 // starting level
 .label STARTING_WORLD = 1
-.label STARTING_LEVEL = 1
+.label STARTING_LEVEL = 4
 
 // ---- levels ----
 #import "levels/level1/data.asm"
@@ -269,11 +269,6 @@ cfg_configureC64: {
 }
 
 unpackData: {
-  // copy chargen
-  pushParamW(beginOfChargen)
-  pushParamW(CHARGEN_ADDR)
-  pushParamW(endOfChargen - beginOfChargen)
-  jsr copyLargeMemForward
   // copy sprites
   pushParamW(beginOfSprites)
   pushParamW(SPRITE_ADDR)
@@ -353,7 +348,7 @@ nextLevel: {
   sei
   configureMemory(RAM_RAM_RAM)
   pushParamW(levelCfg.CHARSET_ADDRESS)
-  pushParamW(CHARGEN_ADDR + (endOfChargen - beginOfChargen))
+  pushParamW(CHARGEN_ADDR)
   pushParamW(levelCfg.CHARSET_SIZE*8)
   jsr copyLargeMemForward
   configureMemory(RAM_IO_RAM)

@@ -5,6 +5,7 @@
 #import "_segments.asm"
 #import "_zero_page.asm"
 #import "_vic_layout.asm"
+#import "charsets.asm"
 #importonce
 
 .filenamespace c64lib
@@ -61,3 +62,11 @@ clearBothScreens: {
   colorCode: .byte $00
 }
 
+unpackChargen: {
+  // copy chargen
+  pushParamW(beginOfChargen)
+  pushParamW(CHARGEN_ADDR)
+  pushParamW(endOfChargen - beginOfChargen)
+  jsr copyLargeMemForward
+  rts
+}
