@@ -9,6 +9,7 @@
 
 .label _JUMP_TABLE_LENGTH = 14
 .label _JUMP_LINEAR_LENGTH = 17
+.label _JUMP_LANDING_LENGTH = 10
 .label _GRAVITY_FACTOR = 3
 
 .function _polyJump(i) {
@@ -132,5 +133,8 @@ jumpTableLinear:
   .byte $ff
 jumpTablePeak:
   .fill _JUMP_TABLE_LENGTH, _polyJump(i)
+  .byte $ff
+jumpTableLanding:
+  .fill _JUMP_LANDING_LENGTH, _linearJump(i)
   .byte $ff
  // ---- END: Jump handling ----
