@@ -130,13 +130,13 @@ _copperListStart:
 ingameCopperList:
   hScroll:
     // play music
-    copperEntry(0, IRQH_JSR, <playMusic, >playMusic)
+    copperEntry(8, IRQH_JSR, <playMusic, >playMusic)
     copperEntry(DASHBOARD_Y + 20, IRQH_JSR, <upperMultiplex, >upperMultiplex)
   scrollCode:
     // here we do the actual scrolling
     copperEntry(88, IRQH_JSR, <scrollBackground, >scrollBackground)
     // here we do the page switching when it's time for this
-    copperEntry(260, IRQH_JSR, <switchPages, >switchPages)
+    copperEntry(270, IRQH_JSR, <switchPages, >switchPages)
     // here we loop and so on, so on, for each frame
     copperLoop()
 
