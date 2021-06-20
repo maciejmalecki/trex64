@@ -307,9 +307,9 @@ beginOfSprites:
   _b_dino:
   .import binary "sprites/dino.bin"
   _b_gameOver:
-  #import "sprites/gameover.asm"
+  .import binary "sprites/game-over.bin"
   _b_vogel:
-  #import "sprites/vogel.asm"
+  .import binary "sprites/vogel.bin"
   _b_scorpio:
   .import binary "sprites/scorpio.bin"
   _b_snake:
