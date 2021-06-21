@@ -188,7 +188,7 @@ toggleSound: {
 toggleLevel: {
   inc z_startingLevel
   lda z_startingLevel
-  cmp #4
+  cmp #(MAX_LEVEL + 1)
   bne !+
     lda #1
     sta z_startingLevel

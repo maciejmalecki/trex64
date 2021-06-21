@@ -83,3 +83,5 @@
 .label KEY_SPACE = %00010000
 .label KEY_COMMODORE = %00100000
 .label KEY_INGAME_MASK = KEY_SPACE + KEY_COMMODORE
+// max level in level selection
+.label MAX_LEVEL = 5
