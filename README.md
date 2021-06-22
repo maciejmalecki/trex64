@@ -2,38 +2,22 @@
 A Commodore 64 version of offline mode jumping dinosaur single button game ;-) Work in progress...
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![CircleCI](https://circleci.com/gh/maciejmalecki/trex64/tree/master.svg?style=svg)](https://circleci.com/gh/maciejmalecki/trex64/tree/master)
-[![CircleCI](https://circleci.com/gh/maciejmalecki/trex64/tree/develop.svg?style=svg)](https://circleci.com/gh/maciejmalecki/trex64/tree/develop)
+[![CircleCI](https://circleci.com/gh/maciejmalecki/trex64/tree/master.svg?style=shield)](https://circleci.com/gh/maciejmalecki/trex64/tree/master)
+[![CircleCI](https://circleci.com/gh/maciejmalecki/trex64/tree/develop.svg?style=shield)](https://circleci.com/gh/maciejmalecki/trex64/tree/develop)
 
-Visit our website: https://maciejmalecki.github.io/trex64/
+Visit the website: https://maciejmalecki.github.io/trex64/
 
 ## How to run it
-Download `rex.prg` file from https://github.com/maciejmalecki/trex64/releases (look for assets section).
+Download `rex.prg` or `rex.d64` file from the website mentioned above or from [GitHub](https://github.com/maciejmalecki/trex64/releases) (look for assets section).
 
-You need a Commodore 64 emulator such as Vice (see: https://vice-emu.sourceforge.io/) or, preferably, a real machine.
+You need a Commodore 64 emulator such as [Vice](https://vice-emu.sourceforge.io/) or, preferably, a real machine.
 
 Run prg file with Vice:
 ```bash
 x64 rex.prg
 ```
 
-If you decided to build T-Rex 64 from sources, go into `src` directory and find `rex.prg` file there.
-
-## How to play
-There are currently a few options on title screen.
-
-By pressing F1 you can toggle control methods: for Joystick port 2 up and fire are used for jumping. 
-For keyboard use Space key for jumping.
-
-Use F3 for either music or SFX option.
-
-Use F5 for starting level selection.
-
-Hit F7 to start the game.
-
-Goals of the game: you control running dino. 
-The dino must jump over obstacles (cactuses) otherwise he will die. 
-Run as far as you can.
+If you want to build T-Rex 64 from sources, go into `src` directory and find `rex.prg` file there.
 
 ## How to build
 All you need to build it is to have Java (JDK) version 11 or higher. Clone the repository, enter it and then run following command:
@@ -48,8 +32,13 @@ for Unix-like systems.
 
 ## Tools
 
-* Charpad
-* Spritepad
-* Goat Tracker
-* Kick Assembler
+The following tools are used to develop T-Rex 64. 
+Some of them are needed to work with certain source files. 
+The build system itself including Kick Assembler requires Java version 11 or newer.
+
+* [Charpad](https://subchristsoftware.itch.io/charpad-pro)
+* [Spritepad](https://subchristsoftware.itch.io/spritepad-pro)
+* [Goat Tracker](https://sourceforge.net/projects/goattracker2/)
+* [Kick Assembler](http://theweb.dk/KickAssembler/Main.html#frontpage)
+* [C64 Debugger](https://sourceforge.net/projects/c64-debugger/)
 * [Gradle Retro Assembler Plugin](https://c64lib.github.io/gradle-retro-assembler-plugin/)
