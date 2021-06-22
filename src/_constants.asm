@@ -5,8 +5,8 @@
 .label INVINCIBLE = 0
 
 // scoring
-.label SCORE_FOR_PROGRESS_DELAY = 50
-.label SCORE_FOR_PROGRESS = $0025
+.label SCORE_FOR_PROGRESS_DELAY = 5
+.label SCORE_FOR_PROGRESS = $0001
 
 // ---- game state constants ----
 .label GAME_STATE_LIVE = 1

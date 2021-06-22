@@ -235,16 +235,16 @@ checkNewHiScore: {
 updateScore: {
 
   // compare with last saved position
+  lda z_hiScoreMark + 1
+  cmp z_x + 1
+  bcc doScore
+  bne dontScore
   lda z_hiScoreMark
   cmp z_x
-  lda z_hiScoreMark + 1
-  sbc z_x + 1
-  bvc !+
-  eor #$80
-  !:
-  bmi !+
+  bcc doScore
+  dontScore:
     rts
-  !:
+  doScore:
   // do the score
   lda z_scoreDelay
   bne !+
@@ -256,6 +256,7 @@ updateScore: {
   !:
   rts
 }
+
 addScore: { addScore(); rts }
 
 // ---- General configuration ----
