@@ -5,7 +5,7 @@
 
 .filenamespace c64lib
 
-.var music = LoadSid("music/trex2.sid")
+.var music = LoadSid("music/trex.sid")
 
 .label musicLocation = music.location
 .label musicSize = music.size
