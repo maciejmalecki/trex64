@@ -128,7 +128,6 @@ startEndGameScreenCopper: {
 _copperListStart:
 // here we define layout of raster interrupt handlers
 ingameCopperList:
-  hScroll:
     // play music
     copperEntry(24, IRQH_JSR, <playMusic, >playMusic)
     copperEntry(DASHBOARD_Y + 20, IRQH_JSR, <upperMultiplex, >upperMultiplex)
