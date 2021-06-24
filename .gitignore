@@ -26,3 +26,4 @@ gradle-app.setting
 # IDE and tool files
 .idea
 .ra
+.vscode
