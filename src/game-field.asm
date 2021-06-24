@@ -323,6 +323,8 @@ initLevel: {
   lda #0
   sta z_yPos
   sta z_jumpFrame
+  sta z_jumpPhase
+  sta z_jumpLinear
 
   // set key mode to 0
   lda #$00

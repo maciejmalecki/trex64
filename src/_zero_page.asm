@@ -41,7 +41,7 @@
 .label z_acc0 = 15            // $0F
 
 .label z_startingLevel = 16   // $10
-.label z_mode = 17            // $11
+.label z_mode = 17            // $11; 0 - no jumping, 1 - jumping
 .label z_delay = 18           // $12
 // keyboard handling
 .label z_previousKeys = 19    // $13
@@ -74,7 +74,7 @@
 .label z_sfxChannel = 47      // $2F
 
 // jump handling
-.label z_jumpPhase = 48       // $30
+.label z_jumpPhase = 48       // $30; 0 - going up, 1 - peak, 2 - falling down
 .label z_jumpLinear = 49      // $31
 .label z_scrollingMark = 50   // $32
 
