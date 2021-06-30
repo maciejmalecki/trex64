@@ -181,6 +181,7 @@ doIngame: {
     lda #1
     sta z_doGameOver
     wait #255
+    wait #80
     // hack to fix #54
     lda #GAME_STATE_GAME_OVER
     sta z_gameState
