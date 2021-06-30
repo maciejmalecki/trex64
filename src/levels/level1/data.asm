@@ -132,6 +132,10 @@ _map4Actors:
 // level 1-5
 _map5: .fill _map5Data.getSize(), _map5Data.get(i)
 _map5Actors:
+  actorDef(c64lib.EN_VOGEL, 30, 76, $70, WHITE)
+  actorDef(c64lib.EN_SCORPIO, 60, 182, $50, BLACK)
+  actorDef(c64lib.EN_VOGEL, 75, 140, $70, WHITE)
+  actorDef(c64lib.EN_SNAKE, 90, 182, $50, LIGHT_GREEN)
   actorDefEnd()
 _colors: .fill _tileColorsData.getSize(), _tileColorsData.get(i)
 _tiles:
