@@ -1,3 +1,26 @@
+/*
+  MIT License
+  
+  Copyright (c) 2021 Maciej Malecki
+  
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+  
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+  
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+*/
 #import "text/lib/tiles-2x2.asm"
 #import "copper64/lib/copper64.asm"
 
@@ -81,7 +104,6 @@ rotateColors: {
     lda #TITLE_COLOR_CYCLE_DELAY
     sta z_colorCycleDelay
     rotateMemRightFast(COLOR_RAM + 40*(AUTHOR_TOP), 40)
-    rotateMemRightFast(COLOR_RAM + 40*(AUTHOR_TOP + 2), 40)
   next:
   rts
 }
@@ -129,15 +151,14 @@ startEndGameScreenCopper: {
 _copperListStart:
 // here we define layout of raster interrupt handlers
 ingameCopperList:
-  hScroll:
     // play music
-    copperEntry(0, IRQH_JSR, <playMusic, >playMusic)
+    copperEntry(32, IRQH_JSR, <playMusic, >playMusic)
     copperEntry(DASHBOARD_Y + 20, IRQH_JSR, <upperMultiplex, >upperMultiplex)
   scrollCode:
     // here we do the actual scrolling
     copperEntry(88, IRQH_JSR, <scrollBackground, >scrollBackground)
     // here we do the page switching when it's time for this
-    copperEntry(260, IRQH_JSR, <switchPages, >switchPages)
+    copperEntry(288, IRQH_JSR, <switchPages, >switchPages)
     // here we loop and so on, so on, for each frame
     copperLoop()
 
@@ -145,9 +166,9 @@ titleScreenCopperList:
       copperEntry(10, IRQH_JSR, <playMusic, >playMusic)
       copperEntry(80, IRQH_JSR, <scrollColorCycle2, >scrollColorCycle2)
     fadeEffectColor:
-      copperEntry(174, IRQH_BG_COL_0, BLACK, 0)
+      copperEntry(166, IRQH_BG_COL_0, BLACK, 0)
       copperEntry(190, IRQH_JSR, <rotateColors, >rotateColors)
-      copperEntry(214, IRQH_BG_COL_0, BLACK, 0)
+      copperEntry(206, IRQH_BG_COL_0, BLACK, 0)
       copperEntry(236, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
       copperEntry(250, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
       copperEntry(270, IRQH_JSR, <handleCredits, >handleCredits)
@@ -302,6 +323,8 @@ initLevel: {
   lda #0
   sta z_yPos
   sta z_jumpFrame
+  sta z_jumpPhase
+  sta z_jumpLinear
 
   // set key mode to 0
   lda #$00
@@ -934,7 +957,15 @@ handleCredits: {
   bne !+
     jmp displayPage4
   !:
-  jmp displayPage5
+  cmp #$50
+  bne !+
+    jmp displayPage5
+  !:
+  cmp #$60
+  bne !+
+    jmp displayPage6
+  !:
+  jmp displayPage7
 
   // -----------------------
   displayPage0: {
@@ -944,32 +975,43 @@ handleCredits: {
   }
   displayPage1: {
     jsr clearCredits
-    pushParamW(txt_page_1_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 1) + 16); jsr outText
-    pushParamW(txt_page_1_1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 3) + 16); jsr outText
+    pushParamW(txt_page_1_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 11); jsr outText
     jmp initFadeIn
   }
   displayPage2: {
     jsr clearCredits
-    pushParamW(txt_page_2_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 1) + 5); jsr outText
-    pushParamW(txt_page_2_1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 5) ; jsr outText
-    pushParamW(txt_page_2_2); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 3) + 5); jsr outText
+    pushParamW(txt_page_2_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 1) + 15); jsr outText
+    pushParamW(txt_page_2_1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 3) + 16); jsr outText
     jmp initFadeIn
   }
   displayPage3: {
     jsr clearCredits
-    pushParamW(txt_page_3_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 5); jsr outText
+    pushParamW(txt_page_3_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 3); jsr outText
     jmp initFadeIn
   }
   displayPage4: {
     jsr clearCredits
-    pushParamW(txt_page_4_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 5); jsr outText
+    pushParamW(txt_page_4_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 0) + 7); jsr outText
+    pushParamW(txt_page_4_1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 18) ; jsr outText
+    pushParamW(txt_page_4_2); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 4) + 18); jsr outText
     jmp initFadeIn
   }
   displayPage5: {
     jsr clearCredits
-    pushParamW(txt_page_5_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 1)); jsr outText
-    pushParamW(txt_page_5_1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2)) ; jsr outText
-    pushParamW(txt_page_5_2); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 3)); jsr outText
+    pushParamW(txt_page_5_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 1) + 6); jsr outText
+    pushParamW(txt_page_5_1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 3) + 6); jsr outText
+    jmp initFadeIn
+  }
+  displayPage6: {
+    jsr clearCredits
+    pushParamW(txt_page_6_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 10); jsr outText
+    jmp initFadeIn
+  }
+  displayPage7: {
+    jsr clearCredits
+    pushParamW(txt_page_7_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP) + 13); jsr outText
+    pushParamW(txt_page_7_1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2)) ; jsr outText
+    pushParamW(txt_page_7_2); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 4)); jsr outText
     jmp initFadeIn
   }
   initFadeIn: {

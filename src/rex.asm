@@ -1,3 +1,27 @@
+/*
+  MIT License
+  
+  Copyright (c) 2021 Maciej Malecki
+  
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+  
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+  
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+*/
+
 //#define VISUAL_DEBUG
 #import "common/lib/common.asm"
 #import "common/lib/mem.asm"
@@ -157,6 +181,7 @@ doIngame: {
     lda #1
     sta z_doGameOver
     wait #255
+    wait #80
     // hack to fix #54
     lda #GAME_STATE_GAME_OVER
     sta z_gameState
@@ -235,16 +260,16 @@ checkNewHiScore: {
 updateScore: {
 
   // compare with last saved position
+  lda z_hiScoreMark + 1
+  cmp z_x + 1
+  bcc doScore
+  bne dontScore
   lda z_hiScoreMark
   cmp z_x
-  lda z_hiScoreMark + 1
-  sbc z_x + 1
-  bvc !+
-  eor #$80
-  !:
-  bmi !+
+  bcc doScore
+  dontScore:
     rts
-  !:
+  doScore:
   // do the score
   lda z_scoreDelay
   bne !+
@@ -256,6 +281,7 @@ updateScore: {
   !:
   rts
 }
+
 addScore: { addScore(); rts }
 
 // ---- General configuration ----
@@ -269,11 +295,6 @@ cfg_configureC64: {
 }
 
 unpackData: {
-  // copy chargen
-  pushParamW(beginOfChargen)
-  pushParamW(CHARGEN_ADDR)
-  pushParamW(endOfChargen - beginOfChargen)
-  jsr copyLargeMemForward
   // copy sprites
   pushParamW(beginOfSprites)
   pushParamW(SPRITE_ADDR)
@@ -326,7 +347,7 @@ nextLevel: {
   // cmp #2
   world1:
     lda z_levelCounter
-    cmp #3
+    cmp #5
     beq level1_end
       inc z_levelCounter
       jmp end
@@ -353,7 +374,7 @@ nextLevel: {
   sei
   configureMemory(RAM_RAM_RAM)
   pushParamW(levelCfg.CHARSET_ADDRESS)
-  pushParamW(CHARGEN_ADDR + (endOfChargen - beginOfChargen))
+  pushParamW(CHARGEN_ADDR)
   pushParamW(levelCfg.CHARSET_SIZE*8)
   jsr copyLargeMemForward
   configureMemory(RAM_IO_RAM)
@@ -441,6 +462,10 @@ setUpMap: {
     beq level1_2
     cmp #3
     beq level1_3
+    cmp #4
+    beq level1_4
+    cmp #5
+    beq level1_5
     level1_1:
       jsr setUpMap1_1
       jmp end
@@ -449,6 +474,12 @@ setUpMap: {
       jmp end
     level1_3:
       jsr setUpMap1_3
+      jmp end
+    level1_4:
+      jsr setUpMap1_4
+      jmp end
+    level1_5:
+      jsr setUpMap1_5
       jmp end
   world2:
     jmp end
@@ -460,6 +491,8 @@ setUpMap: {
 setUpMap1_1: setUpMap(level1.MAP_1_ADDRESS, level1.MAP_1_WIDTH, level1.MAP_1_DELTA_X, level1.MAP_1_WRAPPING_MARK, level1.MAP_1_SCROLLING_MARK, level1.MAP_1_OBSTACLES_MARK, level1.MAP_1_ACTORS)
 setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH, level1.MAP_2_DELTA_X, level1.MAP_2_WRAPPING_MARK, level1.MAP_2_SCROLLING_MARK, level1.MAP_2_OBSTACLES_MARK, level1.MAP_2_ACTORS)
 setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DELTA_X, level1.MAP_3_WRAPPING_MARK, level1.MAP_3_SCROLLING_MARK, level1.MAP_3_OBSTACLES_MARK, level1.MAP_3_ACTORS)
+setUpMap1_4: setUpMap(level1.MAP_4_ADDRESS, level1.MAP_4_WIDTH, level1.MAP_4_DELTA_X, level1.MAP_4_WRAPPING_MARK, level1.MAP_4_SCROLLING_MARK, level1.MAP_4_OBSTACLES_MARK, level1.MAP_4_ACTORS)
+setUpMap1_5: setUpMap(level1.MAP_5_ADDRESS, level1.MAP_5_WIDTH, level1.MAP_5_DELTA_X, level1.MAP_5_WRAPPING_MARK, level1.MAP_5_SCROLLING_MARK, level1.MAP_5_OBSTACLES_MARK, level1.MAP_5_ACTORS)
 
 // ---- END: level handling ----
 

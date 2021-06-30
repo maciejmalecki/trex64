@@ -1,3 +1,26 @@
+/*
+    MIT License
+    
+    Copyright (c) 2021 Maciej Malecki
+    
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+    
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+*/
 #importonce
 .filenamespace c64lib
 
@@ -5,8 +28,8 @@
 .label INVINCIBLE = 0
 
 // scoring
-.label SCORE_FOR_PROGRESS_DELAY = 50
-.label SCORE_FOR_PROGRESS = $0025
+.label SCORE_FOR_PROGRESS_DELAY = 5
+.label SCORE_FOR_PROGRESS = $0001
 
 // ---- game state constants ----
 .label GAME_STATE_LIVE = 1
@@ -46,7 +69,7 @@
 // title screen layout
 .label LOGO_TOP = 1
 .label AUTHOR_TOP = 12
-.label CREDITS_TOP = 16
+.label CREDITS_TOP = 15
 .label CREDITS_SIZE = 5
 .label MENU_TOP = 22
 
@@ -59,7 +82,7 @@
 .label CREDITS_PAGE_2 = $30
 .label CREDITS_FADE_DELAY = 4
 .label CREDITS_PAGE_DISPLAY_TIME = 200
-.label CREDITS_LAST = $60 // -$10
+.label CREDITS_LAST = $80 // -$10
 
 // ---- misc ----
 .label MAX_DELAY = 10
@@ -83,3 +106,5 @@
 .label KEY_SPACE = %00010000
 .label KEY_COMMODORE = %00100000
 .label KEY_INGAME_MASK = KEY_SPACE + KEY_COMMODORE
+// max level in level selection
+.label MAX_LEVEL = 5

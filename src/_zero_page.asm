@@ -1,3 +1,26 @@
+/*
+  MIT License
+  
+  Copyright (c) 2021 Maciej Malecki
+  
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+  
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+  
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+*/
 #importonce
 .filenamespace c64lib
 
@@ -18,7 +41,7 @@
 .label z_acc0 = 15            // $0F
 
 .label z_startingLevel = 16   // $10
-.label z_mode = 17            // $11
+.label z_mode = 17            // $11; 0 - no jumping, 1 - jumping
 .label z_delay = 18           // $12
 // keyboard handling
 .label z_previousKeys = 19    // $13
@@ -51,7 +74,7 @@
 .label z_sfxChannel = 47      // $2F
 
 // jump handling
-.label z_jumpPhase = 48       // $30
+.label z_jumpPhase = 48       // $30; 0 - going up, 1 - peak, 2 - falling down
 .label z_jumpLinear = 49      // $31
 .label z_scrollingMark = 50   // $32
 

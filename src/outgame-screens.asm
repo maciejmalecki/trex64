@@ -1,3 +1,26 @@
+/*
+  MIT License
+
+  Copyright (c) 2021 Maciej Malecki
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+*/
 #import "chipset/lib/mos6510.asm"
 
 #import "_segments.asm"
@@ -33,6 +56,8 @@ configureTitleVic2: {
   and #%11110000
   ora #%00001000
   sta CONTROL_1
+  
+  jsr unpackChargen
   // copy inversed charset
   sei
   configureMemory(RAM_RAM_RAM)
@@ -186,7 +211,7 @@ toggleSound: {
 toggleLevel: {
   inc z_startingLevel
   lda z_startingLevel
-  cmp #4
+  cmp #(MAX_LEVEL + 1)
   bne !+
     lda #1
     sta z_startingLevel
@@ -216,24 +241,8 @@ prepareTitleScreen: {
     nextChar:
       ldx #(endOfAuthorColorRainbow - beginOfAuthorColorRainbow)
       nextColor:
-        lda beginOfAuthorColorRainbow - 1, x
-        sta COLOR_RAM + (40*AUTHOR_TOP), y
-        iny
-        cpy #40
-        beq end
-        dex
-      bne nextColor
-    jmp nextChar
-    end:
-  }
-
-  {
-    ldy #0
-    nextChar:
-      ldx #(endOfAuthor2ColorRainbow - beginOfAuthor2ColorRainbow)
-      nextColor:
         lda beginOfAuthor2ColorRainbow - 1, x
-        sta COLOR_RAM + (40*(AUTHOR_TOP + 2)), y
+        sta COLOR_RAM + (40*AUTHOR_TOP), y
         iny
         cpy #40
         beq end
@@ -250,10 +259,6 @@ prepareTitleScreen: {
 
   pushParamW(txt_author)
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*AUTHOR_TOP)
-  jsr outText
-
-  pushParamW(txt_originalConcept)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*(AUTHOR_TOP + 2) + 4)
   jsr outText
 
   pushParamW(COLOR_RAM + 40*MENU_TOP); lda #WHITE; ldx #40; jsr fillMem
