@@ -1,7 +1,7 @@
 import com.github.c64lib.retroassembler.domain.AssemblerType
 
 plugins {
-    id("com.github.c64lib.retro-assembler") version "1.2.0"
+    id("com.github.c64lib.retro-assembler") version "1.3.0"
 }
 
 repositories {
@@ -11,7 +11,7 @@ repositories {
 retroProject {
     dialect = AssemblerType.KickAssembler
     dialectVersion = "5.20"
-    libDirs = arrayOf(".ra/deps/c64lib", "build/charpad")
+    libDirs = arrayOf(".ra/deps/c64lib", "build/charpad", "build/spritepad")
 
     libFromGitHub("c64lib/common", "develop")
     libFromGitHub("c64lib/chipset", "develop")
@@ -116,5 +116,60 @@ preprocess {
               }
             }
         }
+    }
+    // sprites
+    spritepad {
+      getInput().set(file("src/sprites/dashboard.spd"))
+      getUseBuildDir().set(true)
+      outputs {
+        sprites {
+          output = file("dashboard.bin")
+        }
+      }
+    }
+    spritepad {
+      getInput().set(file("src/sprites/dino.spd"))
+      getUseBuildDir().set(true)
+      outputs {
+        sprites {
+          output = file("dino.bin")
+        }
+      }
+    }
+    spritepad {
+      getInput().set(file("src/sprites/game-over.spd"))
+      getUseBuildDir().set(true)
+      outputs {
+        sprites {
+          output = file("game-over.bin")
+        }
+      }
+    }
+    spritepad {
+      getInput().set(file("src/sprites/scorpio.spd"))
+      getUseBuildDir().set(true)
+      outputs {
+        sprites {
+          output = file("scorpio.bin")
+        }
+      }
+    }
+    spritepad {
+      getInput().set(file("src/sprites/snake.spd"))
+      getUseBuildDir().set(true)
+      outputs {
+        sprites {
+          output = file("snake.bin")
+        }
+      }
+    }
+    spritepad {
+      getInput().set(file("src/sprites/vogel.spd"))
+      getUseBuildDir().set(true)
+      outputs {
+        sprites {
+          output = file("vogel.bin")
+        }
+      }
     }
 }

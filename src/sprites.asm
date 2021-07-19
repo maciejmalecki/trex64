@@ -305,17 +305,17 @@ spr_hidePlayers: {
 .segment Sprites
 beginOfSprites:
   _b_dino:
-  .import binary "sprites/dino.bin"
+  .import binary "dino.bin"
   _b_gameOver:
-  .import binary "sprites/game-over.bin"
+  .import binary "game-over.bin"
   _b_vogel:
-  .import binary "sprites/vogel.bin"
+  .import binary "vogel.bin"
   _b_scorpio:
-  .import binary "sprites/scorpio.bin"
+  .import binary "scorpio.bin"
   _b_snake:
-  .import binary "sprites/snake.bin"
+  .import binary "snake.bin"
   _b_dashboard:
-  .import binary "sprites/dashboard.bin"
+  .import binary "dashboard.bin"
   .fill 2*64, 0
 endOfSprites:
 .print "Sprites import size = " + (endOfSprites - beginOfSprites)
