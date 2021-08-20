@@ -1,7 +1,7 @@
 import com.github.c64lib.retroassembler.domain.AssemblerType
 
 plugins {
-    id("com.github.c64lib.retro-assembler") version "1.3.0"
+    id("com.github.c64lib.retro-assembler") version "1.4.0"
 }
 
 repositories {
