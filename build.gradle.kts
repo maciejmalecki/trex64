@@ -1,7 +1,7 @@
 import com.github.c64lib.retroassembler.domain.AssemblerType
 
 plugins {
-    id("com.github.c64lib.retro-assembler") version "1.4.0"
+    id("com.github.c64lib.retro-assembler") version "1.4.3"
 }
 
 repositories {
@@ -10,7 +10,7 @@ repositories {
 
 retroProject {
     dialect = AssemblerType.KickAssembler
-    dialectVersion = "5.20"
+    dialectVersion = "5.21"
     libDirs = arrayOf(".ra/deps/c64lib", "build/charpad", "build/spritepad")
 
     libFromGitHub("c64lib/common", "develop")
@@ -25,6 +25,10 @@ preprocess {
       getInput().set(file("src/charset/charset.ctm"))
       getUseBuildDir().set(true)
       outputs {
+        meta {
+          dialect = AssemblerType.KickAssembler
+          output = file("charset/meta.asm")
+        }
         charset {
           output = file("charset/charset.bin")
         }
@@ -35,6 +39,13 @@ preprocess {
       getInput().set(file("src/charset/game-logo.ctm"))
       getUseBuildDir().set(true)
       outputs {
+        meta {
+          dialect = AssemblerType.KickAssembler
+          includeMode = true
+          namespace = "c64lib"
+          prefix = "logo_"
+          output = file("charset/game-logo-meta.asm")
+        }
         charset {
           output = file("charset/game-logo-chars.bin")
         }
@@ -59,6 +70,10 @@ preprocess {
         getInput().set(file("src/levels/level1/charpad.ctm"))
         getUseBuildDir().set(true)
         outputs {
+            meta {
+              dialect = AssemblerType.KickAssembler
+              output = file("levels/level1/meta.asm")
+            }
             charset {
                 output = file("levels/level1/charset.bin")
             }
