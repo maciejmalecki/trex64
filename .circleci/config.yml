@@ -46,6 +46,7 @@ workflows:
                         only:
                             - master
                             - develop
+                            - preview
                     tags:
                         only:
                             - /^([0-9]+)\.([0-9]+)\.([0-9]+)$/
@@ -55,8 +56,9 @@ workflows:
                         ignore:
                             - master
                             - develop
+                            - preview
                     tags:
                         only:
                             - /^([0-9]+)\.([0-9]+)\.([0-9]+)$/
-                requires: 
+                requires:
                     - build
