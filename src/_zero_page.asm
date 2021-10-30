@@ -100,6 +100,9 @@
 .label z_creditsFadeCtr = 65  // $41
 .label z_creditsDelayCtr = 66 // $42
 
+// materials pointer
+.label z_materialsLo = 67     // $43, $44
+
 // used by sprite multiplexer
 .label z_spritesStashed = 127 // $7F
 .label z_stashArea = 128      // $80

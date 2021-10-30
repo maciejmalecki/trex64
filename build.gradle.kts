@@ -12,6 +12,7 @@ retroProject {
     dialect = AssemblerType.KickAssembler
     dialectVersion = "5.22"
     libDirs = arrayOf(".ra/deps/c64lib", "build/charpad", "build/spritepad")
+    includes = arrayOf("src/rex.asm")
 
     libFromGitHub("c64lib/common", "develop")
     libFromGitHub("c64lib/chipset", "develop")
@@ -73,9 +74,13 @@ preprocess {
             meta {
               dialect = AssemblerType.KickAssembler
               output = file("levels/level1/meta.asm")
+              namespace = "level1"
             }
             charset {
-                output = file("levels/level1/charset.bin")
+              output = file("levels/level1/charset.bin")
+            }
+            charsetMaterials {
+              output = file("levels/level1/materials.bin")
             }
             tiles {
               interleaver {

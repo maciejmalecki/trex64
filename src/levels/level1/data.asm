@@ -1,18 +1,18 @@
 /*
   MIT License
-  
+
   Copyright (c) 2021 Maciej Malecki
-  
+
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
   copies of the Software, and to permit persons to whom the Software is
   furnished to do so, subject to the following conditions:
-  
+
   The above copyright notice and this permission notice shall be included in all
   copies or substantial portions of the Software.
-  
+
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,9 +24,11 @@
 #import "../../_segments.asm"
 #import "../../_constants.asm"
 #import "../../_level-utils.asm"
+#import "levels/level1/meta.asm"
 .filenamespace level1
 
 .var _charsetData = LoadBinary("levels/level1/charset.bin")
+.var _materialsData = LoadBinary("levels/level1/materials.bin")
 .var _tileData = LoadBinary("levels/level1/tiles.bin")
 .var _tileColorsData = LoadBinary("levels/level1/colors.bin")
 .var _map1Data = LoadBinary("levels/level1/map-1.bin")
@@ -54,7 +56,7 @@
 
 .label MAP_3_WIDTH = _map3Data.getSize() / c64lib.MAP_HEIGHT
 .label MAP_3_ADDRESS = _map3
-.label MAP_3_DELTA_X = 1<<5 // x4 (x4 = 1<<6)
+.label MAP_3_DELTA_X = 1<<5 // x2
 .label MAP_3_WRAPPING_MARK = 0
 .label MAP_3_SCROLLING_MARK = 6 // (x4 = 4)
 .label MAP_3_ACTORS = _map3Actors
@@ -62,7 +64,7 @@
 
 .label MAP_4_WIDTH = _map4Data.getSize() / c64lib.MAP_HEIGHT
 .label MAP_4_ADDRESS = _map4
-.label MAP_4_DELTA_X = 1<<5 // x4 (x4 = 1<<6)
+.label MAP_4_DELTA_X = 1<<5 // x2
 .label MAP_4_WRAPPING_MARK = 0
 .label MAP_4_SCROLLING_MARK = 6 // (x4 = 4)
 .label MAP_4_ACTORS = _map4Actors
@@ -78,19 +80,21 @@
 
 .label CHARSET_SIZE = _charsetData.getSize()/8
 .label CHARSET_ADDRESS = _charset
+.label MATERIALS_ADDRESS = _materials
 
 .label TILES_SIZE = _tileData.getSize()/4
 .label TILES_COLORS_ADDRESS = _colors
 .label TILES_ADDRESS = _tiles
 
 .label BORDER_COLOR = 0
-.label BG_COLOR_0 = 11
-.label BG_COLOR_1 = 8
-.label BG_COLOR_2 = 10
+.label BG_COLOR_0 = backgroundColour0
+.label BG_COLOR_1 = backgroundColour1
+.label BG_COLOR_2 = backgroundColour2
 
 // level data
 .segment Charsets
 _charset: .fill _charsetData.getSize(), _charsetData.get(i)
+_materials: .fill _materialsData.getSize(), _materialsData.get(i)
 
 .segment LevelData
 // level 1-1

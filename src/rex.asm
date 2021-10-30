@@ -23,6 +23,8 @@
 */
 
 //#define VISUAL_DEBUG
+#define USE_MATERIAL_BG_COLLISION
+
 #import "common/lib/common.asm"
 #import "common/lib/mem.asm"
 #import "common/lib/invoke.asm"
@@ -391,6 +393,12 @@ nextLevel: {
   pushParamW(tileDefinition)
   pushParamW(levelCfg.TILES_SIZE*4)
   jsr copyLargeMemForward
+
+  // set up materials pointer
+  lda #[<levelCfg.MATERIALS_ADDRESS]
+  sta z_materialsLo
+  lda #[>levelCfg.MATERIALS_ADDRESS]
+  sta z_materialsLo + 1
 
   rts
 }

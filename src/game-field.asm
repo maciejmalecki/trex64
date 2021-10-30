@@ -1,18 +1,18 @@
 /*
   MIT License
-  
+
   Copyright (c) 2021 Maciej Malecki
-  
+
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
   copies of the Software, and to permit persons to whom the Software is
   furnished to do so, subject to the following conditions:
-  
+
   The above copyright notice and this permission notice shall be included in all
   copies or substantial portions of the Software.
-  
+
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,6 +21,7 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
 */
+#import "chipset/lib/vic2.asm"
 #import "text/lib/tiles-2x2.asm"
 #import "copper64/lib/copper64.asm"
 
@@ -87,7 +88,7 @@ stopCopper: {
 }
 
 scrollColorCycle2: {
-  dec z_colorCycleDelay2 
+  dec z_colorCycleDelay2
   bne !+
     lda #COLOR_CYCLE_DELAY
     sta z_colorCycleDelay2
@@ -201,14 +202,14 @@ _copperListEnd:
 .segment Code
 
 .align $100
-tileColors:
-  .fill 256, $0
-mapOffsetsLo:
-  .fill 256, 0
-mapOffsetsHi:
-  .fill 256, 0
-tileDefinition:
-  .fill 256*4, $0
+tileColors:           .fill 256, $0
+mapOffsetsLo:         .fill 256, 0
+mapOffsetsHi:         .fill 256, 0
+tileDefinition:       .fill 256*4, $0
+screen0RowOffsetsLo:  .fill 25, <(SCREEN_PAGE_ADDR_0 + i*40)
+screen0RowOffsetsHi:  .fill 25, >(SCREEN_PAGE_ADDR_0 + i*40)
+screen1RowOffsetsLo:  .fill 25, <(SCREEN_PAGE_ADDR_1 + i*40)
+screen1RowOffsetsHi:  .fill 25, >(SCREEN_PAGE_ADDR_1 + i*40)
 
 .var tilesCfg = Tile2Config()
 .eval tilesCfg.bank = VIC_BANK
@@ -227,49 +228,132 @@ tileDefinition:
 .eval tilesCfg.tileDefinition = tileDefinition
 .eval tilesCfg.lock()
 
-checkBGCollisions: {
-  cld
-  lda #(PLAYER_Y + Y_COLLISION_OFFSET)
-  sec
-  sbc z_yPos
-  lsr
-  lsr
-  lsr
-  lsr
-  tay
-  lda #(PLAYER_X + X_COLLISION_OFFSET)
-  lsr
-  lsr
-  lsr
-  lsr
-  tax
-  decodeTile(tilesCfg)
-  and z_obstaclesMark
-  cmp z_obstaclesMark
-  bne !+
-    lda #GAME_STATE_KILLED
-    .if (INVINCIBLE == 0) {
-      sta z_gameState
-    }
+// material based collision detection
+checkBGCollisions:
+#if USE_MATERIAL_BG_COLLISION
+   {
+    cld
+    lda #(PLAYER_Y + Y_COLLISION_OFFSET)
+    sec
+    sbc z_yPos
+    lsr
+    lsr
+    lsr
+    tay
+    lda #(PLAYER_X + X_COLLISION_OFFSET)
+    lsr
+    lsr
+    lsr
+    tax
+
+    lda z_phase
+    and #PHASE_SHOW_1
+    bne checkPage1
+    checkPage0:
+      lda screen0RowOffsetsLo, y
+      sta checkAddress
+      lda screen0RowOffsetsHi, y
+      sta checkAddress + 1
+      jmp doTheCheckActually
+    checkPage1:
+      lda screen1RowOffsetsLo, y
+      sta checkAddress
+      lda screen1RowOffsetsHi, y
+      sta checkAddress + 1
+    doTheCheckActually:
+      lda checkAddress: $ffff, x // <-- A: intersecting background char code
+      tax
+      tay
+      lda (z_materialsLo), y // <-- A: intersecting materials code
+      cmp #$0e
+    bne !+
+      lda #GAME_STATE_KILLED
+      .if (INVINCIBLE == 0) {
+        sta z_gameState
+      }
+      rts
+    !:
+    txa
+    tay
+    lda #(PLAYER_X + X_COLLISION_OFFSET - 8)
+    lsr
+    lsr
+    lsr
+    tax
+    lda z_phase
+    and #PHASE_SHOW_1
+    bne checkPage12
+    checkPage02:
+      lda screen0RowOffsetsLo, y
+      sta checkAddress2
+      lda screen0RowOffsetsHi, y
+      sta checkAddress2 + 1
+      jmp doTheCheckActually2
+    checkPage12:
+      lda screen1RowOffsetsLo, y
+      sta checkAddress2
+      lda screen1RowOffsetsHi, y
+      sta checkAddress2 + 1
+    doTheCheckActually2:
+      lda checkAddress2: $ffff, x // <-- A: intersecting background char code
+      tay
+      lda (z_materialsLo), y // <-- A: intersecting materials code
+      sta BORDER_COL
+      cmp #$0e
+    bne !+
+      lda #GAME_STATE_KILLED
+      .if (INVINCIBLE == 0) {
+        sta z_gameState
+      }
+    !:
     rts
-  !:
-  lda #(PLAYER_X + X_COLLISION_OFFSET - 8)
-  lsr
-  lsr
-  lsr
-  lsr
-  tax
-  decodeTile(tilesCfg)
-  and z_obstaclesMark
-  cmp z_obstaclesMark
-  bne !+
-    lda #GAME_STATE_KILLED
-    .if (INVINCIBLE == 0) {
-      sta z_gameState
-    }
-  !:
-  rts
-}
+  }
+#else
+  // tile based collision detection
+  {
+    cld
+    lda #(PLAYER_Y + Y_COLLISION_OFFSET)
+    sec
+    sbc z_yPos
+    lsr
+    lsr
+    lsr
+    lsr
+    tay
+    lda #(PLAYER_X + X_COLLISION_OFFSET)
+    lsr
+    lsr
+    lsr
+    lsr
+    tax
+    decodeTile(tilesCfg)
+    and z_obstaclesMark
+    cmp z_obstaclesMark
+    bne !+
+      lda #GAME_STATE_KILLED
+      .if (INVINCIBLE == 0) {
+        sta z_gameState
+      }
+      rts
+    !:
+    lda #(PLAYER_X + X_COLLISION_OFFSET - 8)
+    lsr
+    lsr
+    lsr
+    lsr
+    tax
+    decodeTile(tilesCfg)
+    and z_obstaclesMark
+    cmp z_obstaclesMark
+    bne !+
+      lda #GAME_STATE_KILLED
+      .if (INVINCIBLE == 0) {
+        sta z_gameState
+      }
+    !:
+    rts
+  }
+#endif
 
 checkActorCollisions: {
   lda SPRITE_2S_COLLISION
@@ -940,7 +1024,7 @@ handleCredits: {
   cmp #$00
   bne !+
     jmp displayPage0
-  !:  
+  !:
   cmp #$10
   bne !+
     jmp displayPage1
@@ -1100,9 +1184,9 @@ initCredits: {
 }
 
 clearCredits: {
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*CREDITS_TOP); 
-  lda #(32 + 64); 
-  ldx #(CREDITS_SIZE*40); 
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*CREDITS_TOP);
+  lda #(32 + 64);
+  ldx #(CREDITS_SIZE*40);
   jsr fillMem
   rts
 }
