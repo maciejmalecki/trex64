@@ -1,7 +1,7 @@
 import com.github.c64lib.retroassembler.domain.AssemblerType
 
 plugins {
-    id("com.github.c64lib.retro-assembler") version "1.4.3"
+    id("com.github.c64lib.retro-assembler") version "1.4.5"
 }
 
 repositories {
@@ -10,7 +10,7 @@ repositories {
 
 retroProject {
     dialect = AssemblerType.KickAssembler
-    dialectVersion = "5.21"
+    dialectVersion = "5.22"
     libDirs = arrayOf(".ra/deps/c64lib", "build/charpad", "build/spritepad")
 
     libFromGitHub("c64lib/common", "develop")
