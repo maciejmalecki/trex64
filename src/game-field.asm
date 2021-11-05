@@ -229,9 +229,7 @@ screen1RowOffsetsHi:  .fill 25, >(SCREEN_PAGE_ADDR_1 + i*40)
 .eval tilesCfg.lock()
 
 // material based collision detection
-checkBGCollisions:
-#if USE_MATERIAL_BG_COLLISION
-   {
+checkBGCollisions: {
     cld
     lda #(PLAYER_Y + Y_COLLISION_OFFSET)
     sec
@@ -240,47 +238,66 @@ checkBGCollisions:
     lsr
     lsr
     tay
+    sta storeY
     lda #(PLAYER_X + X_COLLISION_OFFSET)
     lsr
     lsr
     lsr
     tax
-
-    lda z_phase
-    and #PHASE_SHOW_1
-    bne checkPage1
-    checkPage0:
-      lda screen0RowOffsetsLo, y
-      sta checkAddress
-      lda screen0RowOffsetsHi, y
-      sta checkAddress + 1
-      jmp doTheCheckActually
-    checkPage1:
-      lda screen1RowOffsetsLo, y
-      sta checkAddress
-      lda screen1RowOffsetsHi, y
-      sta checkAddress + 1
-    doTheCheckActually:
-      lda checkAddress: $ffff, x // <-- A: intersecting background char code
-      tax
-      tay
-      lda (z_materialsLo), y // <-- A: intersecting materials code
-      cmp #$0e
-    bne !+
-      lda #GAME_STATE_KILLED
-      .if (INVINCIBLE == 0) {
-        sta z_gameState
-      }
+    sta storeX
+    jsr checkBGMaterialCollision
+    beq !+
+    lda #GAME_STATE_KILLED
+    .if (INVINCIBLE == 0) {
+      sta z_gameState
       rts
+    }
     !:
-    txa
-    tay
+    ldy storeY
+    iny
+    ldx storeX
+    jsr checkBGMaterialCollision
+    beq !+
+    lda #GAME_STATE_KILLED
+    .if (INVINCIBLE == 0) {
+      sta z_gameState
+      rts
+    }
+    !:
+
+    ldy storeY
     lda #(PLAYER_X + X_COLLISION_OFFSET - 8)
     lsr
     lsr
     lsr
     tax
-    lda z_phase
+    sta storeX
+    jsr checkBGMaterialCollision
+    beq !+
+    lda #GAME_STATE_KILLED
+    .if (INVINCIBLE == 0) {
+      sta z_gameState
+      rts
+    }
+    !:
+    ldy storeY
+    iny
+    ldx storeX
+    jsr checkBGMaterialCollision
+    beq !+
+    lda #GAME_STATE_KILLED
+    .if (INVINCIBLE == 0) {
+      sta z_gameState
+    }
+    !:
+
+    rts
+    storeX: .byte 0
+    storeY: .byte 0
+}
+
+checkBGMaterialCollision: {
+      lda z_phase
     and #PHASE_SHOW_1
     bne checkPage12
     checkPage02:
@@ -298,62 +315,9 @@ checkBGCollisions:
       lda checkAddress2: $ffff, x // <-- A: intersecting background char code
       tay
       lda (z_materialsLo), y // <-- A: intersecting materials code
-      // sta BORDER_COL
-      cmp #$0e
-    bne !+
-      lda #GAME_STATE_KILLED
-      .if (INVINCIBLE == 0) {
-        sta z_gameState
-      }
-    !:
-    rts
-  }
-#else
-  // tile based collision detection
-  {
-    cld
-    lda #(PLAYER_Y + Y_COLLISION_OFFSET)
-    sec
-    sbc z_yPos
-    lsr
-    lsr
-    lsr
-    lsr
-    tay
-    lda #(PLAYER_X + X_COLLISION_OFFSET)
-    lsr
-    lsr
-    lsr
-    lsr
-    tax
-    decodeTile(tilesCfg)
-    and z_obstaclesMark
-    cmp z_obstaclesMark
-    bne !+
-      lda #GAME_STATE_KILLED
-      .if (INVINCIBLE == 0) {
-        sta z_gameState
-      }
-      rts
-    !:
-    lda #(PLAYER_X + X_COLLISION_OFFSET - 8)
-    lsr
-    lsr
-    lsr
-    lsr
-    tax
-    decodeTile(tilesCfg)
-    and z_obstaclesMark
-    cmp z_obstaclesMark
-    bne !+
-      lda #GAME_STATE_KILLED
-      .if (INVINCIBLE == 0) {
-        sta z_gameState
-      }
-    !:
-    rts
-  }
-#endif
+      and #MAT_KILLS
+  rts
+}
 
 checkActorCollisions: {
   lda SPRITE_2S_COLLISION

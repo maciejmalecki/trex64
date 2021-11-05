@@ -56,6 +56,11 @@
 .label X_COLLISION_OFFSET = 12 - 24
 .label Y_COLLISION_OFFSET = 29 - 50 - 6
 
+// material codes
+.label MAT_KILLS         = %1000
+.label MAT_ANIMATE       = %0100
+.label MAT_ANIMATE_RIGHT = %0010
+
 // ---- dashboard ----
 .label DASHBOARD_Y = 50
 .label DASHBOARD_LEFT_X = 34

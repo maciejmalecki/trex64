@@ -23,7 +23,6 @@
 */
 
 //#define VISUAL_DEBUG
-#define USE_MATERIAL_BG_COLLISION
 
 #import "common/lib/common.asm"
 #import "common/lib/mem.asm"
@@ -54,7 +53,7 @@
 // starting amount of lives
 .label LIVES = 3
 // starting level
-.label STARTING_WORLD = 2
+.label STARTING_WORLD = 1
 .label STARTING_LEVEL = 1
 
 // ---- levels ----
