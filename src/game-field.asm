@@ -298,7 +298,7 @@ checkBGCollisions:
       lda checkAddress2: $ffff, x // <-- A: intersecting background char code
       tay
       lda (z_materialsLo), y // <-- A: intersecting materials code
-      sta BORDER_COL
+      // sta BORDER_COL
       cmp #$0e
     bne !+
       lda #GAME_STATE_KILLED

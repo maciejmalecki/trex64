@@ -66,7 +66,7 @@ preprocess {
         }
       }
     }
-    // level 1
+    // world 1
     charpad {
         getInput().set(file("src/levels/level1/charpad.ctm"))
         getUseBuildDir().set(true)
@@ -131,6 +131,62 @@ preprocess {
               left = 599
               interleaver {
                 output = file("levels/level1/map-5.bin")
+              }
+              interleaver {
+              }
+            }
+        }
+    }
+    // world 2
+    charpad {
+        getInput().set(file("src/levels/level2/charpad.ctm"))
+        getUseBuildDir().set(true)
+        outputs {
+            meta {
+              dialect = AssemblerType.KickAssembler
+              output = file("levels/level2/meta.asm")
+              namespace = "level2"
+            }
+            charset {
+              output = file("levels/level2/charset.bin")
+            }
+            charsetMaterials {
+              output = file("levels/level2/materials.bin")
+            }
+            tiles {
+              interleaver {
+                output = file("levels/level2/tiles.bin")
+              }
+              interleaver {
+              }
+            }
+            tileColours {
+              output = file("levels/level2/colors.bin")
+            }
+            map {
+              right = 169
+              bottom = 12
+              interleaver {
+                output = file("levels/level2/map-1.bin")
+              }
+              interleaver {
+              }
+            }
+            map {
+              right = 169
+              top = 12
+              bottom = 24
+              interleaver {
+                output = file("levels/level2/map-2.bin")
+              }
+              interleaver {
+              }
+            }
+            map {
+              right = 169
+              top = 24
+              interleaver {
+                output = file("levels/level2/map-3.bin")
               }
               interleaver {
               }

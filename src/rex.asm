@@ -1,18 +1,18 @@
 /*
   MIT License
-  
+
   Copyright (c) 2021 Maciej Malecki
-  
+
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
   copies of the Software, and to permit persons to whom the Software is
   furnished to do so, subject to the following conditions:
-  
+
   The above copyright notice and this permission notice shall be included in all
   copies or substantial portions of the Software.
-  
+
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -54,11 +54,12 @@
 // starting amount of lives
 .label LIVES = 3
 // starting level
-.label STARTING_WORLD = 1
+.label STARTING_WORLD = 2
 .label STARTING_LEVEL = 1
 
 // ---- levels ----
 #import "levels/level1/data.asm"
+#import "levels/level2/data.asm"
 
 // -------- Main program ---------
 .segment Code
@@ -88,7 +89,7 @@ start:
     sta z_gameState
     jsr doLevelScreen
   ingame:
-    jsr doIngame 
+    jsr doIngame
     lda z_gameState
     cmp #GAME_STATE_GAME_OVER
     bne levelScreen
@@ -346,7 +347,8 @@ nextLevel: {
 
   lda z_worldCounter
   // cmp #3
-  // cmp #2
+  cmp #2
+  beq world2
   world1:
     lda z_levelCounter
     cmp #5
@@ -354,6 +356,16 @@ nextLevel: {
       inc z_levelCounter
       jmp end
     level1_end:
+      lda #GAME_STATE_GAME_FINISHED
+      sta z_gameState
+      jmp end
+  world2:
+    lda z_levelCounter
+    cmp #3
+    beq level2_end
+      inc z_levelCounter
+      jmp end
+    level2_end:
       lda #GAME_STATE_GAME_FINISHED
       sta z_gameState
       jmp end
@@ -436,6 +448,8 @@ nextLevel: {
 }
 
 setUpWorld1: setUpWorld(level1)
+setUpWorld2: setUpWorld(level2)
+
 /*
  * Mod: A
  */
@@ -449,6 +463,7 @@ setUpWorld: {
     jsr setUpWorld1
     jmp end
   world2:
+    jsr setUpWorld2
     jmp end
   world3:
   end:
@@ -490,7 +505,20 @@ setUpMap: {
       jsr setUpMap1_5
       jmp end
   world2:
-    jmp end
+    lda z_levelCounter
+    cmp #2
+    beq level2_2
+    cmp #3
+    beq level2_3
+    level2_1:
+      jsr setUpMap2_1
+      jmp end
+    level2_2:
+      jsr setUpMap2_2
+      jmp end
+    level2_3:
+      jsr setUpMap2_3
+      jmp end
   world3:
   end:
   rts
@@ -501,6 +529,10 @@ setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH, level1.MAP_2_DEL
 setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DELTA_X, level1.MAP_3_WRAPPING_MARK, level1.MAP_3_SCROLLING_MARK, level1.MAP_3_OBSTACLES_MARK, level1.MAP_3_ACTORS)
 setUpMap1_4: setUpMap(level1.MAP_4_ADDRESS, level1.MAP_4_WIDTH, level1.MAP_4_DELTA_X, level1.MAP_4_WRAPPING_MARK, level1.MAP_4_SCROLLING_MARK, level1.MAP_4_OBSTACLES_MARK, level1.MAP_4_ACTORS)
 setUpMap1_5: setUpMap(level1.MAP_5_ADDRESS, level1.MAP_5_WIDTH, level1.MAP_5_DELTA_X, level1.MAP_5_WRAPPING_MARK, level1.MAP_5_SCROLLING_MARK, level1.MAP_5_OBSTACLES_MARK, level1.MAP_5_ACTORS)
+
+setUpMap2_1: setUpMap(level2.MAP_1_ADDRESS, level2.MAP_1_WIDTH, level2.MAP_1_DELTA_X, level2.MAP_1_WRAPPING_MARK, level2.MAP_1_SCROLLING_MARK, level2.MAP_1_OBSTACLES_MARK, level2.MAP_1_ACTORS)
+setUpMap2_2: setUpMap(level2.MAP_2_ADDRESS, level2.MAP_2_WIDTH, level2.MAP_2_DELTA_X, level2.MAP_2_WRAPPING_MARK, level2.MAP_2_SCROLLING_MARK, level2.MAP_2_OBSTACLES_MARK, level2.MAP_2_ACTORS)
+setUpMap2_3: setUpMap(level2.MAP_3_ADDRESS, level2.MAP_3_WIDTH, level2.MAP_3_DELTA_X, level2.MAP_3_WRAPPING_MARK, level2.MAP_3_SCROLLING_MARK, level2.MAP_3_OBSTACLES_MARK, level2.MAP_3_ACTORS)
 
 // ---- END: level handling ----
 
@@ -548,6 +580,7 @@ endOfTRex:
 .print "speed="+toBinaryString(music.speed)
 .print "startpage="+music.startpage
 .print "pagelength="+music.pagelength
+.print "sfxEnd="+toHexString(sfxEnd)
 .print ""
 .print "Memory summary"
 .print "--------------"
