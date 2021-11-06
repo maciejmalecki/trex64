@@ -103,6 +103,11 @@
 // materials pointer
 .label z_materialsLo = 67     // $43, $44
 
+// animated background elements
+.label z_right_anim_char = 69 // $45, $46
+.label z_bottom_anim_char = 71// $47, $48
+.label z_anim_delay = 73      // $49
+
 // used by sprite multiplexer
 .label z_spritesStashed = 127 // $7F
 .label z_stashArea = 128      // $80

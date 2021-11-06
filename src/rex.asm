@@ -22,10 +22,11 @@
   SOFTWARE.
 */
 
-//#define VISUAL_DEBUG
+#define VISUAL_DEBUG
 
 #import "common/lib/common.asm"
 #import "common/lib/mem.asm"
+#import "common/lib/math.asm"
 #import "common/lib/invoke.asm"
 #import "chipset/lib/sprites.asm"
 #import "chipset/lib/mos6510.asm"
@@ -53,13 +54,35 @@
 // starting amount of lives
 .label LIVES = 3
 // starting level
-.label STARTING_WORLD = 3
+.label STARTING_WORLD = 2
 .label STARTING_LEVEL = 1
 
 // ---- levels ----
 #import "levels/level1/data.asm"
 #import "levels/level2/data.asm"
 #import "levels/level3/data.asm"
+
+// to be moved to c64lib
+
+/*
+ * Multiplies left times right. Target value will be added to the value stored in targetAddr.
+ * Mod: A, X
+ */
+.macro mulAndAdd(left, right, targetAddr) {
+  ldx #right
+  !:
+    clc
+    lda #left
+    adc targetAddr
+    sta targetAddr
+    lda #0
+    adc targetAddr + 1
+    sta targetAddr + 1
+    dex
+  bne !-
+}
+
+// end to be moved to c64lib
 
 // -------- Main program ---------
 .segment Code
@@ -422,6 +445,17 @@ nextLevel: {
   sta z_materialsLo
   lda #[>levelCfg.MATERIALS_ADDRESS]
   sta z_materialsLo + 1
+
+  // set up bg animation
+  lda #<CHARGEN_ADDR
+  sta z_right_anim_char
+  sta z_bottom_anim_char
+  lda #>CHARGEN_ADDR
+  sta z_right_anim_char + 1
+  sta z_bottom_anim_char + 1
+
+  mulAndAdd(levelCfg.RIGHT_ANIM_CHAR, 8, z_right_anim_char)
+  mulAndAdd(levelCfg.BOTTOM_ANIM_CHAR, 8, z_bottom_anim_char)
 
   rts
 }
