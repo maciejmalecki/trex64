@@ -52,13 +52,13 @@
 .label MAP_2_ACTORS = _map2Actors
 .label MAP_2_OBSTACLES_MARK = %11100000
 
-// .label MAP_3_WIDTH = _map3Data.getSize() / c64lib.MAP_HEIGHT
-// .label MAP_3_ADDRESS = _map3
-// .label MAP_3_DELTA_X = 1<<5 // x2
-// .label MAP_3_WRAPPING_MARK = 0
-// .label MAP_3_SCROLLING_MARK = 6 // (x4 = 4)
-// .label MAP_3_ACTORS = _map3Actors
-// .label MAP_3_OBSTACLES_MARK = %11100000
+.label MAP_3_WIDTH = _map3Data.getSize() / c64lib.MAP_HEIGHT
+.label MAP_3_ADDRESS = _map3
+.label MAP_3_DELTA_X = 1<<5 // x2
+.label MAP_3_WRAPPING_MARK = 0
+.label MAP_3_SCROLLING_MARK = 6 // (x4 = 4)
+.label MAP_3_ACTORS = _map3Actors
+.label MAP_3_OBSTACLES_MARK = %11100000
 
 .label CHARSET_SIZE = _charsetData.getSize()/8
 .label CHARSET_ADDRESS = _charset
@@ -96,18 +96,18 @@ _charset: .fill _charsetData.getSize(), _charsetData.get(i)
 _materials: .fill _materialsData.getSize(), _materialsData.get(i)
 
 .segment LevelData
-// level 2-1
+// level 3-1
 _map1: .fill _map1Data.getSize(), _map1Data.get(i)
 _map1Actors:
   actorDefEnd()
-// level 2-2
+// level 3-2
 _map2: .fill _map2Data.getSize(), _map2Data.get(i)
 _map2Actors:
   actorDefEnd()
-// level 2-3
-// _map3: .fill _map3Data.getSize(), _map3Data.get(i)
-// _map3Actors:
-//   actorDefEnd()
+// level 3-3
+_map3: .fill _map3Data.getSize(), _map3Data.get(i)
+_map3Actors:
+  actorDefEnd()
 _colors: .fill _tileColorsData.getSize(), _tileColorsData.get(i)
 _tiles:
   .fill _tileData.getSize() / 4, _tileData.get(i*4)

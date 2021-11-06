@@ -164,7 +164,7 @@ preprocess {
               output = file("levels/level2/colors.bin")
             }
             map {
-              right = 140
+              right = 169
               bottom = 12
               interleaver {
                 output = file("levels/level2/map-1.bin")
@@ -173,7 +173,7 @@ preprocess {
               }
             }
             map {
-              right = 120
+              right = 169
               top = 12
               bottom = 24
               interleaver {
@@ -183,7 +183,7 @@ preprocess {
               }
             }
             map {
-              right = 120
+              right = 169
               top = 24
               interleaver {
                 output = file("levels/level2/map-3.bin")
@@ -220,7 +220,7 @@ preprocess {
               output = file("levels/level3/colors.bin")
             }
             map {
-              right = 120
+              right = 169
               bottom = 12
               interleaver {
                 output = file("levels/level3/map-1.bin")
@@ -229,7 +229,7 @@ preprocess {
               }
             }
             map {
-              right = 120
+              right = 169
               top = 12
               bottom = 24
               interleaver {
@@ -239,7 +239,7 @@ preprocess {
               }
             }
             map {
-              right = 120
+              right = 169
               top = 24
               interleaver {
                 output = file("levels/level3/map-3.bin")

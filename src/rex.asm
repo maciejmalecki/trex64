@@ -555,12 +555,14 @@ setUpMap2_3: setUpMap(level2.MAP_3_ADDRESS, level2.MAP_3_WIDTH, level2.MAP_3_DEL
 .segment Music
 endOfTRex:
 
-.assert "Code and music overlap", sfxEnd <= music.location, true
 
 // print memory map summary
 .print "header="+music.header
 .macro memSummary(name, address) {
-.print name + " = " + address + " ($" + toHexString(address, 4) + ")"
+  .print name + " = " + address + " ($" + toHexString(address, 4) + ")"
+}
+.macro memSummaryWithSize(name, address, size) {
+  .print name + " = $" + toHexString(address, 4) + " - $" + toHexString(address + size - 1, 4) + " (" + size + " bytes)"
 }
 
 .print "copyright="+music.copyright
@@ -584,17 +586,26 @@ endOfTRex:
 .print ""
 .print "Memory summary"
 .print "--------------"
-memSummary("        total size", (endOfTRex - start))
-memSummary("       tile colors", tileColors)
-memSummary("      mapOffsetsLo", mapOffsetsLo)
-memSummary("      mapOffsetsHi", mapOffsetsHi)
+memSummaryWithSize("    total PRG size", start, endOfTRex - start)
+memSummaryWithSize("PRG size w/o music", start, sfxEnd - start)
 
-memSummary("tiles definition 0", tileDefinition)
+memSummaryWithSize("      video page 0", SCREEN_PAGE_ADDR_0, 1024)
+memSummaryWithSize("      video page 1", SCREEN_PAGE_ADDR_1, 1024)
+memSummaryWithSize("     level chargen", CHARGEN_ADDR, 2048)
+memSummaryWithSize("           sprites", SPRITE_ADDR, endOfSprites - beginOfSprites)
 
-memSummary("SCREEN_PAGE_ADDR_0", SCREEN_PAGE_ADDR_0)
-memSummary("SCREEN_PAGE_ADDR_1", SCREEN_PAGE_ADDR_1)
-memSummary("      CHARGEN_ADDR", CHARGEN_ADDR)
-memSummary("       SPRITE_ADDR", SPRITE_ADDR)
 
-memSummary("TITLE SCR ATTR ST:", beginOfTitleAttr)
-memSummary("TITLE SCR MAP ST: ", beginOfTitleMap)
+memSummaryWithSize("       tile colors", tileColors, 256)
+memSummaryWithSize("      mapOffsetsLo", mapOffsetsLo, 256)
+memSummaryWithSize("      mapOffsetsHi", mapOffsetsHi, 256)
+memSummaryWithSize("  tiles definition", tileDefinition, 4*256)
+
+memSummaryWithSize(" music player&data", music.init, music.size)
+
+.print " free memory in low bank left: " + (SCREEN_PAGE_ADDR_0 - sfxEnd) + " bytes"
+.print "free memory in high bank left: " + ($FFFF - 6 - (music.init + music.size)) + " bytes"
+
+.print "= Asserts: ="
+.assert "Code and video ram does not overlap", sfxEnd <= SCREEN_PAGE_ADDR_0, true
+.assert "Sprites and tiles data does not overlap", tileColors >= SPRITE_ADDR + endOfSprites - beginOfSprites, true
+

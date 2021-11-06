@@ -207,16 +207,18 @@ _copperListEnd:
 // ---- Scrollable background handling ----
 
 .segment Code
-
-.align $100
-tileColors:           .fill 256, $0
-mapOffsetsLo:         .fill 256, 0
-mapOffsetsHi:         .fill 256, 0
-tileDefinition:       .fill 256*4, $0
 screen0RowOffsetsLo:  .fill 25, <(SCREEN_PAGE_ADDR_0 + i*40)
 screen0RowOffsetsHi:  .fill 25, >(SCREEN_PAGE_ADDR_0 + i*40)
 screen1RowOffsetsLo:  .fill 25, <(SCREEN_PAGE_ADDR_1 + i*40)
 screen1RowOffsetsHi:  .fill 25, >(SCREEN_PAGE_ADDR_1 + i*40)
+
+.label FREE_MEMORY_START = SPRITE_ADDR
+
+//.align $100
+.label tileColors = FREE_MEMORY_START + 2752
+.label mapOffsetsLo = tileColors + 256
+.label mapOffsetsHi = mapOffsetsLo + 256
+.label tileDefinition = mapOffsetsHi + 256
 
 .var tilesCfg = Tile2Config()
 .eval tilesCfg.bank = VIC_BANK
