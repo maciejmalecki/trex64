@@ -59,6 +59,7 @@
 // ---- levels ----
 #import "levels/level1/data.asm"
 #import "levels/level2/data.asm"
+#import "levels/level3/data.asm"
 
 // -------- Main program ---------
 .segment Code
@@ -597,11 +598,3 @@ memSummary("       SPRITE_ADDR", SPRITE_ADDR)
 
 memSummary("TITLE SCR ATTR ST:", beginOfTitleAttr)
 memSummary("TITLE SCR MAP ST: ", beginOfTitleMap)
-
-.print ""
-.print "BREAKPOINTS"
-.print "-----------"
-.print "inGame.brkInGame = $" + toHexString(doIngame.mainMapLoop, 4)
-.print "scrollBackground = $" + toHexString(scrollBackground, 4)
-.print "  scrollColorRAM = $" + toHexString(scrollColorRam, 4)
-.print "     switchPages = $" + toHexString(switchPages, 4)

@@ -164,7 +164,7 @@ preprocess {
               output = file("levels/level2/colors.bin")
             }
             map {
-              right = 169
+              right = 140
               bottom = 12
               interleaver {
                 output = file("levels/level2/map-1.bin")
@@ -173,7 +173,7 @@ preprocess {
               }
             }
             map {
-              right = 169
+              right = 120
               top = 12
               bottom = 24
               interleaver {
@@ -183,10 +183,66 @@ preprocess {
               }
             }
             map {
-              right = 169
+              right = 120
               top = 24
               interleaver {
                 output = file("levels/level2/map-3.bin")
+              }
+              interleaver {
+              }
+            }
+        }
+    }
+    // world 3
+    charpad {
+        getInput().set(file("src/levels/level3/charpad.ctm"))
+        getUseBuildDir().set(true)
+        outputs {
+            meta {
+              dialect = AssemblerType.KickAssembler
+              output = file("levels/level3/meta.asm")
+              namespace = "level3"
+            }
+            charset {
+              output = file("levels/level3/charset.bin")
+            }
+            charsetMaterials {
+              output = file("levels/level3/materials.bin")
+            }
+            tiles {
+              interleaver {
+                output = file("levels/level3/tiles.bin")
+              }
+              interleaver {
+              }
+            }
+            tileColours {
+              output = file("levels/level3/colors.bin")
+            }
+            map {
+              right = 120
+              bottom = 12
+              interleaver {
+                output = file("levels/level3/map-1.bin")
+              }
+              interleaver {
+              }
+            }
+            map {
+              right = 120
+              top = 12
+              bottom = 24
+              interleaver {
+                output = file("levels/level3/map-2.bin")
+              }
+              interleaver {
+              }
+            }
+            map {
+              right = 120
+              top = 24
+              interleaver {
+                output = file("levels/level3/map-3.bin")
               }
               interleaver {
               }
