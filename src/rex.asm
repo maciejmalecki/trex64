@@ -53,7 +53,7 @@
 // starting amount of lives
 .label LIVES = 3
 // starting level
-.label STARTING_WORLD = 2
+.label STARTING_WORLD = 3
 .label STARTING_LEVEL = 1
 
 // ---- levels ----
@@ -340,13 +340,15 @@ prepareIngameScreen: {
 
 // ---- level handling ----
 nextLevel: {
+  // TODO world transition
   // zero hi-score counter
   lda #0
   sta z_hiScoreMark
   sta z_hiScoreMark + 1
 
   lda z_worldCounter
-  // cmp #3
+  cmp #3
+  beq world3
   cmp #2
   beq world2
   world1:
@@ -369,8 +371,17 @@ nextLevel: {
       lda #GAME_STATE_GAME_FINISHED
       sta z_gameState
       jmp end
-  rts
+  world3:
+    lda z_levelCounter
+    cmp #3
+    beq level3_end
+      inc z_levelCounter
+      jmp end
+    level3_end:
+      lda #GAME_STATE_GAME_FINISHED
+      sta z_gameState
   end:
+  rts
 }
 
 .macro setUpWorld(levelCfg) {
@@ -449,6 +460,7 @@ nextLevel: {
 
 setUpWorld1: setUpWorld(level1)
 setUpWorld2: setUpWorld(level2)
+setUpWorld3: setUpWorld(level3)
 
 /*
  * Mod: A
@@ -466,6 +478,7 @@ setUpWorld: {
     jsr setUpWorld2
     jmp end
   world3:
+    jsr setUpWorld3
   end:
   rts
 }
@@ -520,6 +533,19 @@ setUpMap: {
       jsr setUpMap2_3
       jmp end
   world3:
+    lda z_levelCounter
+    cmp #2
+    beq level3_2
+    cmp #3
+    beq level3_3
+    level3_1:
+      jsr setUpMap3_1
+      jmp end
+    level3_2:
+      jsr setUpMap3_2
+      jmp end
+    level3_3:
+      jsr setUpMap3_3
   end:
   rts
 }
@@ -534,6 +560,9 @@ setUpMap2_1: setUpMap(level2.MAP_1_ADDRESS, level2.MAP_1_WIDTH, level2.MAP_1_DEL
 setUpMap2_2: setUpMap(level2.MAP_2_ADDRESS, level2.MAP_2_WIDTH, level2.MAP_2_DELTA_X, level2.MAP_2_WRAPPING_MARK, level2.MAP_2_SCROLLING_MARK, level2.MAP_2_OBSTACLES_MARK, level2.MAP_2_ACTORS)
 setUpMap2_3: setUpMap(level2.MAP_3_ADDRESS, level2.MAP_3_WIDTH, level2.MAP_3_DELTA_X, level2.MAP_3_WRAPPING_MARK, level2.MAP_3_SCROLLING_MARK, level2.MAP_3_OBSTACLES_MARK, level2.MAP_3_ACTORS)
 
+setUpMap3_1: setUpMap(level3.MAP_1_ADDRESS, level3.MAP_1_WIDTH, level3.MAP_1_DELTA_X, level3.MAP_1_WRAPPING_MARK, level3.MAP_1_SCROLLING_MARK, level3.MAP_1_OBSTACLES_MARK, level3.MAP_1_ACTORS)
+setUpMap3_2: setUpMap(level3.MAP_2_ADDRESS, level3.MAP_2_WIDTH, level3.MAP_2_DELTA_X, level3.MAP_2_WRAPPING_MARK, level3.MAP_2_SCROLLING_MARK, level3.MAP_2_OBSTACLES_MARK, level3.MAP_2_ACTORS)
+setUpMap3_3: setUpMap(level3.MAP_3_ADDRESS, level3.MAP_3_WIDTH, level3.MAP_3_DELTA_X, level3.MAP_3_WRAPPING_MARK, level3.MAP_3_SCROLLING_MARK, level3.MAP_3_OBSTACLES_MARK, level3.MAP_3_ACTORS)
 // ---- END: level handling ----
 
 // ---- import modules ----
