@@ -91,6 +91,23 @@
 .label BG_COLOR_1 = backgroundColour1
 .label BG_COLOR_2 = backgroundColour2
 
+// find animations
+.var _rightAnim = 0
+.var _bottomAnim = 255;
+.for (var i = 0; i < _materialsData.getSize(); i++) {
+  .var material = _materialsData.get(i)
+  .if ((material & 4) == 4) {
+    .if ((material & 2) == 2) {
+      .eval _rightAnim = i
+    } else {
+      .eval _bottomAnim = i
+    }
+  }
+}
+
+.label RIGHT_ANIM_CHAR = _rightAnim
+.label BOTTOM_ANIM_CHAR = _bottomAnim
+
 // level data
 .segment Charsets
 _charset: .fill _charsetData.getSize(), _charsetData.get(i)

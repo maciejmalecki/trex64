@@ -146,6 +146,13 @@ startEndGameScreenCopper: {
   jsr startCopper
   rts
 }
+
+playMusicAndAnimate: {
+  jsr playMusic
+  debugBorderStart()
+  debugBorderEnd()
+  rts
+}
 // ---- END: Copper handling ----
 
 .align $100
@@ -153,7 +160,7 @@ _copperListStart:
 // here we define layout of raster interrupt handlers
 ingameCopperList:
     // play music
-    copperEntry(32, IRQH_JSR, <playMusic, >playMusic)
+    copperEntry(32, IRQH_JSR, <playMusicAndAnimate, >playMusicAndAnimate)
     copperEntry(DASHBOARD_Y + 20, IRQH_JSR, <upperMultiplex, >upperMultiplex)
   scrollCode:
     // here we do the actual scrolling
