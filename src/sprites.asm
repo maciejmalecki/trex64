@@ -15,7 +15,9 @@
 .label SPR_DINO_JUMP = SPR_DINO + 8
 .label SPR_DINO_DUCK = SPR_DINO_JUMP + 4
 .label SPR_DEATH = SPR_DINO_DUCK + 8
-.label SPR_GAME_OVER = SPR_DEATH + 4
+.label SPR_DEATH_WATER = SPR_DEATH + 4
+.label SPR_DEATH_FIRE = SPR_DEATH_WATER + 4
+.label SPR_GAME_OVER = SPR_DEATH_FIRE + 4
 .label SPR_VOGEL = SPR_GAME_OVER + (_b_vogel - _b_gameOver)/64
 .label SPR_SCORPIO = SPR_VOGEL + (_b_scorpio - _b_vogel)/64
 .label SPR_SNAKE = SPR_SCORPIO + (_b_snake - _b_scorpio)/64

@@ -22,7 +22,7 @@
   SOFTWARE.
 */
 
-#define VISUAL_DEBUG
+//#define VISUAL_DEBUG
 
 #import "common/lib/common.asm"
 #import "common/lib/mem.asm"
@@ -54,7 +54,7 @@
 // starting amount of lives
 .label LIVES = 3
 // starting level
-.label STARTING_WORLD = 2
+.label STARTING_WORLD = 1
 .label STARTING_LEVEL = 1
 
 // ---- levels ----
@@ -628,27 +628,25 @@ endOfTRex:
   .print name + " = $" + toHexString(address, 4) + " - $" + toHexString(address + size - 1, 4) + " (" + size + " bytes)"
 }
 
-.print "copyright="+music.copyright
-.print "copyright="+music.copyright
-.print "--------"
-.print "init=$"+toHexString(music.init)
-.print "play=$"+toHexString(music.play)
-.print "songs="+music.songs
-.print "startSong="+music.startSong
-.print "size=$"+toHexString(music.size)
-.print "name="+music.name
-.print "author="+music.author
-.print "copyright="+music.copyright
-.print "header="+music.header
-.print "header version="+music.version
-.print "flags="+toBinaryString(music.flags)
-.print "speed="+toBinaryString(music.speed)
-.print "startpage="+music.startpage
-.print "pagelength="+music.pagelength
-.print "sfxEnd="+toHexString(sfxEnd)
+// .print "init=$"+toHexString(music.init)
+// .print "play=$"+toHexString(music.play)
+// .print "songs="+music.songs
+// .print "startSong="+music.startSong
+// .print "size=$"+toHexString(music.size)
+// .print "name="+music.name
+// .print "author="+music.author
+// .print "copyright="+music.copyright
+// .print "header="+music.header
+// .print "header version="+music.version
+// .print "flags="+toBinaryString(music.flags)
+// .print "speed="+toBinaryString(music.speed)
+// .print "startpage="+music.startpage
+// .print "pagelength="+music.pagelength
+// .print "sfxEnd="+toHexString(sfxEnd)
+
 .print ""
-.print "Memory summary"
-.print "--------------"
+.print "Memory summary:"
+.print "---------------"
 memSummaryWithSize("    total PRG size", start, endOfTRex - start)
 memSummaryWithSize("PRG size w/o music", start, sfxEnd - start)
 
@@ -665,10 +663,20 @@ memSummaryWithSize("  tiles definition", tileDefinition, 4*256)
 
 memSummaryWithSize(" music player&data", music.init, music.size)
 
-.print " free memory in low bank left: " + (SCREEN_PAGE_ADDR_0 - sfxEnd) + " bytes"
-.print "free memory in high bank left: " + ($FFFF - 6 - (music.init + music.size)) + " bytes"
+.print ""
+.print "Free memory summary:"
+.print "--------------------"
 
-.print "= Asserts: ="
+.print "free memory for PRG left:     " + (SCREEN_PAGE_ADDR_0 - sfxEnd) + " bytes"
+.print "free memory for music left:   " + ($FFFF - 6 - (music.init + music.size)) + " bytes"
+.print "free memory for sprites left: " + (tileColors - (SPRITE_ADDR + endOfSprites - beginOfSprites)) + " bytes"
+
+.print ""
+.print "Assertions:"
+.print "-----------"
+
 .assert "Code and video ram does not overlap", sfxEnd <= SCREEN_PAGE_ADDR_0, true
 .assert "Sprites and tiles data does not overlap", tileColors >= SPRITE_ADDR + endOfSprites - beginOfSprites, true
+.assert "Music start address mismatch", music.init, MUSIC_START_ADDR
 
+.print ""

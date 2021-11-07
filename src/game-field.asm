@@ -256,10 +256,10 @@ screen1RowOffsetsHi:  .fill 25, >(SCREEN_PAGE_ADDR_1 + i*40)
 .label FREE_MEMORY_START = SPRITE_ADDR
 
 //.align $100
-.label tileColors = FREE_MEMORY_START + 2752
-.label mapOffsetsLo = tileColors + 256
-.label mapOffsetsHi = mapOffsetsLo + 256
-.label tileDefinition = mapOffsetsHi + 256
+.label tileDefinition = MUSIC_START_ADDR - 1024
+.label mapOffsetsHi = tileDefinition - 12
+.label mapOffsetsLo = mapOffsetsHi - 12
+.label tileColors = mapOffsetsLo - 256
 
 .var tilesCfg = Tile2Config()
 .eval tilesCfg.bank = VIC_BANK

@@ -99,6 +99,7 @@
 .label NEXT_LEVEL_TUNE = 3
 .label GAME_OVER_TUNE = 1
 .label END_GAME_TUNE = 4
+.label MUSIC_START_ADDR = $f500
 
 // ---- keyboard ----
 // title screen
