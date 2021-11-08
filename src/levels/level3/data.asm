@@ -64,7 +64,7 @@
 .label CHARSET_ADDRESS = _charset
 .label MATERIALS_ADDRESS = _materials
 
-.label TILES_SIZE = 256//_tileData.getSize()/4
+.label TILES_SIZE = _tileData.getSize()/4
 .label TILES_COLORS_ADDRESS = _colors
 .label TILES_ADDRESS = _tiles
 
@@ -111,11 +111,7 @@ _map3Actors:
 _colors: .fill _tileColorsData.getSize(), _tileColorsData.get(i)
 _tiles:
   .fill _tileData.getSize() / 4, _tileData.get(i*4)
-  .fill 256 - _tileData.getSize() / 4, 0
   .fill _tileData.getSize() / 4, _tileData.get(i*4 + 1)
-  .fill 256 - _tileData.getSize() / 4, 0
   .fill _tileData.getSize() / 4, _tileData.get(i*4 + 2)
-  .fill 256 - _tileData.getSize() / 4, 0
   .fill _tileData.getSize() / 4, _tileData.get(i*4 + 3)
-  .fill 256 - _tileData.getSize() / 4, 0
 

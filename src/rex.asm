@@ -411,27 +411,40 @@ nextLevel: {
 
 // TODO move it to text/text2x2/subs
 /*
- * In: startAddress, EndAddress, X (TileSet size).
+ * In: startAddress, targetAddress, X (TileSet size).
  * Mod: A
  */
 unpackTileSet: {
+  stx store
   invokeStackBegin(returnPtr)
-  invokeStackEnd(returnPtr)
-
-  !:
-    lda srcTile0: $ffff,x
-    sta dstTile0: $ffff,x
-    lda srcTile1: $ffff,x
-    sta dstTile1: $ffff,x
-    lda srcTile2: $ffff,x
-    sta dstTile2: $ffff,x
-    lda srcTile3: $ffff,x
-    sta dstTile3: $ffff,x
+  pullParamW(dest)
+  pullParamW(src)
+  ldy #4
+  loop:
+    ldx store
     dex
-  bne !-
+    !:
+      lda src: $ffff,x
+      sta dest: $ffff,x
+      dex
+    bne !-
+    // increment src address base
+    clc
+    lda src
+    adc store
+    sta src
+    lda src + 1
+    adc #0
+    sta src + 1
+    // increment destination address base
+    inc dest + 1
+    dey
+  bne loop
 
+  invokeStackEnd(returnPtr)
   rts
   returnPtr: .word $0000
+  store: .byte $0 // <- tileset size
 }
 
 .macro setUpWorld(levelCfg) {
@@ -464,8 +477,8 @@ unpackTileSet: {
   // copy tiles
   pushParamW(levelCfg.TILES_ADDRESS)
   pushParamW(tileDefinition)
-  pushParamW(levelCfg.TILES_SIZE*4)
-  jsr copyLargeMemForward
+  ldx #levelCfg.TILES_SIZE
+  jsr unpackTileSet
 
   // set up materials pointer
   lda #[<levelCfg.MATERIALS_ADDRESS]
@@ -706,4 +719,5 @@ memSummaryWithSize(" music player&data", music.init, music.size)
 .assert "Sprites and tiles data does not overlap", tileColors >= SPRITE_ADDR + endOfSprites - beginOfSprites, true
 .assert "Music start address mismatch", music.init, MUSIC_START_ADDR
 
+.print ""
 .print ""
