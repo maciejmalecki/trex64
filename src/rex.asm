@@ -54,7 +54,7 @@
 // starting amount of lives
 .label LIVES = 3
 // starting level
-.label STARTING_WORLD = 1
+.label STARTING_WORLD = 2
 .label STARTING_LEVEL = 1
 
 // ---- levels ----
@@ -64,6 +64,7 @@
 
 // to be moved to c64lib
 
+// common
 /*
  * Multiplies left times right. Target value will be added to the value stored in targetAddr.
  * Mod: A, X
@@ -81,6 +82,7 @@
     dex
   bne !-
 }
+// test/tiles2x2
 
 // end to be moved to c64lib
 
@@ -405,6 +407,31 @@ nextLevel: {
       sta z_gameState
   end:
   rts
+}
+
+// TODO move it to text/text2x2/subs
+/*
+ * In: startAddress, EndAddress, X (TileSet size).
+ * Mod: A
+ */
+unpackTileSet: {
+  invokeStackBegin(returnPtr)
+  invokeStackEnd(returnPtr)
+
+  !:
+    lda srcTile0: $ffff,x
+    sta dstTile0: $ffff,x
+    lda srcTile1: $ffff,x
+    sta dstTile1: $ffff,x
+    lda srcTile2: $ffff,x
+    sta dstTile2: $ffff,x
+    lda srcTile3: $ffff,x
+    sta dstTile3: $ffff,x
+    dex
+  bne !-
+
+  rts
+  returnPtr: .word $0000
 }
 
 .macro setUpWorld(levelCfg) {
