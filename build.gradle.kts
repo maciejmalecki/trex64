@@ -94,6 +94,7 @@ preprocess {
             }
             map {
               right = 135
+              bottom = 12
               interleaver {
                 output = file("levels/level1/map-1.bin")
               }
@@ -101,8 +102,9 @@ preprocess {
               }
             }
             map {
-              left = 136
-              right = 271
+              top = 12
+              bottom = 24
+              right = 135
               interleaver {
                 output = file("levels/level1/map-2.bin")
               }
@@ -110,8 +112,9 @@ preprocess {
               }
             }
             map {
-              left = 272
-              right = 434
+              top = 24
+              right = 162
+              bottom = 36
               interleaver {
                 output = file("levels/level1/map-3.bin")
               }
@@ -119,8 +122,9 @@ preprocess {
               }
             }
             map {
-              left = 435
-              right = 598
+              top = 36
+              bottom = 48
+              right = 163
               interleaver {
                 output = file("levels/level1/map-4.bin")
               }
@@ -128,7 +132,7 @@ preprocess {
               }
             }
             map {
-              left = 599
+              top = 48
               interleaver {
                 output = file("levels/level1/map-5.bin")
               }

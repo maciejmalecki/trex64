@@ -320,7 +320,6 @@ beginOfSprites:
   .import binary "dashboard.bin"
   .fill 2*64, 0
 endOfSprites:
-.print "Sprites import size = " + (endOfSprites - beginOfSprites)
 // ---- END: Sprites definition ----
 
 .segment Data
