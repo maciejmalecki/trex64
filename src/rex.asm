@@ -54,8 +54,8 @@
 // starting amount of lives
 .label LIVES = 3
 // starting level
-.label STARTING_WORLD = 1
-.label STARTING_LEVEL = 1
+.label STARTING_WORLD = 2
+.label STARTING_LEVEL = 5
 
 // ---- levels ----
 #import "levels/level1/data.asm"
@@ -597,6 +597,10 @@ setUpMap: {
     beq level2_2
     cmp #3
     beq level2_3
+    cmp #4
+    beq level2_4
+    cmp #5
+    beq level2_5
     level2_1:
       jsr setUpMap2_1
       jmp end
@@ -605,6 +609,12 @@ setUpMap: {
       jmp end
     level2_3:
       jsr setUpMap2_3
+      jmp end
+    level2_4:
+      jsr setUpMap2_4
+      jmp end
+    level2_5:
+      jsr setUpMap2_5
       jmp end
   world3:
     lda z_levelCounter
@@ -633,6 +643,8 @@ setUpMap1_5: setUpMap(level1.MAP_5_ADDRESS, level1.MAP_5_WIDTH, level1.MAP_5_DEL
 setUpMap2_1: setUpMap(level2.MAP_1_ADDRESS, level2.MAP_1_WIDTH, level2.MAP_1_DELTA_X, level2.MAP_1_WRAPPING_MARK, level2.MAP_1_SCROLLING_MARK, level2.MAP_1_OBSTACLES_MARK, level2.MAP_1_ACTORS)
 setUpMap2_2: setUpMap(level2.MAP_2_ADDRESS, level2.MAP_2_WIDTH, level2.MAP_2_DELTA_X, level2.MAP_2_WRAPPING_MARK, level2.MAP_2_SCROLLING_MARK, level2.MAP_2_OBSTACLES_MARK, level2.MAP_2_ACTORS)
 setUpMap2_3: setUpMap(level2.MAP_3_ADDRESS, level2.MAP_3_WIDTH, level2.MAP_3_DELTA_X, level2.MAP_3_WRAPPING_MARK, level2.MAP_3_SCROLLING_MARK, level2.MAP_3_OBSTACLES_MARK, level2.MAP_3_ACTORS)
+setUpMap2_4: setUpMap(level2.MAP_4_ADDRESS, level2.MAP_4_WIDTH, level2.MAP_4_DELTA_X, level2.MAP_4_WRAPPING_MARK, level2.MAP_4_SCROLLING_MARK, level2.MAP_4_OBSTACLES_MARK, level2.MAP_4_ACTORS)
+setUpMap2_5: setUpMap(level2.MAP_5_ADDRESS, level2.MAP_5_WIDTH, level2.MAP_5_DELTA_X, level2.MAP_5_WRAPPING_MARK, level2.MAP_5_SCROLLING_MARK, level2.MAP_5_OBSTACLES_MARK, level2.MAP_5_ACTORS)
 
 setUpMap3_1: setUpMap(level3.MAP_1_ADDRESS, level3.MAP_1_WIDTH, level3.MAP_1_DELTA_X, level3.MAP_1_WRAPPING_MARK, level3.MAP_1_SCROLLING_MARK, level3.MAP_1_OBSTACLES_MARK, level3.MAP_1_ACTORS)
 setUpMap3_2: setUpMap(level3.MAP_2_ADDRESS, level3.MAP_2_WIDTH, level3.MAP_2_DELTA_X, level3.MAP_2_WRAPPING_MARK, level3.MAP_2_SCROLLING_MARK, level3.MAP_2_OBSTACLES_MARK, level3.MAP_2_ACTORS)

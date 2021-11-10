@@ -72,9 +72,9 @@
 
 .label MAP_5_WIDTH = _map5Data.getSize() / c64lib.MAP_HEIGHT
 .label MAP_5_ADDRESS = _map5
-.label MAP_5_DELTA_X = 1<<5 // x2
+.label MAP_5_DELTA_X = 1<<6 // x2
 .label MAP_5_WRAPPING_MARK = 0
-.label MAP_5_SCROLLING_MARK = 6 // (x4 = 4)
+.label MAP_5_SCROLLING_MARK = 4 // (x4 = 4)
 .label MAP_5_ACTORS = _map5Actors
 .label MAP_5_OBSTACLES_MARK = %11100000
 

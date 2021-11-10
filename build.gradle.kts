@@ -207,7 +207,6 @@ preprocess {
               }
             }
             map {
-              right = 135
               top = 48
               interleaver {
                 output = file("levels/level2/map-5.bin")
