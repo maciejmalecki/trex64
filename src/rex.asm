@@ -379,34 +379,29 @@ nextLevel: {
   world1:
     lda z_levelCounter
     cmp #5
-    beq level1_end
-      inc z_levelCounter
-      jmp end
-    level1_end:
-      inc z_worldCounter
-      lda #1
-      sta z_levelCounter
-      jmp end
+    beq nextWorld
+    inc z_levelCounter
+    jmp end
   world2:
     lda z_levelCounter
     cmp #5
-    beq level2_end
-      inc z_levelCounter
-      jmp end
-    level2_end:
-      inc z_worldCounter
-      lda #1
-      sta z_levelCounter
-      jmp end
+    beq nextWorld
+    inc z_levelCounter
+    jmp end
   world3:
     lda z_levelCounter
     cmp #4
     beq level3_end
-      inc z_levelCounter
-      jmp end
+    inc z_levelCounter
+    jmp end
     level3_end:
       lda #GAME_STATE_GAME_FINISHED
       sta z_gameState
+      jmp end
+  nextWorld:
+      inc z_worldCounter
+      lda #1
+      sta z_levelCounter
   end:
   rts
 }
