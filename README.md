@@ -33,7 +33,7 @@ for Unix-like systems.
 
 ## For crackers
 
-I have nothing against that you crack this title and publish your work on sites like csdb as long as you use any of officially released commits (the ones with semver tag on it: `x.y.z`.
+I have nothing against that you crack this title and publish your work on sites like csdb as long as you use any of officially released commits (the ones with semver tag on it: `x.y.z`).
 Anything that is published on releases is generally a good choice.
 
 ## Tools
