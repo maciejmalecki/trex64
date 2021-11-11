@@ -54,8 +54,8 @@
 // starting amount of lives
 .label LIVES = 3
 // starting level
-.label STARTING_WORLD = 2
-.label STARTING_LEVEL = 5
+.label STARTING_WORLD = 1
+.label STARTING_LEVEL = 1
 
 // ---- levels ----
 #import "levels/level1/data.asm"
@@ -383,22 +383,24 @@ nextLevel: {
       inc z_levelCounter
       jmp end
     level1_end:
-      lda #GAME_STATE_GAME_FINISHED
-      sta z_gameState
+      inc z_worldCounter
+      lda #1
+      sta z_levelCounter
       jmp end
   world2:
     lda z_levelCounter
-    cmp #3
+    cmp #5
     beq level2_end
       inc z_levelCounter
       jmp end
     level2_end:
-      lda #GAME_STATE_GAME_FINISHED
-      sta z_gameState
+      inc z_worldCounter
+      lda #1
+      sta z_levelCounter
       jmp end
   world3:
     lda z_levelCounter
-    cmp #3
+    cmp #4
     beq level3_end
       inc z_levelCounter
       jmp end
@@ -622,6 +624,8 @@ setUpMap: {
     beq level3_2
     cmp #3
     beq level3_3
+    cmp #4
+    beq level3_4
     level3_1:
       jsr setUpMap3_1
       jmp end
@@ -630,6 +634,9 @@ setUpMap: {
       jmp end
     level3_3:
       jsr setUpMap3_3
+      jmp end
+    level3_4:
+      jsr setUpMap3_4
   end:
   rts
 }
@@ -649,6 +656,7 @@ setUpMap2_5: setUpMap(level2.MAP_5_ADDRESS, level2.MAP_5_WIDTH, level2.MAP_5_DEL
 setUpMap3_1: setUpMap(level3.MAP_1_ADDRESS, level3.MAP_1_WIDTH, level3.MAP_1_DELTA_X, level3.MAP_1_WRAPPING_MARK, level3.MAP_1_SCROLLING_MARK, level3.MAP_1_OBSTACLES_MARK, level3.MAP_1_ACTORS)
 setUpMap3_2: setUpMap(level3.MAP_2_ADDRESS, level3.MAP_2_WIDTH, level3.MAP_2_DELTA_X, level3.MAP_2_WRAPPING_MARK, level3.MAP_2_SCROLLING_MARK, level3.MAP_2_OBSTACLES_MARK, level3.MAP_2_ACTORS)
 setUpMap3_3: setUpMap(level3.MAP_3_ADDRESS, level3.MAP_3_WIDTH, level3.MAP_3_DELTA_X, level3.MAP_3_WRAPPING_MARK, level3.MAP_3_SCROLLING_MARK, level3.MAP_3_OBSTACLES_MARK, level3.MAP_3_ACTORS)
+setUpMap3_4: setUpMap(level3.MAP_4_ADDRESS, level3.MAP_4_WIDTH, level3.MAP_4_DELTA_X, level3.MAP_4_WRAPPING_MARK, level3.MAP_4_SCROLLING_MARK, level3.MAP_4_OBSTACLES_MARK, level3.MAP_4_ACTORS)
 // ---- END: level handling ----
 
 // ---- import modules ----
@@ -731,5 +739,4 @@ memSummaryWithSize(" music player&data", music.init, music.size)
 .assert "Sprites and tiles data does not overlap", tileColors >= SPRITE_ADDR + endOfSprites - beginOfSprites, true
 .assert "Music start address mismatch", music.init, MUSIC_START_ADDR
 
-.print ""
 .print ""
