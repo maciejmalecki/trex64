@@ -3,6 +3,7 @@ A Commodore 64 version of offline mode jumping dinosaur single button game ;-) W
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CircleCI](https://circleci.com/gh/maciejmalecki/trex64/tree/master.svg?style=shield)](https://circleci.com/gh/maciejmalecki/trex64/tree/master)
+[![CircleCI](https://circleci.com/gh/maciejmalecki/trex64/tree/preview.svg?style=shield)](https://circleci.com/gh/maciejmalecki/trex64/tree/preview)
 [![CircleCI](https://circleci.com/gh/maciejmalecki/trex64/tree/develop.svg?style=shield)](https://circleci.com/gh/maciejmalecki/trex64/tree/develop)
 
 Visit the website: https://maciejmalecki.github.io/trex64/
@@ -29,6 +30,11 @@ for Windows systems or
 ./gradlew build
 ```
 for Unix-like systems.
+
+## For crackers
+
+I have nothing against that you crack this title and publish your work on sites like csdb as long as you use any of officially released commits (the ones with semver tag on it: `x.y.z`.
+Anything that is published on releases is generally a good choice.
 
 ## Tools
 
