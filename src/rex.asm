@@ -54,8 +54,8 @@
 // starting amount of lives
 .label LIVES = 3
 // starting level
-.label STARTING_WORLD = 2
-.label STARTING_LEVEL = 5
+.label STARTING_WORLD = 3
+.label STARTING_LEVEL = 1
 
 // ---- levels ----
 #import "levels/level1/data.asm"
