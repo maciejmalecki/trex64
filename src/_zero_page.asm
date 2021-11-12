@@ -79,7 +79,7 @@
 .label z_scrollingMark = 50   // $32
 
 // obstacles
-// empty slot $33
+.label z_bgDeath = 51         // $33
 .label z_colorRAMShifted = 52 // $34
 .label z_scrollReg = 53       // $35
 

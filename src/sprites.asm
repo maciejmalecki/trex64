@@ -22,6 +22,7 @@
 .label SPR_SCORPIO = SPR_VOGEL + (_b_scorpio - _b_vogel)/64
 .label SPR_SNAKE = SPR_SCORPIO + (_b_snake - _b_scorpio)/64
 .label SPR_DASHBOARD = SPR_SNAKE + (_b_dashboard - _b_snake)/64
+.label SPR_EMPTY = SPR_DASHBOARD + 4
 
 .macro _setSpriteShape(spriteNum, shapeNum) {
   lda #shapeNum
@@ -265,6 +266,66 @@ spr_showDeath: {
   rts
 }
 
+spr_showWaterDeath: {
+
+  jsr _spr_setNormalPosition
+
+  lda #WATER_DEATH_COL
+  sta spriteColorReg(PLAYER_SPRITE_BOTTOM_OVL)
+
+  pushParamW(empty)
+  ldx #PLAYER_SPRITE_TOP
+  lda #$43
+  jsr setAnimation
+
+  pushParamW(empty)
+  ldx #PLAYER_SPRITE_TOP_OVL
+  lda #$43
+  jsr setAnimation
+
+  pushParamW(empty)
+  ldx #PLAYER_SPRITE_BOTTOM
+  lda #$43
+  jsr setAnimation
+
+  pushParamW(dinoDeathWater)
+  ldx #PLAYER_SPRITE_BOTTOM_OVL
+  lda #$F3
+  jsr setAnimation
+
+  rts
+}
+
+spr_showFireDeath: {
+
+  jsr _spr_setNormalPosition
+
+  lda #FIRE_DEATH_COL
+  sta spriteColorReg(PLAYER_SPRITE_TOP_OVL)
+
+  pushParamW(empty)
+  ldx #PLAYER_SPRITE_TOP
+  lda #$43
+  jsr setAnimation
+
+  pushParamW(dinoDeathFire)
+  ldx #PLAYER_SPRITE_TOP_OVL
+  lda #$A3
+  jsr setAnimation
+
+  pushParamW(empty)
+  ldx #PLAYER_SPRITE_BOTTOM
+  lda #$43
+  jsr setAnimation
+
+  pushParamW(empty)
+  ldx #PLAYER_SPRITE_BOTTOM_OVL
+  lda #$43
+  jsr setAnimation
+
+  rts
+}
+
 spr_showGameOver: {
 
   .label _GAME_OVER_X = 130
@@ -319,6 +380,8 @@ beginOfSprites:
   _b_dashboard:
   .import binary "dashboard.bin"
   .fill 2*64, 0
+  // empty
+  .fill 64, 0
 endOfSprites:
 // ---- END: Sprites definition ----
 
@@ -384,6 +447,18 @@ dinoDuckBottomOvl:
   .byte SPRITE_SHAPES_START + SPR_DINO_DUCK + 3
   .byte SPRITE_SHAPES_START + SPR_DINO_DUCK + 4 + 3
   .byte $ff
+dinoDeathWater:
+  .byte SPRITE_SHAPES_START + SPR_DEATH_WATER
+  .byte SPRITE_SHAPES_START + SPR_DEATH_WATER + 1
+  .byte SPRITE_SHAPES_START + SPR_DEATH_WATER + 2
+  .byte SPRITE_SHAPES_START + SPR_DEATH_WATER + 3
+  .byte $ff
+dinoDeathFire:
+  .byte SPRITE_SHAPES_START + SPR_DEATH_FIRE
+  .byte SPRITE_SHAPES_START + SPR_DEATH_FIRE + 1
+  .byte SPRITE_SHAPES_START + SPR_DEATH_FIRE + 2
+  .byte SPRITE_SHAPES_START + SPR_DEATH_FIRE + 3
+  .byte $ff
 vogel:
   .byte SPRITE_SHAPES_START + SPR_VOGEL
   .byte SPRITE_SHAPES_START + SPR_VOGEL + 1
@@ -405,5 +480,8 @@ snake:
   .byte SPRITE_SHAPES_START + SPR_SNAKE + 1
   .byte SPRITE_SHAPES_START + SPR_SNAKE + 2
   .byte SPRITE_SHAPES_START + SPR_SNAKE + 1
+  .byte $ff
+empty:
+  .byte SPRITE_SHAPES_START + SPR_EMPTY
   .byte $ff
 // ----- END: Animation sequences -----

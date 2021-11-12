@@ -297,22 +297,14 @@ checkBGCollisions: {
     sta storeX
     jsr checkBGMaterialCollision
     beq !+
-    lda #GAME_STATE_KILLED
-    .if (INVINCIBLE == 0) {
-      sta z_gameState
-      rts
-    }
+      jmp killPlayer
     !:
     ldy storeY
     iny
     ldx storeX
     jsr checkBGMaterialCollision
     beq !+
-    lda #GAME_STATE_KILLED
-    .if (INVINCIBLE == 0) {
-      sta z_gameState
-      rts
-    }
+      jmp killPlayer
     !:
 
     ldy storeY
@@ -324,24 +316,25 @@ checkBGCollisions: {
     sta storeX
     jsr checkBGMaterialCollision
     beq !+
-    lda #GAME_STATE_KILLED
-    .if (INVINCIBLE == 0) {
-      sta z_gameState
-      rts
-    }
+      jmp killPlayer
     !:
     ldy storeY
     iny
     ldx storeX
     jsr checkBGMaterialCollision
     beq !+
-    lda #GAME_STATE_KILLED
-    .if (INVINCIBLE == 0) {
-      sta z_gameState
-    }
+      jmp killPlayer
     !:
 
     rts
+    killPlayer:
+      lda #GAME_STATE_KILLED
+      .if (INVINCIBLE == 0) {
+        sta z_gameState
+        lda #1
+        sta z_bgDeath
+      }
+      rts
     storeX: .byte 0
     storeY: .byte 0
 }
@@ -394,6 +387,7 @@ initLevel: {
   lda #0
   sta z_spritesStashed
   sta z_doGameOver
+  sta z_bgDeath
 
   // set sprite enable ghost reg to 0
   lda #0

@@ -54,8 +54,8 @@
 // starting amount of lives
 .label LIVES = 3
 // starting level
-.label STARTING_WORLD = 1
-.label STARTING_LEVEL = 1
+.label STARTING_WORLD = 2
+.label STARTING_LEVEL = 5
 
 // ---- levels ----
 #import "levels/level1/data.asm"
@@ -173,8 +173,27 @@ doIngame: {
         !:
       }
 
-      jsr spr_showDeath
-      jsr playDeath
+      lda z_worldCounter
+      cmp #1
+      beq goShowDeath
+      cmp #2
+      bne world3
+        lda z_bgDeath
+        bne goShowWaterDeath
+        jmp goShowDeath
+      world3:
+        lda z_bgDeath
+        bne goShowFireDeath
+      goShowDeath:
+        jsr spr_showDeath
+        jmp goPlayDeath
+      goShowFireDeath:
+        jsr spr_showFireDeath
+        jmp goPlayDeath
+      goShowWaterDeath:
+        jsr spr_showWaterDeath
+      goPlayDeath:
+        jsr playDeath
 
       // remember death position
       lda z_x
