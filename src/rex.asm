@@ -365,7 +365,6 @@ prepareIngameScreen: {
 
 // ---- level handling ----
 nextLevel: {
-  // TODO world transition
   // zero hi-score counter
   lda #0
   sta z_hiScoreMark
@@ -497,7 +496,7 @@ unpackTileSet: {
   rts
 }
 
-.macro setUpMap(mapAddress, mapWidth, deltaX, wrappingMark, scrollingMark, obstaclesMark, mapActors) {
+.macro setUpMap(mapAddress, mapWidth, deltaX, wrappingMark, scrollingMark, mapActors) {
   // set map definition pointer
   lda #<mapAddress
   sta z_map
@@ -517,8 +516,6 @@ unpackTileSet: {
   sta z_wrappingMark
   lda #scrollingMark
   sta z_scrollingMark
-  lda #obstaclesMark
-  sta z_obstaclesMark
 
   // set actors base and pointer
   lda #<mapActors
@@ -636,22 +633,22 @@ setUpMap: {
   rts
 }
 
-setUpMap1_1: setUpMap(level1.MAP_1_ADDRESS, level1.MAP_1_WIDTH, level1.MAP_1_DELTA_X, level1.MAP_1_WRAPPING_MARK, level1.MAP_1_SCROLLING_MARK, level1.MAP_1_OBSTACLES_MARK, level1.MAP_1_ACTORS)
-setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH, level1.MAP_2_DELTA_X, level1.MAP_2_WRAPPING_MARK, level1.MAP_2_SCROLLING_MARK, level1.MAP_2_OBSTACLES_MARK, level1.MAP_2_ACTORS)
-setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DELTA_X, level1.MAP_3_WRAPPING_MARK, level1.MAP_3_SCROLLING_MARK, level1.MAP_3_OBSTACLES_MARK, level1.MAP_3_ACTORS)
-setUpMap1_4: setUpMap(level1.MAP_4_ADDRESS, level1.MAP_4_WIDTH, level1.MAP_4_DELTA_X, level1.MAP_4_WRAPPING_MARK, level1.MAP_4_SCROLLING_MARK, level1.MAP_4_OBSTACLES_MARK, level1.MAP_4_ACTORS)
-setUpMap1_5: setUpMap(level1.MAP_5_ADDRESS, level1.MAP_5_WIDTH, level1.MAP_5_DELTA_X, level1.MAP_5_WRAPPING_MARK, level1.MAP_5_SCROLLING_MARK, level1.MAP_5_OBSTACLES_MARK, level1.MAP_5_ACTORS)
+setUpMap1_1: setUpMap(level1.MAP_1_ADDRESS, level1.MAP_1_WIDTH, level1.MAP_1_DELTA_X, level1.MAP_1_WRAPPING_MARK, level1.MAP_1_SCROLLING_MARK, level1.MAP_1_ACTORS)
+setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH, level1.MAP_2_DELTA_X, level1.MAP_2_WRAPPING_MARK, level1.MAP_2_SCROLLING_MARK, level1.MAP_2_ACTORS)
+setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DELTA_X, level1.MAP_3_WRAPPING_MARK, level1.MAP_3_SCROLLING_MARK, level1.MAP_3_ACTORS)
+setUpMap1_4: setUpMap(level1.MAP_4_ADDRESS, level1.MAP_4_WIDTH, level1.MAP_4_DELTA_X, level1.MAP_4_WRAPPING_MARK, level1.MAP_4_SCROLLING_MARK, level1.MAP_4_ACTORS)
+setUpMap1_5: setUpMap(level1.MAP_5_ADDRESS, level1.MAP_5_WIDTH, level1.MAP_5_DELTA_X, level1.MAP_5_WRAPPING_MARK, level1.MAP_5_SCROLLING_MARK, level1.MAP_5_ACTORS)
 
-setUpMap2_1: setUpMap(level2.MAP_1_ADDRESS, level2.MAP_1_WIDTH, level2.MAP_1_DELTA_X, level2.MAP_1_WRAPPING_MARK, level2.MAP_1_SCROLLING_MARK, level2.MAP_1_OBSTACLES_MARK, level2.MAP_1_ACTORS)
-setUpMap2_2: setUpMap(level2.MAP_2_ADDRESS, level2.MAP_2_WIDTH, level2.MAP_2_DELTA_X, level2.MAP_2_WRAPPING_MARK, level2.MAP_2_SCROLLING_MARK, level2.MAP_2_OBSTACLES_MARK, level2.MAP_2_ACTORS)
-setUpMap2_3: setUpMap(level2.MAP_3_ADDRESS, level2.MAP_3_WIDTH, level2.MAP_3_DELTA_X, level2.MAP_3_WRAPPING_MARK, level2.MAP_3_SCROLLING_MARK, level2.MAP_3_OBSTACLES_MARK, level2.MAP_3_ACTORS)
-setUpMap2_4: setUpMap(level2.MAP_4_ADDRESS, level2.MAP_4_WIDTH, level2.MAP_4_DELTA_X, level2.MAP_4_WRAPPING_MARK, level2.MAP_4_SCROLLING_MARK, level2.MAP_4_OBSTACLES_MARK, level2.MAP_4_ACTORS)
-setUpMap2_5: setUpMap(level2.MAP_5_ADDRESS, level2.MAP_5_WIDTH, level2.MAP_5_DELTA_X, level2.MAP_5_WRAPPING_MARK, level2.MAP_5_SCROLLING_MARK, level2.MAP_5_OBSTACLES_MARK, level2.MAP_5_ACTORS)
+setUpMap2_1: setUpMap(level2.MAP_1_ADDRESS, level2.MAP_1_WIDTH, level2.MAP_1_DELTA_X, level2.MAP_1_WRAPPING_MARK, level2.MAP_1_SCROLLING_MARK, level2.MAP_1_ACTORS)
+setUpMap2_2: setUpMap(level2.MAP_2_ADDRESS, level2.MAP_2_WIDTH, level2.MAP_2_DELTA_X, level2.MAP_2_WRAPPING_MARK, level2.MAP_2_SCROLLING_MARK, level2.MAP_2_ACTORS)
+setUpMap2_3: setUpMap(level2.MAP_3_ADDRESS, level2.MAP_3_WIDTH, level2.MAP_3_DELTA_X, level2.MAP_3_WRAPPING_MARK, level2.MAP_3_SCROLLING_MARK, level2.MAP_3_ACTORS)
+setUpMap2_4: setUpMap(level2.MAP_4_ADDRESS, level2.MAP_4_WIDTH, level2.MAP_4_DELTA_X, level2.MAP_4_WRAPPING_MARK, level2.MAP_4_SCROLLING_MARK, level2.MAP_4_ACTORS)
+setUpMap2_5: setUpMap(level2.MAP_5_ADDRESS, level2.MAP_5_WIDTH, level2.MAP_5_DELTA_X, level2.MAP_5_WRAPPING_MARK, level2.MAP_5_SCROLLING_MARK, level2.MAP_5_ACTORS)
 
-setUpMap3_1: setUpMap(level3.MAP_1_ADDRESS, level3.MAP_1_WIDTH, level3.MAP_1_DELTA_X, level3.MAP_1_WRAPPING_MARK, level3.MAP_1_SCROLLING_MARK, level3.MAP_1_OBSTACLES_MARK, level3.MAP_1_ACTORS)
-setUpMap3_2: setUpMap(level3.MAP_2_ADDRESS, level3.MAP_2_WIDTH, level3.MAP_2_DELTA_X, level3.MAP_2_WRAPPING_MARK, level3.MAP_2_SCROLLING_MARK, level3.MAP_2_OBSTACLES_MARK, level3.MAP_2_ACTORS)
-setUpMap3_3: setUpMap(level3.MAP_3_ADDRESS, level3.MAP_3_WIDTH, level3.MAP_3_DELTA_X, level3.MAP_3_WRAPPING_MARK, level3.MAP_3_SCROLLING_MARK, level3.MAP_3_OBSTACLES_MARK, level3.MAP_3_ACTORS)
-setUpMap3_4: setUpMap(level3.MAP_4_ADDRESS, level3.MAP_4_WIDTH, level3.MAP_4_DELTA_X, level3.MAP_4_WRAPPING_MARK, level3.MAP_4_SCROLLING_MARK, level3.MAP_4_OBSTACLES_MARK, level3.MAP_4_ACTORS)
+setUpMap3_1: setUpMap(level3.MAP_1_ADDRESS, level3.MAP_1_WIDTH, level3.MAP_1_DELTA_X, level3.MAP_1_WRAPPING_MARK, level3.MAP_1_SCROLLING_MARK, level3.MAP_1_ACTORS)
+setUpMap3_2: setUpMap(level3.MAP_2_ADDRESS, level3.MAP_2_WIDTH, level3.MAP_2_DELTA_X, level3.MAP_2_WRAPPING_MARK, level3.MAP_2_SCROLLING_MARK, level3.MAP_2_ACTORS)
+setUpMap3_3: setUpMap(level3.MAP_3_ADDRESS, level3.MAP_3_WIDTH, level3.MAP_3_DELTA_X, level3.MAP_3_WRAPPING_MARK, level3.MAP_3_SCROLLING_MARK, level3.MAP_3_ACTORS)
+setUpMap3_4: setUpMap(level3.MAP_4_ADDRESS, level3.MAP_4_WIDTH, level3.MAP_4_DELTA_X, level3.MAP_4_WRAPPING_MARK, level3.MAP_4_SCROLLING_MARK, level3.MAP_4_ACTORS)
 // ---- END: level handling ----
 
 // ---- import modules ----
@@ -673,16 +670,7 @@ setUpMap3_4: setUpMap(level3.MAP_4_ADDRESS, level3.MAP_4_WIDTH, level3.MAP_4_DEL
 .segment Music
 endOfTRex:
 
-
-// print memory map summary
-.print "header="+music.header
-.macro memSummary(name, address) {
-  .print name + " = " + address + " ($" + toHexString(address, 4) + ")"
-}
-.macro memSummaryWithSize(name, address, size) {
-  .print name + " = $" + toHexString(address, 4) + " - $" + toHexString(address + size - 1, 4) + " (" + size + " bytes)"
-}
-
+//.print "header="+music.header
 // .print "init=$"+toHexString(music.init)
 // .print "play=$"+toHexString(music.play)
 // .print "songs="+music.songs
@@ -698,6 +686,14 @@ endOfTRex:
 // .print "startpage="+music.startpage
 // .print "pagelength="+music.pagelength
 // .print "sfxEnd="+toHexString(sfxEnd)
+
+// print memory map summary
+.macro memSummary(name, address) {
+  .print name + " = " + address + " ($" + toHexString(address, 4) + ")"
+}
+.macro memSummaryWithSize(name, address, size) {
+  .print name + " = $" + toHexString(address, 4) + " - $" + toHexString(address + size - 1, 4) + " (" + size + " bytes)"
+}
 
 .print ""
 .print "Memory summary:"

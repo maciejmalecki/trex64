@@ -43,7 +43,6 @@
 .label MAP_1_WRAPPING_MARK = 0
 .label MAP_1_SCROLLING_MARK = 6
 .label MAP_1_ACTORS = _map1Actors
-.label MAP_1_OBSTACLES_MARK = %11100000
 
 .label MAP_2_WIDTH = _map2Data.getSize() / c64lib.MAP_HEIGHT
 .label MAP_2_ADDRESS = _map2
@@ -51,7 +50,6 @@
 .label MAP_2_WRAPPING_MARK = 0
 .label MAP_2_SCROLLING_MARK = 6
 .label MAP_2_ACTORS = _map2Actors
-.label MAP_2_OBSTACLES_MARK = %11100000
 
 .label MAP_3_WIDTH = _map3Data.getSize() / c64lib.MAP_HEIGHT
 .label MAP_3_ADDRESS = _map3
@@ -59,7 +57,6 @@
 .label MAP_3_WRAPPING_MARK = 0
 .label MAP_3_SCROLLING_MARK = 6 // (x4 = 4)
 .label MAP_3_ACTORS = _map3Actors
-.label MAP_3_OBSTACLES_MARK = %11100000
 
 .label MAP_4_WIDTH = _map4Data.getSize() / c64lib.MAP_HEIGHT
 .label MAP_4_ADDRESS = _map4
@@ -67,7 +64,6 @@
 .label MAP_4_WRAPPING_MARK = 0
 .label MAP_4_SCROLLING_MARK = 6 // (x4 = 4)
 .label MAP_4_ACTORS = _map4Actors
-.label MAP_4_OBSTACLES_MARK = %11100000
 
 .label CHARSET_SIZE = _charsetData.getSize()/8
 .label CHARSET_ADDRESS = _charset
