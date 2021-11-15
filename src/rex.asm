@@ -62,30 +62,6 @@
 #import "levels/level2/data.asm"
 #import "levels/level3/data.asm"
 
-// to be moved to c64lib
-
-// common
-/*
- * Multiplies left times right. Target value will be added to the value stored in targetAddr.
- * Mod: A, X
- */
-.macro mulAndAdd(left, right, targetAddr) {
-  ldx #right
-  !:
-    clc
-    lda #left
-    adc targetAddr
-    sta targetAddr
-    lda #0
-    adc targetAddr + 1
-    sta targetAddr + 1
-    dex
-  bne !-
-}
-// test/tiles2x2
-
-// end to be moved to c64lib
-
 // -------- Main program ---------
 .segment Code
 

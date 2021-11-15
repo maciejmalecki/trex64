@@ -14,7 +14,7 @@ retroProject {
     libDirs = arrayOf(".ra/deps/c64lib", "build/charpad", "build/spritepad")
     includes = arrayOf("src/rex.asm")
 
-    libFromGitHub("c64lib/common", "develop")
+    libFromGitHub("c64lib/common", "0.3.0")
     libFromGitHub("c64lib/chipset", "develop")
     libFromGitHub("c64lib/text", "develop")
     libFromGitHub("c64lib/copper64", "develop")
