@@ -52,9 +52,9 @@
 }
 
 // starting amount of lives
-.label LIVES = 3
+.label LIVES = 5
 // starting level
-.label STARTING_WORLD = 3
+.label STARTING_WORLD = 1
 .label STARTING_LEVEL = 1
 
 // ---- levels ----
@@ -364,7 +364,8 @@ configureIngameVic2: {
   configureTextMemory(SCREEN_PAGE_0, CHARGEN)
   // turn on 38 columns visible
   lda CONTROL_2
-  and #%11110111
+  and #%11110000
+  ora #%00000111
   sta CONTROL_2
   lda CONTROL_1
   and #%11110000

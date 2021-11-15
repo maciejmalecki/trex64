@@ -388,12 +388,10 @@ initLevel: {
   sta z_spritesStashed
   sta z_doGameOver
   sta z_bgDeath
-
-  // set sprite enable ghost reg to 0
-  lda #0
   sta z_spriteEnable
   sta z_colorRAMShifted
   sta z_anim_delay
+  sta z_scrollReg
 
   // set [x,y] = [0,0]
   lda #$ff
