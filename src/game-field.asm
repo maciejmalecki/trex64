@@ -152,37 +152,12 @@ playMusicAndAnimate: {
   debugBorderStart()
   lda z_anim_delay
   bne scrollBottom
-  // scroll right
-  ldy #0
-  !:
-    lda (z_right_anim_char),y
-    clc
-    lsr
-    bcc next
-      ora #%10000000
-    next:
-    sta (z_right_anim_char),y
-    iny
-    cpy #8
-  bne !-
-  jmp end
-  // end of scroll right
+
+  rotateCharRight(z_right_anim_char)
+  jmp !+
   scrollBottom:
-  // scroll bottom
-  ldy #7
-  lda (z_bottom_anim_char),y
-  sta store
+    rotateCharBottom(z_bottom_anim_char, store)
   !:
-    dey
-    lda (z_bottom_anim_char),y
-    iny
-    sta (z_bottom_anim_char),y
-    dey
-  bne !-
-  lda store
-  sta (z_bottom_anim_char),y
-  // end of scroll bottom
-  end:
   inc z_anim_delay
   lda z_anim_delay
   cmp #2
