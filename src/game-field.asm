@@ -509,10 +509,10 @@ scrollBackground: {
   jmp end
   // do the screen shifting
   page0To1:
-    _t2_shiftScreenLeft(tilesCfg, 0, 1)
+    shiftScreenLeft(tilesCfg, 0)
     jmp end
   page1To0:
-    _t2_shiftScreenLeft(tilesCfg, 1, 0)
+    shiftScreenLeft(tilesCfg, 1)
 
   end:
     // setup IRQ handler back to scrollColorRam
@@ -542,8 +542,8 @@ scrollColorRam: {
   lda #1
   sta z_colorRAMShifted
 
-  _t2_shiftColorRamLeft(tilesCfg, 2)
-  _t2_decodeColorRight(tilesCfg, COLOR_RAM)
+  shiftColorRamLeft(tilesCfg)
+  decodeColorRight(tilesCfg)
   switchBackIrq:
   // setup IRQ handler back to scrollBackground
   lda #<scrollBackground
@@ -597,14 +597,14 @@ switchPages: {
   endSwitch:
     jmp end
   switch0To1:
-    _t2_decodeScreenRight(tilesCfg, 1)
+    decodeScreenRight(tilesCfg, 1)
     lda MEMORY_CONTROL
     and #%00001111
     ora #(SCREEN_PAGE_1 << 4)
     sta MEMORY_CONTROL
     jmp end
   switch1To0:
-    _t2_decodeScreenRight(tilesCfg, 0)
+    decodeScreenRight(tilesCfg, 0)
     lda MEMORY_CONTROL
     and #%00001111
     ora #(SCREEN_PAGE_0 << 4)
