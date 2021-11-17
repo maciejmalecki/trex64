@@ -182,7 +182,7 @@ ingameCopperList:
     // here we do the actual scrolling
     copperEntry(88, IRQH_JSR, <scrollBackground, >scrollBackground)
     // here we do the page switching when it's time for this
-    copperEntry(288, IRQH_JSR, <switchPages, >switchPages)
+    copperEntry(262, IRQH_JSR, <switchPages, >switchPages)
     // here we loop and so on, so on, for each frame
     copperLoop()
 
@@ -195,7 +195,7 @@ titleScreenCopperList:
       copperEntry(206, IRQH_BG_COL_0, BLACK, 0)
       copperEntry(236, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
       copperEntry(250, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
-      copperEntry(270, IRQH_JSR, <handleCredits, >handleCredits)
+      copperEntry(262, IRQH_JSR, <handleCredits, >handleCredits)
       copperLoop()
 
 levelScreenCopperList:
