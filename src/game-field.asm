@@ -366,6 +366,7 @@ initLevel: {
   sta z_colorRAMShifted
   sta z_anim_delay
   sta z_scrollReg
+  sta z_acc0
 
   // set [x,y] = [0,0]
   lda #$ff
