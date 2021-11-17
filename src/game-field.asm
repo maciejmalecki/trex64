@@ -255,7 +255,6 @@ screen1RowOffsetsHi:  .fill 25, >(SCREEN_PAGE_ADDR_1 + i*40)
 
 // material based collision detection
 checkBGCollisions: {
-    cld
     lda #(PLAYER_Y + Y_COLLISION_OFFSET)
     sec
     sbc z_yPos
@@ -426,7 +425,6 @@ initLevel: {
 }
 
 incrementX: {
-  cld
   clc
   lda z_x
   adc z_deltaX
@@ -464,6 +462,8 @@ detectPhases: {
 
 scrollBackground: {
   debugBorderStart()
+
+  cld
 
   jsr detectPhases
 
@@ -529,6 +529,8 @@ scrollBackground: {
 scrollColorRam: {
   debugBorderEnd()
 
+  cld
+
   jsr detectPhases
 
   // are we actually moving?
@@ -557,6 +559,9 @@ scrollColorRam: {
 
 switchPages: {
   debugBorderStart()
+
+  cld
+
   doSwitching:
   // are we actually moving?
   lda z_x
@@ -656,7 +661,6 @@ switchPages: {
 
   // check end of level condition
   clc
-  cld
   lda z_x + 1
   adc #20
   cmp z_width

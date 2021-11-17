@@ -125,7 +125,6 @@ phy_performProgressiveJump: {
 phy_updateSpriteY: {
   // set Y coord
   sec
-  cld
   lda z_yPosTop
   sbc z_yPos
   sta spriteYReg(PLAYER_SPRITE_TOP)
