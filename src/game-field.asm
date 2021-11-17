@@ -176,7 +176,7 @@ _copperListStart:
 // here we define layout of raster interrupt handlers
 ingameCopperList:
     // play music
-    copperEntry(32, IRQH_JSR, <playMusicAndAnimate, >playMusicAndAnimate)
+    copperEntry(40, IRQH_JSR, <playMusicAndAnimate, >playMusicAndAnimate)
     copperEntry(DASHBOARD_Y + 20, IRQH_JSR, <upperMultiplex, >upperMultiplex)
   scrollCode:
     // here we do the actual scrolling
