@@ -55,7 +55,7 @@
 .label LIVES = 5
 // starting level
 .label STARTING_WORLD = 1
-.label STARTING_LEVEL = 1
+.label STARTING_LEVEL = 4
 
 // ---- levels ----
 #import "levels/level1/data.asm"
@@ -68,6 +68,7 @@
 // ---- game flow management ----
 start:
   // main init
+  jsr detectNTSC
   jsr cfg_configureC64
   jsr unpackData
   jsr initConfig
@@ -212,6 +213,19 @@ doIngame: {
     jsr stopCopper
     jsr spr_hidePlayers
     rts
+}
+
+setNTSC: {
+  lda #1
+  sta z_ntsc
+  rts
+}
+
+detectNTSC: {
+  lda #0
+  sta z_ntsc
+  detectNtsc(0, setNTSC)
+  rts
 }
 
 initConfig: {

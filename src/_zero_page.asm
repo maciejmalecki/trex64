@@ -108,6 +108,8 @@
 .label z_bottom_anim_char = 71// $47, $48
 .label z_anim_delay = 73      // $49
 
+.label z_ntsc = 74            // $4A
+
 // used by sprite multiplexer
 .label z_spritesStashed = 127 // $7F
 .label z_stashArea = 128      // $80
