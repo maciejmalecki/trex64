@@ -72,8 +72,7 @@
 .label PHASE_WRAP_1_TO_0    = %11000000
 .label PHASE_SWITCH_1_TO_0  = %10000001
 
-// copper raster lines
-.label SWITCH_RASTER_PAL    = 280
+// copper raster lines (NTSC)
 .label SWITCH_RASTER_NTSC   = 10
 
 .segment Code
@@ -82,7 +81,7 @@ startCopper: {
   startCopper(
     z_displayListPtr,
     z_listPtr,
-    List().add(c64lib.IRQH_HSCROLL, c64lib.IRQH_JSR, c64lib.IRQH_BG_RASTER_BAR, c64lib.IRQH_BG_COL_0).lock())
+    List().add(c64lib.IRQH_JSR, c64lib.IRQH_BG_RASTER_BAR, c64lib.IRQH_BG_COL_0).lock())
   rts
 }
 
@@ -187,31 +186,11 @@ playMusicIrq: {
   store: .byte 0
 }
 
-animateBG: {
-  debugBorderEnd()
-  lda z_anim_delay
-  bne scrollBottom
-
-  rotateCharRight(z_right_anim_char)
-  jmp !+
-  scrollBottom:
-    rotateCharBottom(z_bottom_anim_char, store)
-  !:
-  inc z_anim_delay
-  lda z_anim_delay
-  cmp #2
-  bne !+
-    lda #0
-    sta z_anim_delay
-  !:
-  debugBorderStart()
-  rts
-  store: .byte 0
-}
 // ---- END: Copper handling ----
-
+beforeAlign:
 .align $100
 _copperListStart:
+.print "wasted space because of Copper align $100: " + (_copperListStart - beforeAlign)
 // here we define layout of raster interrupt handlers
 ingameCopperList:
     // play music
@@ -226,19 +205,6 @@ ingameCopperList:
     copperEntry(280, IRQH_JSR, <switchPages, >switchPages)
     // here we loop and so on, so on, for each frame
     copperLoop()
-
-// ingameCopperListNTSC:
-//     // play music
-//     copperEntry(DASHBOARD_Y + 20, IRQH_JSR, <upperMultiplex, >upperMultiplex) // 50 + 20 = 70
-//     copperEntry(77, IRQH_JSR, <playMusicIrq, >playMusicIrq)
-//     //copperEntry(99, IRQH_JSR, <animateBG, >animateBG)
-//   scrollCodeNTSC:
-//     // here we do the actual scrolling
-//     copperEntry(104, IRQH_JSR, <scrollBackground, >scrollBackground)
-//     // here we do the page switching when it's time for this
-//     copperEntry(10, IRQH_JSR, <switchPages, >switchPages)
-//     // here we loop and so on, so on, for each frame
-//     copperLoop()
 
 titleScreenCopperList:
       copperEntry(10, IRQH_JSR, <playMusic, >playMusic)
@@ -284,7 +250,6 @@ screen1RowOffsetsHi:  .fill 25, >(SCREEN_PAGE_ADDR_1 + i*40)
 
 .label FREE_MEMORY_START = SPRITE_ADDR
 
-//.align $100
 .label tileDefinition = MUSIC_START_ADDR - 1024
 .label mapOffsetsHi = tileDefinition - 12
 .label mapOffsetsLo = mapOffsetsHi - 12

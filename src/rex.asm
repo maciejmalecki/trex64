@@ -54,7 +54,7 @@
 // starting amount of lives
 .label LIVES = 3
 // starting level
-.label STARTING_WORLD = 1
+.label STARTING_WORLD = 3
 .label STARTING_LEVEL = 1
 
 // ---- levels ----
