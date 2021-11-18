@@ -22,7 +22,7 @@
   SOFTWARE.
 */
 
-#define VISUAL_DEBUG
+//#define VISUAL_DEBUG
 
 #import "common/lib/common.asm"
 #import "common/lib/mem.asm"
@@ -52,10 +52,10 @@
 }
 
 // starting amount of lives
-.label LIVES = 5
+.label LIVES = 3
 // starting level
 .label STARTING_WORLD = 1
-.label STARTING_LEVEL = 4
+.label STARTING_LEVEL = 1
 
 // ---- levels ----
 #import "levels/level1/data.asm"

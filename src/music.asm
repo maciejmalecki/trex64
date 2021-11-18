@@ -54,9 +54,9 @@ setupSounds: {
 }
 
 playMusic: {
-  debugBorderStart()
-  jsr music.play
   debugBorderEnd()
+  jsr music.play
+  debugBorderStart()
   rts
 }
 

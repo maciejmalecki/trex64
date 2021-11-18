@@ -72,6 +72,10 @@
 .label PHASE_WRAP_1_TO_0    = %11000000
 .label PHASE_SWITCH_1_TO_0  = %10000001
 
+// copper raster lines
+.label SWITCH_RASTER_PAL    = 280
+.label SWITCH_RASTER_NTSC   = 10
+
 .segment Code
 
 startCopper: {
@@ -112,18 +116,21 @@ rotateColors: {
 // ---- Copper handling ----
 .segment Code
 startIngameCopper: {
+  lda #<ingameCopperList
+  sta z_displayListPtr
+  lda #>ingameCopperList
+  sta z_displayListPtr + 1
+
   lda z_ntsc
   bne ntsc
-  lda #<ingameCopperListPAL
-  sta z_displayListPtr
-  lda #>ingameCopperListPAL
-  sta z_displayListPtr + 1
   jmp !+
   ntsc: {
-    lda #<ingameCopperListNTSC
-    sta z_displayListPtr
-    lda #>ingameCopperListNTSC
-    sta z_displayListPtr + 1
+    // for NTSC we want to change raster counter for last IRQ handler (switch pages)
+    lda #SWITCH_RASTER_NTSC
+    sta switchPagesCode + 1
+    lda switchPagesCode
+    and #%01111111
+    sta switchPagesCode
   }
   !:
     jsr startCopper
@@ -157,8 +164,30 @@ startEndGameScreenCopper: {
   rts
 }
 
-playMusicAndAnimate: {
+playMusicIrq: {
   jsr playMusic
+  debugBorderEnd()
+  lda z_anim_delay
+  bne scrollBottom
+
+  rotateCharRight(z_right_anim_char)
+  jmp !+
+  scrollBottom:
+    rotateCharBottom(z_bottom_anim_char, store)
+  !:
+  inc z_anim_delay
+  lda z_anim_delay
+  cmp #2
+  bne !+
+    lda #0
+    sta z_anim_delay
+  !:
+  debugBorderStart()
+  rts
+  store: .byte 0
+}
+
+animateBG: {
   debugBorderEnd()
   lda z_anim_delay
   bne scrollBottom
@@ -184,29 +213,32 @@ playMusicAndAnimate: {
 .align $100
 _copperListStart:
 // here we define layout of raster interrupt handlers
-ingameCopperListPAL:
+ingameCopperList:
     // play music
-    copperEntry(40, IRQH_JSR, <playMusicAndAnimate, >playMusicAndAnimate)
     copperEntry(DASHBOARD_Y + 20, IRQH_JSR, <upperMultiplex, >upperMultiplex) // 50 + 20 = 70
-  scrollCodePAL:
+    copperEntry(77, IRQH_JSR, <playMusicIrq, >playMusicIrq)
+    //copperEntry(99, IRQH_JSR, <animateBG, >animateBG)
+  scrollCode:
     // here we do the actual scrolling
-    copperEntry(88, IRQH_JSR, <scrollBackground, >scrollBackground)
+    copperEntry(104, IRQH_JSR, <scrollBackground, >scrollBackground)
     // here we do the page switching when it's time for this
-    copperEntry(288, IRQH_JSR, <switchPages, >switchPages)
+  switchPagesCode:
+    copperEntry(280, IRQH_JSR, <switchPages, >switchPages)
     // here we loop and so on, so on, for each frame
     copperLoop()
 
-ingameCopperListNTSC:
-    // play music
-    copperEntry(40, IRQH_JSR, <playMusicAndAnimate, >playMusicAndAnimate)
-    copperEntry(DASHBOARD_Y + 20, IRQH_JSR, <upperMultiplex, >upperMultiplex) // 50 + 20 = 70
-  scrollCodeNTSC:
-    // here we do the actual scrolling
-    copperEntry(88, IRQH_JSR, <scrollBackground, >scrollBackground)
-    // here we do the page switching when it's time for this
-    copperEntry(5, IRQH_JSR, <switchPages, >switchPages)
-    // here we loop and so on, so on, for each frame
-    copperLoop()
+// ingameCopperListNTSC:
+//     // play music
+//     copperEntry(DASHBOARD_Y + 20, IRQH_JSR, <upperMultiplex, >upperMultiplex) // 50 + 20 = 70
+//     copperEntry(77, IRQH_JSR, <playMusicIrq, >playMusicIrq)
+//     //copperEntry(99, IRQH_JSR, <animateBG, >animateBG)
+//   scrollCodeNTSC:
+//     // here we do the actual scrolling
+//     copperEntry(104, IRQH_JSR, <scrollBackground, >scrollBackground)
+//     // here we do the page switching when it's time for this
+//     copperEntry(10, IRQH_JSR, <switchPages, >switchPages)
+//     // here we loop and so on, so on, for each frame
+//     copperLoop()
 
 titleScreenCopperList:
       copperEntry(10, IRQH_JSR, <playMusic, >playMusic)
@@ -539,18 +571,10 @@ scrollBackground: {
 
   end:
     // setup IRQ handler back to scrollColorRam
-    lda z_ntsc
-    bne ntsc
-      lda #<scrollColorRam
-      sta scrollCodePAL + 2
-      lda #>scrollColorRam
-      sta scrollCodePAL + 3
-      jmp end2
-    ntsc:
-      lda #<scrollColorRam
-      sta scrollCodeNTSC + 2
-      lda #>scrollColorRam
-      sta scrollCodeNTSC + 3
+    lda #<scrollColorRam
+    sta scrollCode + 2
+    lda #>scrollColorRam
+    sta scrollCode + 3
   end2:
 
     debugBorderEnd()
@@ -579,19 +603,12 @@ scrollColorRam: {
   decodeColorRight(tilesCfg)
   switchBackIrq:
   // setup IRQ handler back to scrollBackground
-  lda z_ntsc
-  bne ntsc
-    lda #<scrollBackground
-    sta scrollCodePAL + 2
-    lda #>scrollBackground
-    sta scrollCodePAL + 3
-    jmp end
-  ntsc:
-    lda #<scrollBackground
-    sta scrollCodeNTSC + 2
-    lda #>scrollBackground
-    sta scrollCodeNTSC + 3
+  lda #<scrollBackground
+  sta scrollCode + 2
+  lda #>scrollBackground
+  sta scrollCode + 3
   end:
+
   debugBorderStart()
   rts
 }
@@ -713,13 +730,18 @@ switchPages: {
     !:
   dontReset:
 
+  jsr runEndOfFrameLogic
+
+  lda #0
+  sta z_colorRAMShifted
+
+  debugBorderEnd()
+  rts
+}
+
+runEndOfFrameLogic: {
   jsr updateDashboard
-  jsr io_scanControls
-  jsr handleControls
   jsr animate
-  jsr phy_performProgressiveJump
-  jsr phy_updateSpriteY
-  jsr dly_handleDelay
 
   jsr disposeActors
   jsr checkForNewActors
@@ -729,14 +751,15 @@ switchPages: {
   jsr checkActorCollisions
   jsr doGameOver
 
-  decrementScoreDelay()
-
   stashSprites(z_stashArea)
 
-  lda #0
-  sta z_colorRAMShifted
+  jsr io_scanControls
+  jsr handleControls
+  jsr phy_performProgressiveJump
+  jsr phy_updateSpriteY
+  jsr dly_handleDelay
+  decrementScoreDelay()
 
-  debugBorderEnd()
   rts
 }
 
