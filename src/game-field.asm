@@ -213,7 +213,7 @@ titleScreenCopperList:
       copperEntry(166, IRQH_BG_COL_0, BLACK, 0)
       copperEntry(190, IRQH_JSR, <rotateColors, >rotateColors)
       copperEntry(206, IRQH_BG_COL_0, BLACK, 0)
-      copperEntry(236, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
+      copperEntry(235, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
       copperEntry(250, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
       copperEntry(262, IRQH_JSR, <handleCredits, >handleCredits)
       copperLoop()
@@ -221,8 +221,8 @@ titleScreenCopperList:
 levelScreenCopperList:
     copperEntry(10, IRQH_JSR, <playMusic, >playMusic)
     copperEntry(80, IRQH_JSR, <scrollColorCycle2, >scrollColorCycle2)
-    copperEntry(124, IRQH_BG_RASTER_BAR, <colorCycle1, >colorCycle1)
-    copperEntry(140, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
+    copperEntry(123, IRQH_BG_RASTER_BAR, <colorCycle1, >colorCycle1)
+    copperEntry(139, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
     copperEntry(245, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
     copperLoop()
 

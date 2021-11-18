@@ -82,7 +82,7 @@ txt_fullGame4:        .text "better music"; .byte $ff
 txt_fullGame5:        .text "and still for free!"; .byte $ff
 txt_pressAnyKey:      incText("hit the button", 64); .byte $ff
 // color cycles
-colorCycle1:          .byte GREY, GREY, LIGHT_GREY, WHITE, WHITE, LIGHT_GREY, GREY, GREY, BLACK, $ff
-colorCycle2:          .byte BLACK, LIGHT_RED, RED, LIGHT_RED, YELLOW, WHITE, YELLOW, YELLOW, BLACK, $ff
+colorCycle1:          .byte GREY, GREY, GREY, LIGHT_GREY, WHITE, WHITE, LIGHT_GREY, GREY, GREY, BLACK, $ff
+colorCycle2:          .byte BLACK, LIGHT_RED, RED, LIGHT_RED, YELLOW, YELLOW, WHITE, YELLOW, YELLOW, BLACK, $ff
 fadeIn:               .byte BLACK, BLACK, DARK_GREY, DARK_GREY, GREY, GREY, LIGHT_GREY, LIGHT_GREY, WHITE, $ff
 fadeOut:              .byte WHITE, LIGHT_GREY, LIGHT_GREY, GREY, GREY, DARK_GREY, DARK_GREY, BLACK, BLACK, $ff
