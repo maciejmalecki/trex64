@@ -237,6 +237,7 @@ endGameScreenCopperList:
 
 _copperListEnd:
 .assert "Copper list must fit into single 256b page.", (_copperListEnd - _copperListStart)<256, true
+.print "Copper list size: " + (_copperListEnd - _copperListStart)
 // ---- END: Copper Tables ----
 
 
