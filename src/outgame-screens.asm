@@ -56,7 +56,7 @@ configureTitleVic2: {
   and #%11110000
   ora #%00001000
   sta CONTROL_1
-  
+
   jsr unpackChargen
   // copy inversed charset
   sei
@@ -149,7 +149,7 @@ doLevelScreen: {
   jsr startLevelScreenCopper
   jsr prepareLevelScreen
   jsr screenOn
-  
+
   jsr io_resetControls
   jsr dly_wait10
 

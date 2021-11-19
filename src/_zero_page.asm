@@ -1,18 +1,18 @@
 /*
   MIT License
-  
+
   Copyright (c) 2021 Maciej Malecki
-  
+
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
   copies of the Software, and to permit persons to whom the Software is
   furnished to do so, subject to the following conditions:
-  
+
   The above copyright notice and this permission notice shall be included in all
   copies or substantial portions of the Software.
-  
+
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,8 +23,6 @@
 */
 #importonce
 .filenamespace c64lib
-
-//#define use_watches
 
 // ZERO page
 .label z_x = 2                // $02,$03
@@ -114,15 +112,3 @@
 .label z_spritesStashed = 127 // $7F
 .label z_stashArea = 128      // $80
 
-
-#if use_watches
-  .watch z_x
-  .watch z_x+1
-  .watch z_phase
-  .watch z_deltaX
-  .watch z_xPos
-  .watch z_acc0
-  .watch z_wrappingMark
-  .watch z_scrollingMark
-  .watch z_colorRAMShifted
-#endif
