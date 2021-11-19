@@ -68,8 +68,9 @@
 // ---- game flow management ----
 start:
   // main init
-  jsr detectNTSC
   jsr cfg_configureC64
+  jsr clearZeroPage
+  jsr detectNTSC
   jsr unpackData
   jsr initConfig
 
@@ -218,6 +219,17 @@ doIngame: {
 setNTSC: {
   lda #1
   sta z_ntsc
+  rts
+}
+
+clearZeroPage: {
+  // TODO we most likely don't need it
+  ldx #2
+  lda #0
+  !:
+    sta 0,x
+    inx
+    bne !-
   rts
 }
 
@@ -432,11 +444,11 @@ unpackTileSet: {
   ldy #4
   loop:
     ldx store
-    dex
     !:
+      dex
       lda src: $ffff,x
       sta dest: $ffff,x
-      dex
+      cpx #0
     bne !-
     // increment src address base
     clc
@@ -666,6 +678,7 @@ setUpMap3_4: setUpMap(level3.MAP_4_ADDRESS, level3.MAP_4_WIDTH, level3.MAP_4_DEL
 // ---- END: level handling ----
 
 // ---- import modules ----
+
 // library modules
 #import "game-field.asm"
 #import "data.asm"
@@ -712,6 +725,9 @@ endOfTRex:
 .print ""
 .print "Memory summary:"
 .print "---------------"
+
+memSummary("Start address", start)
+
 memSummaryWithSize("    total PRG size", start, endOfTRex - start)
 memSummaryWithSize("PRG size w/o music", start, sfxEnd - start)
 
@@ -722,8 +738,8 @@ memSummaryWithSize("           sprites", SPRITE_ADDR, endOfSprites - beginOfSpri
 
 
 memSummaryWithSize("       tile colors", tileColors, 256)
-memSummaryWithSize("      mapOffsetsLo", mapOffsetsLo, 256)
-memSummaryWithSize("      mapOffsetsHi", mapOffsetsHi, 256)
+memSummaryWithSize("      mapOffsetsLo", mapOffsetsLo, 12)
+memSummaryWithSize("      mapOffsetsHi", mapOffsetsHi, 12)
 memSummaryWithSize("  tiles definition", tileDefinition, 4*256)
 
 memSummaryWithSize(" music player&data", music.init, music.size)
