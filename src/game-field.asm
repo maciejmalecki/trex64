@@ -757,6 +757,8 @@ handleControls: {
   }
   !:
   // handle ducking
+  lda z_mode
+  bne afterDuck
   jsr io_checkUnduck
   beq !+
     jsr spr_showPlayerWalkLeft
