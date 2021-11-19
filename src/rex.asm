@@ -224,6 +224,7 @@ setNTSC: {
 detectNTSC: {
   lda #0
   sta z_ntsc
+  sta z_ntscMusicCtr
   detectNtsc(0, setNTSC)
   rts
 }

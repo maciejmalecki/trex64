@@ -55,7 +55,19 @@ setupSounds: {
 
 playMusic: {
   debugBorderEnd()
-  jsr music.play
+  lda z_ntsc
+  beq doPlay
+    ldx z_ntscMusicCtr
+    inx
+    stx z_ntscMusicCtr
+    cpx #6
+    bne doPlay
+    ldx #0
+    stx z_ntscMusicCtr
+    debugBorderStart()
+    rts
+  doPlay:
+    jsr music.play
   debugBorderStart()
   rts
 }
