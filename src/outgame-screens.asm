@@ -303,6 +303,18 @@ prepareLevelScreen: {
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 24)
   jsr outHexNibbleInversed
 
+  lda z_extraLiveAwarded
+  beq !+
+
+    pushParamW(txt_extraLive)
+    pushParamW(SCREEN_PAGE_ADDR_0 + 40*14 + 13)
+    jsr outText
+
+    lda #0
+    sta z_extraLiveAwarded
+
+  !:
+
   rts
 }
 

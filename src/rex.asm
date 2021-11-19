@@ -256,6 +256,7 @@ initGame: {
 
   lda #0
   sta z_isDuck
+  sta z_extraLiveAwarded
 
   // set score to 0
   resetScore()
@@ -410,8 +411,10 @@ nextLevel: {
       jmp end
   nextWorld:
       inc z_worldCounter
+      inc z_lives
       lda #1
       sta z_levelCounter
+      sta z_extraLiveAwarded
   end:
   rts
 }

@@ -65,7 +65,7 @@
 .label DASHBOARD_Y = 50
 .label DASHBOARD_LEFT_X = 34
 .label DASHBOARD_RIGHT_X = 4
-.label DASHBOARD_RIGHT_SPC = 2
+.label DASHBOARD_RIGHT_SPC = 0
 
 // visual effects
 .label COLOR_CYCLE_DELAY = 4

@@ -401,7 +401,7 @@ beginOfSprites:
   .import binary "snake.bin"
   _b_dashboard:
   .import binary "dashboard.bin"
-  .fill 2*64, 0
+  .fill 1*64, 0
   // empty
   .fill 64, 0
 endOfSprites:

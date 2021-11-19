@@ -108,6 +108,7 @@
 
 .label z_ntsc = 74            // $4A
 .label z_ntscMusicCtr = 75    // $4B
+.label z_extraLiveAwarded = 76// $4B
 
 // used by sprite multiplexer
 .label z_spritesStashed = 127 // $7F

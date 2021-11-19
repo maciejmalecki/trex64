@@ -223,6 +223,7 @@ levelScreenCopperList:
     copperEntry(80, IRQH_JSR, <scrollColorCycle2, >scrollColorCycle2)
     copperEntry(123, IRQH_BG_RASTER_BAR, <colorCycle1, >colorCycle1)
     copperEntry(139, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
+    copperEntry(155, IRQH_BG_RASTER_BAR, <colorCycle1, >colorCycle1)
     copperEntry(245, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
     copperLoop()
 

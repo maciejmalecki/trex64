@@ -71,6 +71,7 @@ txt_page_7_2:         incText("or space/cbm respectively when on keys", 64); .by
 // level start screen
 txt_entering:         incText("world  0-0", 64); .byte $ff
 txt_getReady:         incText("get ready!", 64); .byte $ff
+txt_extraLive:        incText("+1 extra live!", 64); .byte $ff
 // end game screen
 txt_endGame1:         incText("congratulations!", 64); .byte $ff
 txt_endGame2:         incText("you have finished the game", 64); .byte $ff
