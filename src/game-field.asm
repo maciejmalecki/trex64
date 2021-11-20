@@ -215,7 +215,7 @@ titleScreenCopperList:
       copperEntry(206, IRQH_BG_COL_0, BLACK, 0)
       copperEntry(235, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
       copperEntry(250, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
-      copperEntry(262, IRQH_JSR, <handleCredits, >handleCredits)
+      copperEntry(261, IRQH_JSR, <handleCredits, >handleCredits)
       copperLoop()
 
 levelScreenCopperList:
@@ -223,7 +223,9 @@ levelScreenCopperList:
     copperEntry(80, IRQH_JSR, <scrollColorCycle2, >scrollColorCycle2)
     copperEntry(123, IRQH_BG_RASTER_BAR, <colorCycle1, >colorCycle1)
     copperEntry(139, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
+    #if !VISUAL_DEBUG // I don't understand why this is needed in -ntsc (but not -pal, -ntscold)
     copperEntry(155, IRQH_BG_RASTER_BAR, <colorCycle1, >colorCycle1)
+    #endif
     copperEntry(245, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
     copperLoop()
 
@@ -707,21 +709,22 @@ switchPages: {
 }
 
 runEndOfFrameLogic: {
-  jsr updateDashboard
+  jsr io_scanControls
+  jsr handleControls
   jsr animate
 
   jsr disposeActors
   jsr checkForNewActors
   jsr drawActors
-  jsr act_animate
+  //jsr act_animate
   jsr enableActors
   jsr checkActorCollisions
   jsr doGameOver
 
   stashSprites(z_stashArea)
 
-  jsr io_scanControls
-  jsr handleControls
+  jsr act_animate
+
   jsr phy_performProgressiveJump
   jsr phy_updateSpriteY
   jsr dly_handleDelay

@@ -25,7 +25,7 @@
 .filenamespace c64lib
 
 // ---- game parameters ----
-.label INVINCIBLE = 0
+.label INVINCIBLE = 1
 
 // scoring
 .label SCORE_FOR_PROGRESS_DELAY = 5

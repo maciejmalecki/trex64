@@ -22,7 +22,7 @@
   SOFTWARE.
 */
 
-//#define VISUAL_DEBUG
+#define VISUAL_DEBUG
 
 #import "common/lib/common.asm"
 #import "common/lib/mem.asm"
@@ -109,6 +109,7 @@ doIngame: {
   jsr screenOff
   jsr configureIngameVic2
   jsr prepareIngameScreen
+  jsr updateDashboard
   jsr updateScoreOnDashboard
   jsr updateHiScoreOnDashboard
   jsr setUpWorld
