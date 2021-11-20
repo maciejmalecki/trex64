@@ -139,7 +139,7 @@ _map4Actors:
   actorDef(c64lib.EN_VOGEL, 38, 120, $40, WHITE)
   actorDef(c64lib.EN_SCORPIO, 60, 182, $30, BLACK)
   actorDef(c64lib.EN_SCORPIO, 65, 182, $30, BLACK)
-  actorDef(c64lib.EN_SNAKE, 80, 182, $30, LIGHT_GREEN)
+  actorDef(c64lib.EN_SNAKE, 80, 182, $30, BLUE)
   actorDef(c64lib.EN_VOGEL, 120, 76, $50, WHITE)
   actorDef(c64lib.EN_VOGEL, 122, 110, $50, WHITE)
   actorDef(c64lib.EN_VOGEL, 123, 140, $50, WHITE)

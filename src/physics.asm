@@ -32,7 +32,7 @@
 
 .label _JUMP_TABLE_LENGTH = 14
 .label _JUMP_LINEAR_LENGTH = 17
-.label _JUMP_LANDING_LENGTH = 10
+.label _JUMP_LANDING_LENGTH = 14
 .label _GRAVITY_FACTOR = 3
 
 .function _polyJump(i) {
@@ -113,7 +113,7 @@ phy_performProgressiveJump: {
         sta z_jumpFrame
         jmp end
       nextFrame:
-      lda jumpTableLinear,x
+      lda jumpTableLanding,x
       sta z_yPos
       dex
       stx z_jumpLinear
@@ -157,6 +157,7 @@ jumpTablePeak:
   .fill _JUMP_TABLE_LENGTH, _polyJump(i)
   .byte $ff
 jumpTableLanding:
-  .fill _JUMP_LANDING_LENGTH, _linearJump(i)
+  .fill (_JUMP_LINEAR_LENGTH - _JUMP_LANDING_LENGTH), 0
+  .fill _JUMP_LANDING_LENGTH, _linearJump(i + (_JUMP_LINEAR_LENGTH - _JUMP_LANDING_LENGTH))
   .byte $ff
  // ---- END: Jump handling ----

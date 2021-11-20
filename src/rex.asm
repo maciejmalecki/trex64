@@ -22,7 +22,7 @@
   SOFTWARE.
 */
 
-#define VISUAL_DEBUG
+// #define VISUAL_DEBUG
 
 #import "common/lib/common.asm"
 #import "common/lib/mem.asm"
