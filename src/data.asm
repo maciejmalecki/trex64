@@ -75,12 +75,10 @@ txt_extraLive:        incText("+1 extra live!", 64); .byte $ff
 // end game screen
 txt_endGame1:         incText("congratulations!", 64); .byte $ff
 txt_endGame2:         incText("you have finished the game", 64); .byte $ff
-txt_fullGame0:        .text "in the full game:"; .byte $ff
-txt_fullGame1:        .text "more levels"; .byte $ff
-txt_fullGame2:        .text "more worlds"; .byte $ff
-txt_fullGame3:        .text "more enemies"; .byte $ff
-txt_fullGame4:        .text "better music"; .byte $ff
-txt_fullGame5:        .text "and still for free!"; .byte $ff
+txt_endGame3:        .text "t-rex has been saved"; .byte $ff
+txt_endGame4:        .text "from mass extinction"; .byte $ff
+txt_endGame5:        .text "see you in the next"; .byte $ff
+txt_endGame6:        .text "game, maybe..."; .byte $ff
 txt_pressAnyKey:      incText("hit the button", 64); .byte $ff
 // color cycles
 colorCycle1:          .byte GREY, GREY, GREY, LIGHT_GREY, WHITE, WHITE, LIGHT_GREY, GREY, GREY, BLACK, $ff

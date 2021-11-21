@@ -334,18 +334,14 @@ prepareEndGameScreen: {
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*8 + 7)
   jsr outText
 
-  pushParamW(COLOR_RAM + 40*11 + 11); lda #YELLOW; ldx #17; jsr fillMem
-  pushParamW(txt_fullGame0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*11 + 11); jsr outText
-  pushParamW(COLOR_RAM + 40*13 + 11); lda #YELLOW; ldx #11; jsr fillMem
-  pushParamW(txt_fullGame1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*13 + 11); jsr outText
-  pushParamW(COLOR_RAM + 40*14 + 11); lda #YELLOW; ldx #11; jsr fillMem
-  pushParamW(txt_fullGame2); pushParamW(SCREEN_PAGE_ADDR_0 + 40*14 + 11); jsr outText
-  pushParamW(COLOR_RAM + 40*15 + 11); lda #YELLOW; ldx #12; jsr fillMem
-  pushParamW(txt_fullGame3); pushParamW(SCREEN_PAGE_ADDR_0 + 40*15 + 11); jsr outText
-  pushParamW(COLOR_RAM + 40*16 + 11); lda #YELLOW; ldx #12; jsr fillMem
-  pushParamW(txt_fullGame4); pushParamW(SCREEN_PAGE_ADDR_0 + 40*16 + 11); jsr outText
-  pushParamW(COLOR_RAM + 40*17 + 11); lda #WHITE; ldx #19; jsr fillMem
-  pushParamW(txt_fullGame5); pushParamW(SCREEN_PAGE_ADDR_0 + 40*17 + 11); jsr outText
+  pushParamW(COLOR_RAM + 40*11 + 10); lda #LIGHT_GRAY; ldx #20; jsr fillMem
+  pushParamW(txt_endGame3); pushParamW(SCREEN_PAGE_ADDR_0 + 40*11 + 10); jsr outText
+  pushParamW(COLOR_RAM + 40*13 + 10); lda #LIGHT_GRAY; ldx #20; jsr fillMem
+  pushParamW(txt_endGame4); pushParamW(SCREEN_PAGE_ADDR_0 + 40*13 + 10); jsr outText
+  pushParamW(COLOR_RAM + 40*15 + 10); lda #LIGHT_BLUE; ldx #19; jsr fillMem
+  pushParamW(txt_endGame5); pushParamW(SCREEN_PAGE_ADDR_0 + 40*15 + 10); jsr outText
+  pushParamW(COLOR_RAM + 40*17 + 10); lda #LIGHT_BLUE; ldx #14; jsr fillMem
+  pushParamW(txt_endGame6); pushParamW(SCREEN_PAGE_ADDR_0 + 40*17 + 10); jsr outText
 
   pushParamW(txt_pressAnyKey)
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*20 + 13)
