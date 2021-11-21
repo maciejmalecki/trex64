@@ -87,8 +87,8 @@ doTitleScreen: {
   jsr configureTitleVic2
   lda #TITLE_TUNE
   jsr initSound
-  jsr screenOn
   jsr prepareTitleScreen
+  jsr screenOn
   jsr startTitleCopper
   endlessTitle:
     // scan start game
@@ -146,9 +146,9 @@ doLevelScreen: {
   lda #NEXT_LEVEL_TUNE
   jsr initSound
 
-  jsr startLevelScreenCopper
   jsr prepareLevelScreen
   jsr screenOn
+  jsr startLevelScreenCopper
 
   jsr io_resetControls
   jsr dly_wait10
@@ -175,10 +175,10 @@ doEndGameScreen: {
   jsr initSound
 
   jsr configureTitleVic2
-  jsr startEndGameScreenCopper
 
   jsr prepareEndGameScreen
   jsr screenOn
+  jsr startEndGameScreenCopper
 
   jsr io_resetControls
   jsr dly_wait10

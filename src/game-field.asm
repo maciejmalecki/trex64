@@ -223,9 +223,9 @@ levelScreenCopperList:
     copperEntry(80, IRQH_JSR, <scrollColorCycle2, >scrollColorCycle2)
     copperEntry(123, IRQH_BG_RASTER_BAR, <colorCycle1, >colorCycle1)
     copperEntry(139, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
-    #if !VISUAL_DEBUG // I don't understand why this is needed in -ntsc (but not -pal, -ntscold)
     copperEntry(155, IRQH_BG_RASTER_BAR, <colorCycle1, >colorCycle1)
-    #endif
+    // this skip solves problem with black next level screen on 65 cycle NTSC machine. It seems Copper64 does not work properly with NTSC.
+    //copperEntry(175, IRQH_SKIP, <scrollColorCycle2, >scrollColorCycle2)
     copperEntry(245, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
     copperLoop()
 
