@@ -79,11 +79,12 @@ doTitleScreen: {
   sta z_colorCycleDelay
   sta z_colorCycleDelay2
 
+  jsr screenOff
+
   lda #32
   ldx #BLACK
   jsr clearBothScreens
 
-  jsr screenOff
   jsr configureTitleVic2
   lda #TITLE_TUNE
   jsr initSound

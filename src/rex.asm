@@ -69,7 +69,7 @@
 start:
   // main init
   jsr cfg_configureC64
-  jsr clearZeroPage
+  // jsr clearZeroPage
   jsr detectNTSC
   jsr unpackData
   jsr initConfig
@@ -223,16 +223,16 @@ setNTSC: {
   rts
 }
 
-clearZeroPage: {
-  // TODO we most likely don't need it
-  ldx #2
-  lda #0
-  !:
-    sta 0,x
-    inx
-    bne !-
-  rts
-}
+// TODO we most likely don't need it
+// clearZeroPage: {
+//   ldx #2
+//   lda #0
+//   !:
+//     sta 0,x
+//     inx
+//     bne !-
+//   rts
+// }
 
 detectNTSC: {
   lda #0
@@ -347,6 +347,9 @@ cfg_configureC64: {
 }
 
 unpackData: {
+  sei
+  // just in case sprites and music are below IO are after decrunching
+  configureMemory(RAM_RAM_RAM)
   // copy sprites
   pushParamW(beginOfSprites)
   pushParamW(SPRITE_ADDR)
@@ -357,6 +360,8 @@ unpackData: {
   pushParamW(musicLocation)
   pushParamW(musicSize)
   jsr copyLargeMemForward
+  configureMemory(RAM_IO_RAM)
+  cli
   rts
 }
 // ---- END: general configuration ----
