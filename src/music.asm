@@ -90,6 +90,18 @@ playDeath: {
   jmp playSfx
 }
 
+playSplash: {
+  lda #<sfxDeath
+  ldy #>sfxDeath
+  jmp playSfx
+}
+
+playBurn: {
+  lda #<sfxDeath
+  ldy #>sfxDeath
+  jmp playSfx
+}
+
 playLanding: {
   lda #<sfxLanding
   ldy #>sfxLanding

@@ -104,6 +104,7 @@ _materials: .fill _materialsData.getSize(), _materialsData.get(i)
 // level 3-1
 _map1: .fill _map1Data.getSize(), _map1Data.get(i)
 _map1Actors:
+  actorDef(c64lib.EN_VOGEL, 23, 90, $40, WHITE)
   actorDefEnd()
 // level 3-2
 _map2: .fill _map2Data.getSize(), _map2Data.get(i)

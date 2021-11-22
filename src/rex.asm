@@ -54,7 +54,7 @@
 // starting amount of lives
 .label LIVES = 3
 // starting level
-.label STARTING_WORLD = 1
+.label STARTING_WORLD = 3
 .label STARTING_LEVEL = 1
 
 // ---- levels ----
@@ -141,7 +141,9 @@ doIngame: {
     // check game state
     lda z_gameState
     cmp #GAME_STATE_KILLED
-    bne !+
+    beq !+
+    jmp notKilled
+    !:
       {
         lda z_mode
         bne !+
@@ -165,14 +167,16 @@ doIngame: {
         bne goShowFireDeath
       goShowDeath:
         jsr spr_showDeath
-        jmp goPlayDeath
+        jsr playDeath
+        jmp goAfterPlayDeath
       goShowFireDeath:
         jsr spr_showFireDeath
-        jmp goPlayDeath
+        jsr playBurn
+        jmp goAfterPlayDeath
       goShowWaterDeath:
         jsr spr_showWaterDeath
-      goPlayDeath:
-        jsr playDeath
+        jsr playSplash
+      goAfterPlayDeath:
 
       // remember death position
       lda z_x
@@ -187,8 +191,34 @@ doIngame: {
         sta z_gameState
         jmp displayGameOver
       livesLeft:
-      wait #100
-    !:
+
+      // check for combo death
+      lda #0
+      sta z_bgDeath
+      lda #100
+      sta z_delayCounter
+      checkDelay: {
+        jsr checkBGCollisions
+        lda z_bgDeath
+        beq !+
+          lda z_worldCounter
+          cmp #2
+          bne checkWorld3
+            jsr spr_showWaterDeath
+            jsr playSplash
+            jmp !+
+          checkWorld3:
+            cmp #3
+            bne !+
+              jsr spr_showFireDeath
+              jsr playBurn
+          wait #100
+        !:
+        lda z_delayCounter
+      }
+      bne checkDelay
+      // wait #100
+    notKilled:
     lda z_gameState
     cmp #GAME_STATE_LIVE
     beq !+
