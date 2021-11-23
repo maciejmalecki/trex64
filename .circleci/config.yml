@@ -17,7 +17,7 @@ jobs:
                 at: ./artifacts
             - run: mkdir out
             - run: git clone https://bitbucket.org/magli143/exomizer.git && pwd && ls -al
-            - run: cd exomizer/src && make build
+            - run: cd exomizer/src && make build && ls -al
             - run: ./gradlew build
             - run: pwd && ls -al build/charpad/levels/level1
             - run: cd src && cp rex.prg ../out && cp rex.d64 ../out
