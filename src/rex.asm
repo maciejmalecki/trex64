@@ -762,7 +762,7 @@ endOfTRex:
 .print "Memory summary:"
 .print "---------------"
 
-memSummary("Start address", start)
+memSummary("     Start address", start)
 
 memSummaryWithSize("    total PRG size", start, endOfTRex - start)
 memSummaryWithSize("PRG size w/o music", start, sfxEnd - start)
@@ -784,9 +784,10 @@ memSummaryWithSize(" music player&data", music.init, music.size)
 .print "Free memory summary:"
 .print "--------------------"
 
-.print "free memory for PRG left:     " + (SCREEN_PAGE_ADDR_0 - sfxEnd) + " bytes"
-.print "free memory for music left:   " + ($FFFF - 6 - (music.init + music.size)) + " bytes"
-.print "free memory for sprites left: " + (tileColors - (SPRITE_ADDR + endOfSprites - beginOfSprites)) + " bytes"
+.print "free memory for uncrunched PRG left: " + ($CFFF - endOfTRex) + " bytes"
+.print "free memory for PRG left:            " + (SCREEN_PAGE_ADDR_0 - sfxEnd) + " bytes"
+.print "free memory for music left:          " + ($FFFF - 6 - (music.init + music.size)) + " bytes"
+.print "free memory for sprites left:        " + (tileColors - (SPRITE_ADDR + endOfSprites - beginOfSprites)) + " bytes"
 
 .print ""
 .print "Assertions:"
