@@ -49,7 +49,7 @@
 // starting amount of lives
 .label LIVES = 3
 // starting level
-.label STARTING_WORLD = 3
+.label STARTING_WORLD = 1
 .label STARTING_LEVEL = 1
 
 // ---- levels ----
@@ -195,7 +195,7 @@ doIngame: {
       checkDelay: {
         jsr checkBGCollisions
         lda z_bgDeath
-        beq !+
+        beq noCombo
           lda z_worldCounter
           cmp #2
           bne checkWorld3
@@ -204,11 +204,12 @@ doIngame: {
             jmp !+
           checkWorld3:
             cmp #3
-            bne !+
+            bne noCombo
               jsr spr_showFireDeath
               jsr playBurn
+          !:
           wait #100
-        !:
+        noCombo:
         lda z_delayCounter
       }
       bne checkDelay

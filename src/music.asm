@@ -91,14 +91,14 @@ playDeath: {
 }
 
 playSplash: {
-  lda #<sfxDeath
-  ldy #>sfxDeath
+  lda #<sfxSplushDeath
+  ldy #>sfxSplushDeath
   jmp playSfx
 }
 
 playBurn: {
-  lda #<sfxDeath
-  ldy #>sfxDeath
+  lda #<sfxBurnDeath
+  ldy #>sfxBurnDeath
   jmp playSfx
 }
 
@@ -201,6 +201,44 @@ sfxDeath: {
   .byte (LO + HI)/2, WAVEFORM
   .for (var i = (LO + HI)/2 - 1; i > LO; i = i - STEP) {
     .byte i
+  }
+  .byte $00
+}
+
+sfxSplushDeath: {
+  .label HI = $d0
+  .label LO = $c5
+  .label LEN = 6
+  .label WAVEFORM = $80
+
+  .byte $a5, $c8 // ADSR
+  .byte $00
+  .byte LO, WAVEFORM + 1, HI
+  .for (var i = 0; i < LEN; i++) {
+    .byte HI, HI
+  }
+  .byte LO, WAVEFORM, HI
+  .for (var i = 0; i < 2*LEN; i++) {
+    .byte LO, LO
+  }
+  .byte $00
+}
+
+sfxBurnDeath: {
+  .label HI = $ea
+  .label LO = $e9
+  .label LEN = 4
+  .label WAVEFORM = $80
+
+  .byte $95, $c8 // ADSR
+  .byte $00
+  .byte LO, WAVEFORM + 1, HI
+  .for (var i = 0; i < LEN; i++) {
+    .byte LO, HI
+  }
+  .byte LO, WAVEFORM, HI
+  .for (var i = 0; i < 2*LEN; i++) {
+    .byte LO, HI
   }
   .byte $00
 }
