@@ -19,8 +19,9 @@ jobs:
             - run: git clone https://bitbucket.org/magli143/exomizer.git && pwd && ls -al
             - run: cd exomizer/src && make build && ls -al
             - run: ./gradlew build
-            - run: pwd && ls -al build/charpad/levels/level1
-            - run: cd src && cp rex.prg ../out && cp rex.d64 ../out
+            - run: exomizer/src/exomizer sfx sys src/rex.prg -o out/rex.prg
+            - run: c1541 -format "trex64,21" d64 out/rex.d64 && c1541 -attach out/rex.d64 -write out/rex.prg trex64
+            - run: cd out && ls -al
             - persist-to-workspace:
                 root: .
                 paths:
