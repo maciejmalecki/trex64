@@ -16,7 +16,7 @@ jobs:
             - attach_workspace:
                 at: ./artifacts
             - run: mkdir out
-            - run: git clone https://bitbucket.org/magli143/exomizer.git
+            - run: git clone https://bitbucket.org/magli143/exomizer.git && pwd && ls -al
             - run: cd exomizer && make build
             - run: ./gradlew build
             - run: pwd && ls -al build/charpad/levels/level1
