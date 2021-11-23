@@ -49,7 +49,7 @@
 // starting amount of lives
 .label LIVES = 3
 // starting level
-.label STARTING_WORLD = 1
+.label STARTING_WORLD = 3
 .label STARTING_LEVEL = 1
 
 // ---- levels ----
@@ -179,14 +179,6 @@ doIngame: {
       lda z_x + 1
       sta z_hiScoreMark + 1
 
-      // decrement lives
-      dec z_lives
-      bne livesLeft
-        lda #GAME_STATE_GAME_OVER
-        sta z_gameState
-        jmp displayGameOver
-      livesLeft:
-
       // check for combo death
       lda #0
       sta z_bgDeath
@@ -213,7 +205,15 @@ doIngame: {
         lda z_delayCounter
       }
       bne checkDelay
-      // wait #100
+
+      // decrement lives
+      dec z_lives
+      bne livesLeft
+        lda #GAME_STATE_GAME_OVER
+        sta z_gameState
+        jmp displayGameOver
+      livesLeft:
+
     notKilled:
     lda z_gameState
     cmp #GAME_STATE_LIVE
