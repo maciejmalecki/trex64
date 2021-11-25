@@ -17,29 +17,14 @@ jobs:
                 at: ./artifacts
             - run: mkdir out
             - run: ./gradlew build
-            - run: cp src/rex.prg out
+            - run: exomizer sfx sys src/rex.prg -o ./artifacts/out/rex.prg
+            - run: c1541 -format "trex64,21" d64 ./artifacts/out/rex.d64 && c1541 -attach ./artifacts/out/rex.d64 -write ./artifacts/out/rex.prg trex64
             - run: cd out && ls -al
             - persist-to-workspace:
                 root: .
                 paths:
                     - out
 
-        crunch:
-          docker:
-            - image: maciejmalecki/c64libci:0.1.5rc01
-          steps:
-            - attach_workspace:
-                at: ./artifacts
-            - run: git clone https://bitbucket.org/magli143/exomizer.git && cd exomizer && git checkout 3.1.1
-            - run: cd exomizer/src && make build && ls -al
-            - run: mkdir ./artifacts/pub
-            - run: exomizer/src/exomizer sfx sys ./artifacts/out/rex.prg -o ./artifacts/pub/rex.prg
-            - run: c1541 -format "trex64,21" d64 ./artifacts/pub/rex.d64 && c1541 -attach ./artifacts/pub/rex.d64 -write ./artifacts/pub/rex.prg trex64
-            - run: cd ./artifacts/pub && ls -al
-            - persist-to-workspace:
-                root: ./artifacts
-                paths:
-                    - pub
 
         publish:
           docker:
@@ -50,8 +35,8 @@ jobs:
             - run:
                 name: "Publish PRG on GitHub"
                 command: |
-                    ls ./artifacts/pub
-                    ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -replace ${CIRCLE_TAG} ./artifacts/pub
+                    ls ./artifacts/out
+                    ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -replace ${CIRCLE_TAG} ./artifacts/out
 
 workflows:
     version: 2
@@ -69,16 +54,6 @@ workflows:
                     tags:
                         only:
                             - /^([0-9]+)\.([0-9]+)\.([0-9]+).*$/
-            - crunch:
-                filters:
-                    branches:
-                        ignore:
-                            - /.*/
-                    tags:
-                        only:
-                            - /^([0-9]+)\.([0-9]+)\.([0-9]+).*$/
-                requires:
-                    - build
             - publish:
                 filters:
                     branches:
@@ -89,4 +64,3 @@ workflows:
                             - /^([0-9]+)\.([0-9]+)\.([0-9]+).*$/
                 requires:
                     - build
-                    - crunch
