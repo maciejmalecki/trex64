@@ -55,18 +55,13 @@ jobs:
 
 workflows:
     version: 2
-    build-and-deploy:
+    commit:
         jobs:
-            - build:
-                filters:
-                    branches:
-                        only:
-                            - master
-                            - develop
-                            - preview
-                    tags:
-                        only:
-                            - /^([0-9]+)\.([0-9]+)\.([0-9]+)$/
+            - build
+
+    publish:
+        jobs:
+            - build
             - crunch:
                 requires:
                     - build
