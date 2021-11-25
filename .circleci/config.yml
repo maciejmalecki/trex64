@@ -67,18 +67,6 @@ workflows:
                     tags:
                         only:
                             - /^([0-9]+)\.([0-9]+)\.([0-9]+)$/
-            - crunch:
-                filters:
-                    branches:
-                        only:
-                            - master
-                            - develop
-                            - preview
-                    tags:
-                        only:
-                            - /^([0-9]+)\.([0-9]+)\.([0-9]+)$/
-                requires:
-                    - build
             - publish:
                 filters:
                     branches:
