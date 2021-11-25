@@ -61,8 +61,16 @@ workflows:
 
     publish:
         jobs:
-            - build
+            - build:
+                filters:
+                    tags:
+                        only:
+                            - /^([0-9]+)\.([0-9]+)\.([0-9]+)$/
             - crunch:
+                filters:
+                    tags:
+                        only:
+                            - /^([0-9]+)\.([0-9]+)\.([0-9]+)$/
                 requires:
                     - build
             - publish:
