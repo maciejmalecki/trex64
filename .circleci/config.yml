@@ -17,7 +17,7 @@ jobs:
                 at: ./artifacts
             - run: mkdir out && ls -al
             - run: ./gradlew build
-            - run: exomizer sfx sys src/rex.prg -o ./artifacts/out/rex.prg
+            - run: sudo exomizer sfx sys src/rex.prg -o ./artifacts/out/rex.prg
             - run: c1541 -format "trex64,21" d64 ./artifacts/out/rex.d64 && c1541 -attach ./artifacts/out/rex.d64 -write ./artifacts/out/rex.prg trex64
             - run: cd out && ls -al
             - persist-to-workspace:
