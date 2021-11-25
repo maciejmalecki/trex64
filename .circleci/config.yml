@@ -67,6 +67,9 @@ workflows:
                     tags:
                         only:
                             - /^([0-9]+)\.([0-9]+)\.([0-9]+)$/
+            - crunch:
+                requires:
+                    - build
             - publish:
                 filters:
                     branches:
