@@ -16,16 +16,30 @@ jobs:
             - attach_workspace:
                 at: ./artifacts
             - run: mkdir out
-            - run: git clone https://bitbucket.org/magli143/exomizer.git && cd exomizer && git checkout 3.1.1
-            - run: cd exomizer/src && make build && ls -al
             - run: ./gradlew build
-            - run: exomizer/src/exomizer sfx sys src/rex.prg -o out/rex.prg
-            - run: c1541 -format "trex64,21" d64 out/rex.d64 && c1541 -attach out/rex.d64 -write out/rex.prg trex64
+            - run: cp src/rex.prg out
             - run: cd out && ls -al
             - persist-to-workspace:
                 root: .
                 paths:
                     - out
+
+        crunch:
+          docker:
+            - image: maciejmalecki/c64libci:0.1.4
+          steps:
+            - attach_workspace:
+                at: ./artifacts
+            - run: git clone https://bitbucket.org/magli143/exomizer.git && cd exomizer && git checkout 3.1.1
+            - run: cd exomizer/src && make build && ls -al
+            - run: mkdir ./artifacts/pub
+            - run: exomizer/src/exomizer sfx sys ./artifacts/out/rex.prg -o ./artifacts/pub/rex.prg
+            - run: c1541 -format "trex64,21" d64 ./artifacts/pub/rex.d64 && c1541 -attach ./artifacts/pub/rex.d64 -write ./artifacts/pub/rex.prg trex64
+            - run: cd ./artifacts/pub && ls -al
+            - persist-to-workspace:
+                root: .
+                paths:
+                    - pub
 
         publish:
           docker:
@@ -53,6 +67,18 @@ workflows:
                     tags:
                         only:
                             - /^([0-9]+)\.([0-9]+)\.([0-9]+)$/
+            - crunch:
+                filters:
+                    branches:
+                        only:
+                            - master
+                            - develop
+                            - preview
+                    tags:
+                        only:
+                            - /^([0-9]+)\.([0-9]+)\.([0-9]+)$/
+                requires:
+                    - build
             - publish:
                 filters:
                     branches:
