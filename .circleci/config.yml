@@ -37,7 +37,7 @@ jobs:
             - run: c1541 -format "trex64,21" d64 ./artifacts/pub/rex.d64 && c1541 -attach ./artifacts/pub/rex.d64 -write ./artifacts/pub/rex.prg trex64
             - run: cd ./artifacts/pub && ls -al
             - persist-to-workspace:
-                root: .
+                root: ./artifacts
                 paths:
                     - pub
 
@@ -50,8 +50,8 @@ jobs:
             - run:
                 name: "Publish PRG on GitHub"
                 command: |
-                    ls ./artifacts/out
-                    ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -replace ${CIRCLE_TAG} ./artifacts/out
+                    ls ./artifacts/pub
+                    ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -replace ${CIRCLE_TAG} ./artifacts/pub
 
 workflows:
     version: 2
@@ -91,3 +91,4 @@ workflows:
                             - /^([0-9]+)\.([0-9]+)\.([0-9]+)$/
                 requires:
                     - build
+                    - crunch
