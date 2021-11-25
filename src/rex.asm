@@ -139,9 +139,12 @@ doIngame: {
     beq !+
     jmp notKilled
     !:
+      lda z_bgDeath
+      beq alwaysJump
       lda z_worldCounter
       cmp #1
       bne noJump
+      alwaysJump:
       {
         lda z_mode
         bne !+
@@ -252,17 +255,6 @@ setNTSC: {
   sta z_ntsc
   rts
 }
-
-// TODO we most likely don't need it
-// clearZeroPage: {
-//   ldx #2
-//   lda #0
-//   !:
-//     sta 0,x
-//     inx
-//     bne !-
-//   rts
-// }
 
 detectNTSC: {
   lda #0
