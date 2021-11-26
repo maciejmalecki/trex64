@@ -1,7 +1,7 @@
 import com.github.c64lib.retroassembler.domain.AssemblerType
 
 plugins {
-    id("com.github.c64lib.retro-assembler") version "1.4.5"
+    id("com.github.c64lib.retro-assembler") version "1.5.0"
 }
 
 repositories {
@@ -11,7 +11,7 @@ repositories {
 retroProject {
     dialect = AssemblerType.KickAssembler
     dialectVersion = "5.22"
-    libDirs = arrayOf(".ra/deps/c64lib", "build/charpad", "build/spritepad")
+    libDirs = arrayOf(".ra/deps/c64lib", "build/charpad", "build/spritepad", "build/goattracker")
     includes = arrayOf("src/rex.asm")
 
     libFromGitHub("c64lib/common", "0.3.0")
@@ -21,6 +21,18 @@ retroProject {
 }
 
 preprocess {
+    // music
+    goattracker {
+      getInput().set(file("src/music/trex.sng"))
+      getUseBuildDir().set(true)
+      music {
+        getOutput().set(file("music/trex.sid"))
+        bufferedSidWrites = true
+        sfxSupport = true
+        storeAuthorInfo = true
+        playerMemoryLocation = 0xF5
+      }
+    }
     // game font
     charpad {
       getInput().set(file("src/charset/charset.ctm"))
