@@ -10,7 +10,7 @@ repositories {
 
 retroProject {
     dialect = AssemblerType.KickAssembler
-    dialectVersion = "5.22"
+    dialectVersion = "5.23"
     libDirs = arrayOf(".ra/deps/c64lib", "build/charpad", "build/spritepad", "build/goattracker")
     includes = arrayOf("src/rex.asm")
 
