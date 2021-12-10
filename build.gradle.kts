@@ -1,11 +1,7 @@
 import com.github.c64lib.retroassembler.domain.AssemblerType
 
 plugins {
-    id("com.github.c64lib.retro-assembler") version "1.5.0"
-}
-
-repositories {
-     mavenCentral()
+    id("com.github.c64lib.retro-assembler") version "1.5.1"
 }
 
 retroProject {
