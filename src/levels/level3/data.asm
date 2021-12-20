@@ -60,9 +60,9 @@
 
 .label MAP_4_WIDTH = _map4Data.getSize() / c64lib.MAP_HEIGHT
 .label MAP_4_ADDRESS = _map4
-.label MAP_4_DELTA_X = 1<<5 // x2
+.label MAP_4_DELTA_X = 1<<6 // x2
 .label MAP_4_WRAPPING_MARK = 0
-.label MAP_4_SCROLLING_MARK = 6 // (x4 = 4)
+.label MAP_4_SCROLLING_MARK = 4 // (x4 = 4)
 .label MAP_4_ACTORS = _map4Actors
 
 .label CHARSET_SIZE = _charsetData.getSize()/8
