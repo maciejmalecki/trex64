@@ -93,7 +93,7 @@
 .label MAX_DELAY = 10
 
 // ---- music ----
-.label TITLE_TUNE = 4
+.label TITLE_TUNE = 5
 .label INGAME_TUNE = 0
 .label INGAME_SFX_TUNE = 2
 .label NEXT_LEVEL_TUNE = 3
