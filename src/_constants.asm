@@ -54,6 +54,8 @@
 
 // collision detection
 .label X_COLLISION_OFFSET = 12 - 24
+.label X_COLLISION_OFFSET_LEFT = -9
+.label X_COLLISION_OFFSET_RIGHT = 1
 .label Y_COLLISION_OFFSET = 29 - 50 - 6
 
 // material codes

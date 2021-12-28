@@ -286,7 +286,7 @@ checkBGCollisions: {
     lsr
     tay
     sta storeY
-    lda #(PLAYER_X + X_COLLISION_OFFSET)
+    lda #(PLAYER_X + X_COLLISION_OFFSET + X_COLLISION_OFFSET_RIGHT)
     lsr
     lsr
     lsr
@@ -305,7 +305,7 @@ checkBGCollisions: {
     !:
 
     ldy storeY
-    lda #(PLAYER_X + X_COLLISION_OFFSET - 8)
+    lda #(PLAYER_X + X_COLLISION_OFFSET + X_COLLISION_OFFSET_LEFT)
     lsr
     lsr
     lsr
