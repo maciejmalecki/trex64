@@ -743,6 +743,7 @@ memSummary("     Start address", start)
 
 memSummaryWithSize("    total PRG size", start, endOfTRex - start)
 memSummaryWithSize("PRG size w/o music", start, sfxEnd - start)
+memSummaryWithSize("       BG gfx size", sfxEnd, beginOfSprites - sfxEnd)
 
 memSummaryWithSize("      video page 0", SCREEN_PAGE_ADDR_0, 1024)
 memSummaryWithSize("      video page 1", SCREEN_PAGE_ADDR_1, 1024)
@@ -761,10 +762,11 @@ memSummaryWithSize(" music player&data", music.init, music.size)
 .print "Free memory summary:"
 .print "--------------------"
 
-.print "free memory for uncrunched PRG left: " + ($CFFF - endOfTRex) + " bytes"
-.print "free memory for PRG left:            " + (SCREEN_PAGE_ADDR_0 - sfxEnd) + " bytes"
-.print "free memory for music left:          " + ($FFFF - 6 - (music.init + music.size)) + " bytes"
-.print "free memory for sprites left:        " + (tileColors - (SPRITE_ADDR + endOfSprites - beginOfSprites)) + " bytes"
+.print "free memory for uncrunched PRG left:   " + ($CFFF - endOfTRex) + " bytes"
+.print "free memory for bg graphics data left: " + (SCREEN_PAGE_ADDR_0 - beginOfSprites) + " bytes"
+.print "free memory for PRG left:              " + (SCREEN_PAGE_ADDR_0 - beginOfSprites) + " bytes"
+.print "free memory for music left:            " + ($FFFF - 6 - (music.init + music.size)) + " bytes"
+.print "free memory for sprites left:          " + (tileColors - (SPRITE_ADDR + endOfSprites - beginOfSprites)) + " bytes"
 
 .print ""
 .print "Assertions:"
