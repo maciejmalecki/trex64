@@ -44,7 +44,7 @@
 
 .filenamespace c64lib
 
-.file [name="./rex.prg", segments="Code, Data, Charsets, LevelData, AuxGfx, Sfx, Sprites, Music", modify="BasicUpstart", _start=$0810]
+.file [name="./rex.prg", segments="Code, Data, AuxGfx, Sfx, Materials, Charsets, LevelData, Sprites, Music", modify="BasicUpstart", _start=$0810]
 
 // starting amount of lives
 .label LIVES = 9
@@ -511,12 +511,11 @@ unpackTileSet: {
   // copy level chargen
   sei
   configureMemory(RAM_RAM_RAM)
+
   pushParamW(levelCfg.CHARSET_ADDRESS)
   pushParamW(CHARGEN_ADDR)
   pushParamW(levelCfg.CHARSET_SIZE*8)
   jsr copyLargeMemForward
-  configureMemory(RAM_IO_RAM)
-  cli
 
   // copy tiles colors
   pushParamW(levelCfg.TILES_COLORS_ADDRESS)
@@ -529,6 +528,9 @@ unpackTileSet: {
   pushParamW(tileDefinition)
   ldx #levelCfg.TILES_SIZE
   jsr unpackTileSet
+
+  configureMemory(RAM_IO_RAM)
+  cli
 
   // set up materials pointer
   lda #[<levelCfg.MATERIALS_ADDRESS]
@@ -724,23 +726,6 @@ setUpMap3_4: setUpMap(level3.MAP_4_ADDRESS, level3.MAP_4_WIDTH, level3.MAP_4_DEL
 // ---- END: import modules ----
 .segment Music
 endOfTRex:
-
-//.print "header="+music.header
-// .print "init=$"+toHexString(music.init)
-// .print "play=$"+toHexString(music.play)
-// .print "songs="+music.songs
-// .print "startSong="+music.startSong
-// .print "size=$"+toHexString(music.size)
-// .print "name="+music.name
-// .print "author="+music.author
-// .print "copyright="+music.copyright
-// .print "header="+music.header
-// .print "header version="+music.version
-// .print "flags="+toBinaryString(music.flags)
-// .print "speed="+toBinaryString(music.speed)
-// .print "startpage="+music.startpage
-// .print "pagelength="+music.pagelength
-// .print "sfxEnd="+toHexString(sfxEnd)
 
 // print memory map summary
 .macro memSummary(name, address) {

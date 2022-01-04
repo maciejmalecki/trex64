@@ -98,6 +98,7 @@
 // level data
 .segment Charsets
 _charset: .fill _charsetData.getSize(), _charsetData.get(i)
+.segment Materials
 _materials: .fill _materialsData.getSize(), _materialsData.get(i)
 
 .segment LevelData
