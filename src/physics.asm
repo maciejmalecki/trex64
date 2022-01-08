@@ -50,6 +50,7 @@ phy_performProgressiveJump: {
   lda z_mode
   sta z_prevMode
   beq end
+  jsr checkIfTerminate
     lda z_jumpPhase
     bne peakPhase
       // up phase
@@ -120,6 +121,20 @@ phy_performProgressiveJump: {
     }
   end:
   rts
+  checkIfTerminate:
+    lda z_bgDeath
+    beq !+
+    lda z_worldCounter
+    cmp #1
+    beq !+
+    // death from bg in world 2 or 3 - we will terminate any jump
+    lda #0
+    sta z_mode
+    // TODO: how about z_prevMode
+    sta z_jumpFrame
+    sta z_yPos
+    !:
+    rts
 }
 
 phy_updateSpriteY: {
