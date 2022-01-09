@@ -123,7 +123,7 @@ phy_performProgressiveJump: {
   end:
   rts
   checkIfTerminate:
-    lda z_bgDeath
+    lda z_bgDeathCopy
     beq !+
     lda z_worldCounter
     cmp #1

@@ -108,7 +108,10 @@
 
 .label z_ntsc = 74            // $4A
 .label z_ntscMusicCtr = 75    // $4B
-.label z_extraLiveAwarded = 76// $4B
+.label z_extraLiveAwarded = 76// $4C
+
+// needed to fix jumping death issue
+.label z_bgDeathCopy = 77     // $4D
 
 // used by sprite multiplexer
 .label z_spritesStashed = 127 // $7F

@@ -330,6 +330,7 @@ checkBGCollisions: {
         sta z_gameState
         lda #1
         sta z_bgDeath
+        sta z_bgDeathCopy
       }
       rts
     storeX: .byte 0
@@ -385,6 +386,7 @@ initLevel: {
   sta z_spritesStashed
   sta z_doGameOver
   sta z_bgDeath
+  sta z_bgDeathCopy
   sta z_spriteEnable
   sta z_colorRAMShifted
   sta z_anim_delay
