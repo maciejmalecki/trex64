@@ -1,7 +1,7 @@
 import com.github.c64lib.retroassembler.domain.AssemblerType
 
 plugins {
-    id("com.github.c64lib.retro-assembler") version "1.5.1"
+    id("com.github.c64lib.retro-assembler") version "1.5.2"
 }
 
 retroProject {
@@ -33,6 +33,7 @@ preprocess {
     charpad {
       getInput().set(file("src/charset/charset.ctm"))
       getUseBuildDir().set(true)
+      getCtm8PrototypeCompatibility().set(true)
       outputs {
         meta {
           dialect = AssemblerType.KickAssembler
