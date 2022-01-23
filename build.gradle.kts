@@ -29,6 +29,17 @@ preprocess {
         playerMemoryLocation = 0xF5
       }
     }
+    goattracker {
+      getInput().set(file("src/music/trex2.sng"))
+      getUseBuildDir().set(true)
+      music {
+        getOutput().set(file("music/trex2.sid"))
+        bufferedSidWrites = true
+        sfxSupport = true
+        storeAuthorInfo = true
+        playerMemoryLocation = 0xF5
+      }
+    }
     // game font
     charpad {
       getInput().set(file("src/charset/charset.ctm"))
