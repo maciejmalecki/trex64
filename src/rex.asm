@@ -47,7 +47,7 @@
 .file [name="./rex.prg", segments="Code, Data, AuxGfx, Sfx, Materials, Charsets, LevelData, Sprites, Music", modify="BasicUpstart", _start=$0810]
 
 // starting amount of lives
-.label LIVES = 9
+.label LIVES = 5
 // starting level
 .label STARTING_WORLD = 2
 .label STARTING_LEVEL = 1
