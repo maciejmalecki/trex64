@@ -71,6 +71,7 @@ start:
 
   // main loop
   titleScreen:
+    jsr fadeOutMusic
     jsr doTitleScreen
     jsr checkNewHiScore
     jsr initGame
@@ -91,9 +92,9 @@ start:
     lda z_gameState
     cmp #GAME_STATE_GAME_OVER
     bne levelScreen
-
     jmp titleScreen
   gameFinished:
+    jsr fadeOutMusic
     lda #GAME_STATE_LIVE
     sta z_gameState
     jsr doEndGameScreen
@@ -241,10 +242,13 @@ doIngame: {
     sta z_doGameOver
     wait #255
     wait #80
+    jsr fadeOutMusic
+    wait #20
     // hack to fix #54
     lda #GAME_STATE_GAME_OVER
     sta z_gameState
   gameOver:
+    jsr fadeOutMusic
     jsr stopCopper
     jsr spr_hidePlayers
     rts

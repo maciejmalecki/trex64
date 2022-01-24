@@ -102,6 +102,7 @@
 .label NEXT_LEVEL_TUNE = 3
 .label GAME_OVER_TUNE = 4
 .label END_GAME_TUNE = 5
+.label FADE_OUT_TUNE = 6
 // trex.sid
 // .label TITLE_TUNE = 5
 // .label INGAME_TUNE = 0
@@ -109,6 +110,7 @@
 // .label NEXT_LEVEL_TUNE = 3
 // .label GAME_OVER_TUNE = 1
 // .label END_GAME_TUNE = 4
+// .label FADE_OUT_TUNE = 2
 .label MUSIC_START_ADDR = $f500
 
 // ---- keyboard ----

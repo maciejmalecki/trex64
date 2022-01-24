@@ -131,6 +131,7 @@ doTitleScreen: {
     sta z_previousKeys
     jmp endlessTitle
   startIngame:
+  jsr fadeOutMusic
   jsr dly_wait10
   jsr stopCopper
   rts
@@ -160,6 +161,7 @@ doLevelScreen: {
     bne !+
     jmp !-
   !:
+  jsr fadeOutMusic
   jsr dly_wait10
   jsr stopCopper
   rts

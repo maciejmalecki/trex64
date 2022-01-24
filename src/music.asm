@@ -24,6 +24,8 @@
 #import "chipset/lib/vic2.asm"
 #import "_segments.asm"
 #import "_zero_page.asm"
+#import "_constants.asm"
+#import "delays.asm"
 #importonce
 
 .filenamespace c64lib
@@ -44,6 +46,12 @@ initSound: {
   ldx #0
   ldy #0
   jsr music.init
+  rts
+}
+
+fadeOutMusic: {
+  lda #FADE_OUT_TUNE
+  jsr initSound
   rts
 }
 
