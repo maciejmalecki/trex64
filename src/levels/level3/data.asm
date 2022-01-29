@@ -121,6 +121,8 @@ _map4Actors:
   actorDef(c64lib.EN_VOGEL, 50, 76, $70, WHITE)
   actorDef(c64lib.EN_VOGEL, 70, 96, $70, LIGHT_RED)
   actorDef(c64lib.EN_VOGEL, 100, 130, $70, YELLOW)
+  actorDef(c64lib.EN_SNAKE, 220, 182, $60, LIGHT_GREEN)
+
   actorDefEnd()
 _colors: .fill _tileColorsData.getSize(), _tileColorsData.get(i)
 _tiles:
