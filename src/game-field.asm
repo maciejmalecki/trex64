@@ -1097,7 +1097,7 @@ handleCredits: {
   }
   displayPage3: {
     jsr clearCredits
-    pushParamW(txt_page_3_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 3); jsr outText
+    pushParamW(txt_page_3_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 2); jsr outText
     jmp initFadeIn
   }
   displayPage4: {

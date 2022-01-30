@@ -54,7 +54,7 @@ txt_page_2_0:         incText("t-rex 64", 64); .byte $ff
 txt_page_2_1:         incText("pal", 64); .byte $ff
 txt_page_2_2:         incText("ntsc", 64); .byte $ff
 
-txt_page_3_0:         incText("based on google chrome easter egg", 64); .byte $ff
+txt_page_3_0:         incText("inspired by google chrome easter egg", 64); .byte $ff
 
 txt_page_4_0:         incText("graphics:  zuza malecka", 64); .byte $ff
 txt_page_4_1:         incText("ola malecka", 64); .byte $ff

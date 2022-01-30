@@ -50,7 +50,7 @@
 .label LIVES = 5
 // starting level
 .label STARTING_WORLD = 2
-.label STARTING_LEVEL = 5
+.label STARTING_LEVEL = 1
 
 // ---- levels ----
 #import "levels/level1/data.asm"
