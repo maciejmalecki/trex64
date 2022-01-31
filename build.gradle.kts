@@ -6,7 +6,7 @@ plugins {
 
 retroProject {
     dialect = AssemblerType.KickAssembler
-    dialectVersion = "5.23"
+    dialectVersion = "5.24"
     libDirs = arrayOf(".ra/deps/c64lib", "build/charpad", "build/spritepad", "build/goattracker")
     includes = arrayOf("src/rex.asm")
 
