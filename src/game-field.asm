@@ -689,7 +689,7 @@ switchPages: {
   // check end of level condition
   clc
   lda z_x + 1
-  adc #20
+  adc #19
   cmp z_width
   bne dontReset
     lda z_gameState
