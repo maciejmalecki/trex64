@@ -30,7 +30,19 @@ No matter of control method, game can be started with either FIRE in Joy 2 or SP
 
 Playing the game
 ----------------
+There are only two commands that can be used to control T-REX in her journey thru the levels:
+jump and duck.
+Use these commands to avoid enemies (birds, snakes and scorpios) and jump over cactuses, lava and water.
 
+If joystick control method is selected, use FIRE or UP for jumping and DOWN for ducking.
+
+If keyboard control method is selected, use SPACE for jumping and Commodore Key for ducking.
+Keys cannot be redefined.
+
+You can control how high you jump by pressing "jump" key / holding FIRE shorter or longer, depending on needs.
+
+The new level screen will be displayed until you will confirm you're ready for the next level.
+Use FIRE for confirmation when you use joystick control method or SPACE, when keyboard control method is choosen.
 
 Compatibility
 -------------
