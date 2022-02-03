@@ -15,10 +15,15 @@ jobs:
             - checkout
             - attach_workspace:
                 at: ./artifacts
-            - run: mkdir out && ls -al
+            - run: mkdir out
+            - run: mkdir work
             - run: ./gradlew build --stacktrace
-            - run: exomizer sfx sys src/rex.prg -o out/rex.prg
-            - run: c1541 -format "trex64,21" d64 out/rex.d64 && c1541 -attach out/rex.d64 -write out/rex.prg trex64
+            - run: exomizer sfx sys src/rex.prg -o work/rex.prg
+            - run: c1541 -format "trex64,21" d64 work/rex.d64 && c1541 -attach work/rex.d64 -write work/rex.prg trex64
+            - run: cp src/extra/readme.md work/00readme.md
+            - run: cd work && ls -al
+            - run: zip out/trex.zip work/*
+            - run: tar czf out/trex.tgz work/*
             - run: cd out && ls -al
             - persist-to-workspace:
                 root: .
