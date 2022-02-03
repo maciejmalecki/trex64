@@ -3,7 +3,7 @@ version: 2
 jobs:
         build:
           docker:
-            - image: maciejmalecki/c64libci:0.1.5
+            - image: maciejmalecki/c64libci:0.1.6
 
           working_directory: ~/repo
 
