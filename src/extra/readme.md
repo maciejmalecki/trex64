@@ -58,3 +58,10 @@ There is a single executable, the NTSC/PAL variant is automatically detected by 
 
 Please note, that the gameplay on NTSC is somewhat faster but this just makes the game more challenging.
 The gameplay has been tuned for NTSC speed.
+
+Authors
+-------
+Code, graphics, music and sound effects: *Maciej Małecki*;
+level design, graphics: *Zuza Małecka*, *Ola Małecka*.
+
+(c) Copyright: *Lockdown*, 2020 - 2022.
