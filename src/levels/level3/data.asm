@@ -110,10 +110,12 @@ _map1Actors:
 // level 3-2
 _map2: .fill _map2Data.getSize(), _map2Data.get(i)
 _map2Actors:
+  actorDef(c64lib.EN_VOGEL, 23, 80, $40, WHITE)
   actorDefEnd()
 // level 3-3
 _map3: .fill _map3Data.getSize(), _map3Data.get(i)
 _map3Actors:
+ actorDef(c64lib.EN_VOGEL, 87, 90, $40, WHITE)
   actorDefEnd()
 // level 3-4
 _map4: .fill _map4Data.getSize(), _map4Data.get(i)
