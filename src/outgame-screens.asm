@@ -261,13 +261,13 @@ prepareTitleScreen: {
   jsr copyLargeMemForward
 
   pushParamW(txt_author)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*AUTHOR_TOP)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*AUTHOR_TOP + 2)
   jsr outText
 
   pushParamW(COLOR_RAM + 40*MENU_TOP); lda #WHITE; ldx #40; jsr fillMem
 
   pushParamW(txt_menu)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*MENU_TOP)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*MENU_TOP + 4)
   jsr outText
 
   // prepare credits

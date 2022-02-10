@@ -37,9 +37,9 @@ spriteYPosRegisters:
   .byte <SPRITE_4_Y; .byte <SPRITE_5_Y; .byte <SPRITE_6_Y; .byte <SPRITE_7_Y
 // ---- texts ----
 // title screen
-txt_author:           .text " https://maciejmalecki.github.io/trex64"; .byte $ff
+txt_author:           .text "https://maciejmalecki.itch.io/trex64"; .byte $ff
 // title screen menu
-txt_menu:             .text "    f1        f3        f5 world 1-"; .byte $ff
+txt_menu:             .text "f1        f3        f5 world 1-"; .byte $ff
 txt_controlsJoy:      .text "joy 2"; .byte $ff
 txt_controlsKey:      .text "keys "; .byte $ff
 txt_soundMus:         .text "music"; .byte $ff
