@@ -22,6 +22,7 @@
   SOFTWARE.
 */
 #import "chipset/lib/mos6510.asm"
+#import "common/lib/math.asm"
 
 #import "_segments.asm"
 #import "_zero_page.asm"
@@ -225,18 +226,40 @@ toggleLevel: {
 
 prepareTitleScreen: {
   // decode coloring for logo
-  .for (var line = 0; line < 10; line++) {
+    lda #0
+    pha
+
+    lda #<beginOfTitleMap
+    sta sourceAddress
+    lda #>beginOfTitleMap
+    sta sourceAddress + 1
+    lda #<(COLOR_RAM + 40*LOGO_TOP)
+    sta destAddress
+    lda #>(COLOR_RAM + 40*LOGO_TOP)
+    sta destAddress + 1
+    nextLine:
     ldx #0
     nextChar:
-      lda (beginOfTitleMap + line*40),x
+      lda sourceAddress:$FFFF,x
       and #$7F
       tay
       lda beginOfTitleAttr,y
-      sta COLOR_RAM + 40*(LOGO_TOP + line),x
+      sta destAddress:$FFFF,x
       inx
       cpx #40
     bne nextChar
-  }
+
+    pla
+    tax
+    inx
+    cpx #10
+    beq end
+    txa
+    pha
+    add16(40, sourceAddress)
+    add16(40, destAddress)
+    jmp nextLine
+    end:
 
   // set up colors for title
   {
