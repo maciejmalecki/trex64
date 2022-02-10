@@ -27,16 +27,6 @@
 .filenamespace c64lib
 
 /*
- * Set score to 0.
- */
-.macro resetScore() {
-  lda #0
-  sta z_score
-  sta z_score + 1
-  sta z_score + 2
-}
-
-/*
  * Adds 4 digit decimal to the score.
  *
  * In:  A - low byte of operand

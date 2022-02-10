@@ -39,7 +39,6 @@
  #import "common/lib/sub/fill-screen.asm"
  #import "common/lib/sub/fill-mem.asm"
  #import "text/lib/sub/out-text.asm"
- #import "text/lib/sub/out-hex.asm"
  #import "text/lib/sub/out-hex-nibble.asm"
 
  outHexNibbleInversed:

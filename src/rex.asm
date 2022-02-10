@@ -50,7 +50,7 @@
 .label LIVES = 5
 // starting level
 .label STARTING_WORLD = 3
-.label STARTING_LEVEL = 4
+.label STARTING_LEVEL = 1
 
 // ---- levels ----
 #import "levels/level1/data.asm"
@@ -293,15 +293,14 @@ initGame: {
   lda z_startingLevel
   sta z_levelCounter
 
+  // set score to 0
   lda #0
+  sta z_score
+  sta z_score + 1
+  sta z_score + 2
   sta z_isDuck
   sta z_extraLiveAwarded
-
-  // set score to 0
-  resetScore()
-
   // zero hi-score counter
-  lda #0
   sta z_hiScoreMark
   sta z_hiScoreMark + 1
 
