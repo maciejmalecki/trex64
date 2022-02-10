@@ -113,6 +113,9 @@
 // needed to fix jumping death issue
 .label z_bgDeathCopy = 77     // $4D
 
+// needed to fix race condition on z_gameState
+.label z_killedByActor = 78   // $4E
+
 // used by sprite multiplexer
 .label z_spritesStashed = 127 // $7F
 .label z_stashArea = 128      // $80

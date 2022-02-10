@@ -49,7 +49,7 @@
 // starting amount of lives
 .label LIVES = 5
 // starting level
-.label STARTING_WORLD = 3
+.label STARTING_WORLD = 2
 .label STARTING_LEVEL = 1
 
 // ---- levels ----
@@ -132,6 +132,13 @@ doIngame: {
   brkInGame:
   mainMapLoop:
     // check death conditions
+    lda z_killedByActor
+    beq !+
+      lda #GAME_STATE_KILLED
+      sta z_gameState
+      lda #0
+      sta z_killedByActor
+    !:
     jsr checkBGCollisions
     jsr updateScore
     // check game state

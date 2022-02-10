@@ -364,9 +364,9 @@ checkActorCollisions: {
   lda SPRITE_2S_COLLISION
   and #%11110000
   beq !+
-    lda #GAME_STATE_KILLED
+    lda #1
     .if (INVINCIBLE == 0) {
-      sta z_gameState
+      sta z_killedByActor
     }
   !:
   rts
@@ -392,6 +392,7 @@ initLevel: {
   sta z_anim_delay
   sta z_scrollReg
   sta z_acc0
+  sta z_killedByActor
 
   // set [x,y] = [0,0]
   lda #$ff
