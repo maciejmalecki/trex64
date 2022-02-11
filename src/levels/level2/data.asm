@@ -118,7 +118,6 @@ _map1Actors:
   actorDef(c64lib.EN_VOGEL, 35, 130, $70, BLACK)
   actorDef(c64lib.EN_VOGEL, 48, 170, $70, BLACK)
   actorDef(c64lib.EN_VOGEL, 65, 130, $70, WHITE)
-  actorDef(c64lib.EN_VOGEL, 70, 140, $70, WHITE)
   actorDef(c64lib.EN_VOGEL, 90, 130, $70, BLACK)
   // actorDef(c64lib.EN_VOGEL, 102, 150, $70, BLACK)
   actorDefEnd()
