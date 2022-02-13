@@ -106,6 +106,10 @@ _materials: .fill _materialsData.getSize(), _materialsData.get(i)
 _map1: .fill _map1Data.getSize(), _map1Data.get(i)
 _map1Actors:
   actorDef(c64lib.EN_VOGEL, 23, 80, $40, LIGHT_RED)
+  actorDef(c64lib.EN_VOGEL, 52, 130, $50, LIGHT_RED)
+  actorDef(c64lib.EN_VOGEL, 77, 160, $50, LIGHT_RED)
+  actorDef(c64lib.EN_VOGEL, 89, 150, $60, LIGHT_RED)
+  actorDef(c64lib.EN_SNAKE, 107, 182, $30, LIGHT_GREEN)
   actorDefEnd()
 // level 3-2
 _map2: .fill _map2Data.getSize(), _map2Data.get(i)
@@ -115,7 +119,7 @@ _map2Actors:
 // level 3-3
 _map3: .fill _map3Data.getSize(), _map3Data.get(i)
 _map3Actors:
- actorDef(c64lib.EN_VOGEL, 87, 90, $40, WHITE)
+  actorDef(c64lib.EN_VOGEL, 87, 90, $48, WHITE)
   actorDefEnd()
 // level 3-4
 _map4: .fill _map4Data.getSize(), _map4Data.get(i)
@@ -124,7 +128,6 @@ _map4Actors:
   actorDef(c64lib.EN_VOGEL, 70, 96, $70, LIGHT_RED)
   actorDef(c64lib.EN_VOGEL, 100, 130, $70, YELLOW)
   actorDef(c64lib.EN_SNAKE, 220, 182, $60, LIGHT_GREEN)
-
   actorDefEnd()
 _colors: .fill _tileColorsData.getSize(), _tileColorsData.get(i)
 _tiles:

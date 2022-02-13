@@ -132,6 +132,13 @@ doIngame: {
   brkInGame:
   mainMapLoop:
     // check death conditions
+    lda z_killedByActor
+    beq !+
+      lda #GAME_STATE_KILLED
+      sta z_gameState
+      lda #0
+      sta z_killedByActor
+    !:
     jsr checkBGCollisions
     jsr updateScore
     // check game state
@@ -293,15 +300,14 @@ initGame: {
   lda z_startingLevel
   sta z_levelCounter
 
+  // set score to 0
   lda #0
+  sta z_score
+  sta z_score + 1
+  sta z_score + 2
   sta z_isDuck
   sta z_extraLiveAwarded
-
-  // set score to 0
-  resetScore()
-
   // zero hi-score counter
-  lda #0
   sta z_hiScoreMark
   sta z_hiScoreMark + 1
 

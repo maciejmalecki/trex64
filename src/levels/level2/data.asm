@@ -113,19 +113,21 @@ _materials: .fill _materialsData.getSize(), _materialsData.get(i)
 // level 2-1
 _map1: .fill _map1Data.getSize(), _map1Data.get(i)
 _map1Actors:
-  actorDef(c64lib.EN_VOGEL, 21, 100, $40, WHITE)
+  actorDef(c64lib.EN_VOGEL, 10, 100, $40, WHITE)
   actorDef(c64lib.EN_VOGEL, 33, 108, $50, WHITE)
   actorDef(c64lib.EN_VOGEL, 35, 130, $70, BLACK)
-  actorDef(c64lib.EN_VOGEL, 43, 120, $70, WHITE)
   actorDef(c64lib.EN_VOGEL, 48, 170, $70, BLACK)
-  actorDef(c64lib.EN_VOGEL, 55, 130, $70, BLACK)
-  actorDef(c64lib.EN_VOGEL, 59, 150, $70, BLACK)
   actorDef(c64lib.EN_VOGEL, 65, 130, $70, WHITE)
-  actorDef(c64lib.EN_VOGEL, 70, 140, $70, WHITE)
+  actorDef(c64lib.EN_VOGEL, 90, 130, $70, BLACK)
+  // actorDef(c64lib.EN_VOGEL, 102, 150, $70, BLACK)
   actorDefEnd()
 // level 2-2
 _map2: .fill _map2Data.getSize(), _map2Data.get(i)
 _map2Actors:
+  actorDef(c64lib.EN_VOGEL, 10, 140, $90, WHITE)
+  actorDef(c64lib.EN_VOGEL, 41, 140, $90, LIGHT_RED)
+  actorDef(c64lib.EN_VOGEL, 77, 100, $80, WHITE)
+  actorDef(c64lib.EN_VOGEL, 78, 160, $80, BLACK)
   actorDefEnd()
 // level 2-3
 _map3: .fill _map3Data.getSize(), _map3Data.get(i)
