@@ -157,7 +157,7 @@ _map5Actors:
   actorDef(c64lib.EN_VOGEL, 149, 145, $70, BLACK)
   actorDef(c64lib.EN_VOGEL, 180, 162, $70, BLACK)
   actorDef(c64lib.EN_SCORPIO, 205, 182, $50, BLACK)
-  actorDef(c64lib.EN_VOGEL, 215, 140, $70, WHITE)
+  actorDef(c64lib.EN_VOGEL, 215, 140, $60, WHITE)
   actorDefEnd()
 _colors: .fill _tileColorsData.getSize(), _tileColorsData.get(i)
 _tiles:
