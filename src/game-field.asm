@@ -420,6 +420,7 @@ initLevel: {
   lda #$00
   sta z_mode
   sta z_prevMode
+  sta z_duckAfterLanding
 
   // set max delay
   lda #MAX_DELAY
@@ -763,8 +764,9 @@ handleControls: {
   }
   !:
   // handle ducking
+
   lda z_mode
-  bne afterDuck
+  bne inAir
   jsr io_checkUnduck
   beq !+
     jsr spr_showPlayerWalkLeft
@@ -775,17 +777,36 @@ handleControls: {
     jsr playDuck
     jsr spr_showPlayerDuck
   !:
-
+  jmp afterDuck
+  // --->
+  inAir:
+    jsr io_checkDoduck
+    beq !+
+      lda #1
+      sta z_duckAfterLanding
+    !:
+    jsr io_checkUnduck
+    beq !+
+      lda #0
+      sta z_duckAfterLanding
+    !:
+  // <---
   afterDuck:
   // if back on earth -> switch to walk left again
   lda z_prevMode
-  beq !+
+  beq stillInAir
     lda z_mode
     bne stillInAir
       playSfx(playLanding)
+      lda z_duckAfterLanding
+      beq !+
+        jsr spr_showPlayerDuck
+        lda #0
+        sta z_duckAfterLanding
+        jmp stillInAir
+      !:
       jsr spr_showPlayerWalkLeft
-    stillInAir:
-  !:
+  stillInAir:
 
   rts
 }

@@ -116,6 +116,9 @@
 // needed to fix race condition on z_gameState
 .label z_killedByActor = 78   // $4E
 
+// needed to improve controls (duck after jump)
+.label z_duckAfterLanding = 79// $4F
+
 // used by sprite multiplexer
 .label z_spritesStashed = 127 // $7F
 .label z_stashArea = 128      // $80

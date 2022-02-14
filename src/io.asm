@@ -89,13 +89,6 @@ io_checkJump: {
   rts
 }
 
-io_checkDuck: {
-  lda z_currentKeys
-  and #KEY_COMMODORE
-  eor #$ff
-  rts
-}
-
 /*
  * beq -> do ducking
  */
