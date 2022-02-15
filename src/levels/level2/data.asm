@@ -128,7 +128,7 @@ _map2Actors:
   actorDef(c64lib.EN_VOGEL, 41, 140, $90, CYAN)
   actorDef(c64lib.EN_VOGEL, 77, 100, $80, WHITE)
   actorDef(c64lib.EN_VOGEL, 78, 160, $70, BLACK)
-  actorDef(c64lib.EN_VOGEL, 98, 160, $80, CYAN)
+  actorDef(c64lib.EN_VOGEL, 98, 160, $90, CYAN)
   actorDefEnd()
 // level 2-3
 _map3: .fill _map3Data.getSize(), _map3Data.get(i)
