@@ -196,13 +196,13 @@ ingameCopperList:
     // play music
     copperEntry(DASHBOARD_Y + 20, IRQH_JSR, <upperMultiplex, >upperMultiplex) // 50 + 20 = 70
     copperEntry(77, IRQH_JSR, <playMusicIrq, >playMusicIrq)
-    //copperEntry(99, IRQH_JSR, <animateBG, >animateBG)
   scrollCode:
     // here we do the actual scrolling
-    copperEntry(104, IRQH_JSR, <scrollBackground, >scrollBackground)
+    // add 1 here and below to revert
+    copperEntry(103, IRQH_JSR, <scrollBackground, >scrollBackground)
     // here we do the page switching when it's time for this
   switchPagesCode:
-    copperEntry(280, IRQH_JSR, <switchPages, >switchPages)
+    copperEntry(279, IRQH_JSR, <switchPages, >switchPages)
     // here we loop and so on, so on, for each frame
     copperLoop()
 
@@ -720,7 +720,6 @@ runEndOfFrameLogic: {
   jsr disposeActors
   jsr checkForNewActors
   jsr drawActors
-  //jsr act_animate
   jsr enableActors
   jsr checkActorCollisions
   jsr doGameOver
