@@ -115,7 +115,7 @@ _map1Actors:
 _map2: .fill _map2Data.getSize(), _map2Data.get(i)
 _map2Actors:
   actorDef(c64lib.EN_VOGEL, 23, 80, $40, WHITE)
-  
+  actorDef(c64lib.EN_VOGEL, 15, 85, $42, LIGHT_GREEN)
   actorDefEnd()
 // level 3-3
 _map3: .fill _map3Data.getSize(), _map3Data.get(i)
