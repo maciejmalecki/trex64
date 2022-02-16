@@ -198,11 +198,11 @@ ingameCopperList:
     copperEntry(77, IRQH_JSR, <playMusicIrq, >playMusicIrq)
   scrollCode:
     // here we do the actual scrolling
-    // add 1 here and below to revert
-    copperEntry(103, IRQH_JSR, <scrollBackground, >scrollBackground)
+    // add 1 (103, 279) here and below to revert
+    copperEntry(104, IRQH_JSR, <scrollBackground, >scrollBackground)
     // here we do the page switching when it's time for this
   switchPagesCode:
-    copperEntry(279, IRQH_JSR, <switchPages, >switchPages)
+    copperEntry(280, IRQH_JSR, <switchPages, >switchPages)
     // here we loop and so on, so on, for each frame
     copperLoop()
 
