@@ -1108,12 +1108,12 @@ handleCredits: {
     pushParamW(txt_page_2_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 1) + 16); jsr outText
 
     lda z_ntsc
-    bne !+
-      pushParamW(txt_page_2_1)
-      jmp drawPage2
-    !:
+    beq !+
       pushParamW(txt_page_2_2)
-    drawPage2: pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 3) + 18); jsr outText
+      pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 3) + 18)
+      jsr outText
+    !:
+
     jmp initFadeIn
   }
   displayPage3: {

@@ -51,7 +51,6 @@ txt_page_0_0:         incText("the lockdown studio presents", 64); .byte $ff
 txt_page_1_0:         incText("a 2022 production", 64); .byte $ff
 
 txt_page_2_0:         incText("t-rex 64", 64); .byte $ff
-txt_page_2_1:         incText("pal", 64); .byte $ff
 txt_page_2_2:         incText("ntsc", 64); .byte $ff
 
 txt_page_3_0:         incText("inspired by google chrome easter egg", 64); .byte $ff
