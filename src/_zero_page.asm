@@ -115,6 +115,7 @@
 
 // needed to fix race condition on z_gameState
 .label z_killedByActor = 78   // $4E
+.label z_godMode = 79         // $4F
 
 // needed to improve controls (duck after jump)
 .label z_duckAfterLanding = 79// $4F

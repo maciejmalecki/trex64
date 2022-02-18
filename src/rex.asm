@@ -281,6 +281,10 @@ initConfig: {
   sta z_gameConfig
   lda #STARTING_LEVEL
   sta z_startingLevel
+  sta z_levelCounter
+  lda #STARTING_WORLD
+  sta z_worldCounter
+
   // hi score
   lda #0
   sta z_hiScore
@@ -295,10 +299,13 @@ initGame: {
   sta z_lives
 
   // set up start level
-  lda #STARTING_WORLD
-  sta z_worldCounter
-  lda z_startingLevel
-  sta z_levelCounter
+  lda z_godMode
+  bne !+
+    lda #STARTING_WORLD
+    sta z_worldCounter
+    lda z_startingLevel
+    sta z_levelCounter
+  !:
 
   // set score to 0
   lda #0

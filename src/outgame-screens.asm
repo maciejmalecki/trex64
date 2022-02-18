@@ -76,6 +76,7 @@ doTitleScreen: {
   lda #0
   sta z_previousKeys
   sta z_currentKeys
+  sta z_godMode
   lda #TITLE_COLOR_CYCLE_DELAY
   sta z_colorCycleDelay
   sta z_colorCycleDelay2
@@ -125,6 +126,13 @@ doTitleScreen: {
     beq !+
       jsr toggleSound
       jmp storePreviousState
+    !:
+    lda z_currentKeys
+    and #KEY_F7
+    beq !+
+      lda #1
+      sta z_godMode
+      jmp startIngame
     !:
     storePreviousState:
     // copy current state to previous state

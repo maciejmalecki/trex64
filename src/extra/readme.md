@@ -32,6 +32,9 @@ Once game is run, there are few options that can be configured on title screen:
 No matter of control method, game can be started with either FIRE in Joy 2
 or SPACE.
 
+There is also a trainer mode available directly from the title screen. If you press F7, the
+game will be restarted from the last level you have died recently.
+
 Playing the game
 ----------------
 There are only two commands that can be used to control T-REX in her journey
