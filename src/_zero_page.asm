@@ -1,18 +1,18 @@
 /*
   MIT License
-  
-  Copyright (c) 2021 Maciej Malecki
-  
+
+  Copyright (c) 2022 Maciej Malecki
+
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
   copies of the Software, and to permit persons to whom the Software is
   furnished to do so, subject to the following conditions:
-  
+
   The above copyright notice and this permission notice shall be included in all
   copies or substantial portions of the Software.
-  
+
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,8 +23,6 @@
 */
 #importonce
 .filenamespace c64lib
-
-//#define use_watches
 
 // ZERO page
 .label z_x = 2                // $02,$03
@@ -79,7 +77,7 @@
 .label z_scrollingMark = 50   // $32
 
 // obstacles
-.label z_obstaclesMark = 51   // $33
+.label z_bgDeath = 51         // $33
 .label z_colorRAMShifted = 52 // $34
 .label z_scrollReg = 53       // $35
 
@@ -100,19 +98,28 @@
 .label z_creditsFadeCtr = 65  // $41
 .label z_creditsDelayCtr = 66 // $42
 
+// materials pointer
+.label z_materialsLo = 67     // $43, $44
+
+// animated background elements
+.label z_right_anim_char = 69 // $45, $46
+.label z_bottom_anim_char = 71// $47, $48
+.label z_anim_delay = 73      // $49
+
+.label z_ntsc = 74            // $4A
+.label z_ntscMusicCtr = 75    // $4B
+.label z_extraLiveAwarded = 76// $4C
+
+// needed to fix jumping death issue
+.label z_bgDeathCopy = 77     // $4D
+
+// needed to fix race condition on z_gameState
+.label z_killedByActor = 78   // $4E
+.label z_godMode = 79         // $4F
+
+// needed to improve controls (duck after jump)
+.label z_duckAfterLanding = 79// $4F
+
 // used by sprite multiplexer
 .label z_spritesStashed = 127 // $7F
 .label z_stashArea = 128      // $80
-
-
-#if use_watches
-  .watch z_x
-  .watch z_x+1
-  .watch z_phase
-  .watch z_deltaX
-  .watch z_xPos
-  .watch z_acc0
-  .watch z_wrappingMark
-  .watch z_scrollingMark
-  .watch z_colorRAMShifted
-#endif

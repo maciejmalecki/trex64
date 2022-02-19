@@ -1,18 +1,18 @@
 /*
   MIT License
-  
-  Copyright (c) 2021 Maciej Malecki
-  
+
+  Copyright (c) 2022 Maciej Malecki
+
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
   copies of the Software, and to permit persons to whom the Software is
   furnished to do so, subject to the following conditions:
-  
+
   The above copyright notice and this permission notice shall be included in all
   copies or substantial portions of the Software.
-  
+
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,7 +32,7 @@
 
 .label _JUMP_TABLE_LENGTH = 14
 .label _JUMP_LINEAR_LENGTH = 17
-.label _JUMP_LANDING_LENGTH = 10
+.label _JUMP_LANDING_LENGTH = 14
 .label _GRAVITY_FACTOR = 3
 
 .function _polyJump(i) {
@@ -50,6 +50,8 @@ phy_performProgressiveJump: {
   lda z_mode
   sta z_prevMode
   beq end
+  jmp checkIfTerminate
+  doNotTerminate:
     lda z_jumpPhase
     bne peakPhase
       // up phase
@@ -113,19 +115,33 @@ phy_performProgressiveJump: {
         sta z_jumpFrame
         jmp end
       nextFrame:
-      lda jumpTableLinear,x
+      lda jumpTableLanding,x
       sta z_yPos
       dex
       stx z_jumpLinear
     }
   end:
   rts
+  checkIfTerminate:
+    lda z_bgDeathCopy
+    beq !+
+    lda z_worldCounter
+    cmp #1
+    beq !+
+    // death from bg in world 2 or 3 - we will terminate any jump
+    lda #0
+    sta z_mode
+    sta z_prevMode
+    sta z_jumpFrame
+    sta z_yPos
+    rts
+    !:
+    jmp doNotTerminate
 }
 
 phy_updateSpriteY: {
   // set Y coord
   sec
-  cld
   lda z_yPosTop
   sbc z_yPos
   sta spriteYReg(PLAYER_SPRITE_TOP)
@@ -158,6 +174,7 @@ jumpTablePeak:
   .fill _JUMP_TABLE_LENGTH, _polyJump(i)
   .byte $ff
 jumpTableLanding:
-  .fill _JUMP_LANDING_LENGTH, _linearJump(i)
+  .fill (_JUMP_LINEAR_LENGTH - _JUMP_LANDING_LENGTH), 0
+  .fill _JUMP_LANDING_LENGTH, _linearJump(i + (_JUMP_LINEAR_LENGTH - _JUMP_LANDING_LENGTH))
   .byte $ff
  // ---- END: Jump handling ----

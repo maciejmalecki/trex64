@@ -1,18 +1,18 @@
 /*
   MIT License
-  
-  Copyright (c) 2021 Maciej Malecki
-  
+
+  Copyright (c) 2022 Maciej Malecki
+
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
   copies of the Software, and to permit persons to whom the Software is
   furnished to do so, subject to the following conditions:
-  
+
   The above copyright notice and this permission notice shall be included in all
   copies or substantial portions of the Software.
-  
+
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,9 +37,9 @@ spriteYPosRegisters:
   .byte <SPRITE_4_Y; .byte <SPRITE_5_Y; .byte <SPRITE_6_Y; .byte <SPRITE_7_Y
 // ---- texts ----
 // title screen
-txt_author:           .text " https://maciejmalecki.github.io/trex64"; .byte $ff
+txt_author:           .text "https://maciejmalecki.itch.io/trex64"; .byte $ff
 // title screen menu
-txt_menu:             .text "    f1        f3        f5 world 1-"; .byte $ff
+txt_menu:             .text "f1        f3        f5 world 1-"; .byte $ff
 txt_controlsJoy:      .text "joy 2"; .byte $ff
 txt_controlsKey:      .text "keys "; .byte $ff
 txt_soundMus:         .text "music"; .byte $ff
@@ -48,12 +48,12 @@ txt_startGame:        incText("hit fire or space to start", 64); .byte $ff
 // title credits
 txt_page_0_0:         incText("the lockdown studio presents", 64); .byte $ff
 
-txt_page_1_0:         incText("a 2021 production", 64); .byte $ff
+txt_page_1_0:         incText("a 2022 production", 64); .byte $ff
 
-txt_page_2_0:         incText("t-rex  64", 64); .byte $ff
-txt_page_2_1:         incText("preview", 64); .byte $ff
+txt_page_2_0:         incText("t-rex 64", 64); .byte $ff
+txt_page_2_2:         incText("ntsc", 64); .byte $ff
 
-txt_page_3_0:         incText("based on google chrome easter egg", 64); .byte $ff
+txt_page_3_0:         incText("inspired by google chrome easter egg", 64); .byte $ff
 
 txt_page_4_0:         incText("graphics:  zuza malecka", 64); .byte $ff
 txt_page_4_1:         incText("ola malecka", 64); .byte $ff
@@ -71,18 +71,17 @@ txt_page_7_2:         incText("or space/cbm respectively when on keys", 64); .by
 // level start screen
 txt_entering:         incText("world  0-0", 64); .byte $ff
 txt_getReady:         incText("get ready!", 64); .byte $ff
+txt_extraLive:        incText("+1 extra live!", 64); .byte $ff
 // end game screen
 txt_endGame1:         incText("congratulations!", 64); .byte $ff
 txt_endGame2:         incText("you have finished the game", 64); .byte $ff
-txt_fullGame0:        .text "in the full game:"; .byte $ff
-txt_fullGame1:        .text "more levels"; .byte $ff
-txt_fullGame2:        .text "more worlds"; .byte $ff
-txt_fullGame3:        .text "more enemies"; .byte $ff
-txt_fullGame4:        .text "better music"; .byte $ff
-txt_fullGame5:        .text "and still for free!"; .byte $ff
+txt_endGame3:        .text "t-rex has been saved"; .byte $ff
+txt_endGame4:        .text "from mass extinction"; .byte $ff
+txt_endGame5:        .text "see you in the next"; .byte $ff
+txt_endGame6:        .text "game, maybe..."; .byte $ff
 txt_pressAnyKey:      incText("hit the button", 64); .byte $ff
 // color cycles
-colorCycle1:          .byte GREY, GREY, LIGHT_GREY, WHITE, WHITE, LIGHT_GREY, GREY, GREY, BLACK, $ff
-colorCycle2:          .byte BLACK, LIGHT_RED, RED, LIGHT_RED, YELLOW, WHITE, YELLOW, YELLOW, BLACK, $ff
+colorCycle1:          .byte GREY, GREY, GREY, LIGHT_GREY, WHITE, WHITE, LIGHT_GREY, GREY, GREY, BLACK, $ff
+colorCycle2:          .byte BLACK, LIGHT_RED, RED, LIGHT_RED, YELLOW, YELLOW, WHITE, YELLOW, YELLOW, BLACK, $ff
 fadeIn:               .byte BLACK, BLACK, DARK_GREY, DARK_GREY, GREY, GREY, LIGHT_GREY, LIGHT_GREY, WHITE, $ff
 fadeOut:              .byte WHITE, LIGHT_GREY, LIGHT_GREY, GREY, GREY, DARK_GREY, DARK_GREY, BLACK, BLACK, $ff

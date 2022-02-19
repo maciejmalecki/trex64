@@ -1,18 +1,18 @@
 /*
   MIT License
-  
-  Copyright (c) 2021 Maciej Malecki
-  
+
+  Copyright (c) 2022 Maciej Malecki
+
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
   copies of the Software, and to permit persons to whom the Software is
   furnished to do so, subject to the following conditions:
-  
+
   The above copyright notice and this permission notice shall be included in all
   copies or substantial portions of the Software.
-  
+
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,11 +24,13 @@
 #import "chipset/lib/vic2.asm"
 #import "_segments.asm"
 #import "_zero_page.asm"
+#import "_constants.asm"
+#import "delays.asm"
 #importonce
 
 .filenamespace c64lib
 
-.var music = LoadSid("music/trex.sid")
+.var music = LoadSid("music/trex2.sid")
 
 .label musicLocation = music.location
 .label musicSize = music.size
@@ -47,6 +49,12 @@ initSound: {
   rts
 }
 
+fadeOutMusic: {
+  lda #FADE_OUT_TUNE
+  jsr initSound
+  rts
+}
+
 setupSounds: {
   lda #0
   sta z_sfxChannel
@@ -54,9 +62,21 @@ setupSounds: {
 }
 
 playMusic: {
-  debugBorderStart()
-  jsr music.play
   debugBorderEnd()
+  lda z_ntsc
+  beq doPlay
+    ldx z_ntscMusicCtr
+    inx
+    stx z_ntscMusicCtr
+    cpx #6
+    bne doPlay
+    ldx #0
+    stx z_ntscMusicCtr
+    debugBorderStart()
+    rts
+  doPlay:
+    jsr music.play
+  debugBorderStart()
   rts
 }
 
@@ -75,6 +95,18 @@ playDuck: {
 playDeath: {
   lda #<sfxDeath
   ldy #>sfxDeath
+  jmp playSfx
+}
+
+playSplash: {
+  lda #<sfxSplushDeath
+  ldy #>sfxSplushDeath
+  jmp playSfx
+}
+
+playBurn: {
+  lda #<sfxBurnDeath
+  ldy #>sfxBurnDeath
   jmp playSfx
 }
 
@@ -177,6 +209,44 @@ sfxDeath: {
   .byte (LO + HI)/2, WAVEFORM
   .for (var i = (LO + HI)/2 - 1; i > LO; i = i - STEP) {
     .byte i
+  }
+  .byte $00
+}
+
+sfxSplushDeath: {
+  .label HI = $d0
+  .label LO = $c5
+  .label LEN = 6
+  .label WAVEFORM = $80
+
+  .byte $a5, $c8 // ADSR
+  .byte $00
+  .byte LO, WAVEFORM + 1, HI
+  .for (var i = 0; i < LEN; i++) {
+    .byte HI, HI
+  }
+  .byte LO, WAVEFORM, HI
+  .for (var i = 0; i < 2*LEN; i++) {
+    .byte LO, LO
+  }
+  .byte $00
+}
+
+sfxBurnDeath: {
+  .label HI = $ea
+  .label LO = $e9
+  .label LEN = 4
+  .label WAVEFORM = $80
+
+  .byte $95, $c8 // ADSR
+  .byte $00
+  .byte LO, WAVEFORM + 1, HI
+  .for (var i = 0; i < LEN; i++) {
+    .byte LO, HI
+  }
+  .byte LO, WAVEFORM, HI
+  .for (var i = 0; i < 2*LEN; i++) {
+    .byte LO, HI
   }
   .byte $00
 }

@@ -1,18 +1,18 @@
 /*
   MIT License
-  
-  Copyright (c) 2021 Maciej Malecki
-  
+
+  Copyright (c) 2022 Maciej Malecki
+
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
   copies of the Software, and to permit persons to whom the Software is
   furnished to do so, subject to the following conditions:
-  
+
   The above copyright notice and this permission notice shall be included in all
   copies or substantial portions of the Software.
-  
+
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,9 +22,11 @@
   SOFTWARE.
 */
 
-//#define VISUAL_DEBUG
+// #define VISUAL_DEBUG
+
 #import "common/lib/common.asm"
 #import "common/lib/mem.asm"
+#import "common/lib/math.asm"
 #import "common/lib/invoke.asm"
 #import "chipset/lib/sprites.asm"
 #import "chipset/lib/mos6510.asm"
@@ -42,21 +44,18 @@
 
 .filenamespace c64lib
 
-.file [name="./rex.prg", segments="Code, Data, Charsets, LevelData, Sprites, AuxGfx, Sfx, Music", modify="BasicUpstart", _start=$0810]
-.disk [filename="./rex.d64", name="T-REX 64", id="C2021"] {
-  [name="----------------", type="rel"],
-  [name="T-REX 64", type="prg", segments="Code, Data, Charsets, LevelData, Sprites, AuxGfx, Sfx, Music", modify="BasicUpstart", _start=$0810],
-  [name="----------------", type="rel"]
-}
+.file [name="./rex.prg", segments="Code, Data, AuxGfx, Sfx, Materials, Charsets, LevelData, Sprites, Music", modify="BasicUpstart", _start=$0810]
 
 // starting amount of lives
-.label LIVES = 3
+.label LIVES = 5
 // starting level
 .label STARTING_WORLD = 1
 .label STARTING_LEVEL = 1
 
 // ---- levels ----
 #import "levels/level1/data.asm"
+#import "levels/level2/data.asm"
+#import "levels/level3/data.asm"
 
 // -------- Main program ---------
 .segment Code
@@ -65,11 +64,14 @@
 start:
   // main init
   jsr cfg_configureC64
+  // jsr clearZeroPage
+  jsr detectNTSC
   jsr unpackData
   jsr initConfig
 
   // main loop
   titleScreen:
+    jsr fadeOutMusic
     jsr doTitleScreen
     jsr checkNewHiScore
     jsr initGame
@@ -86,13 +88,13 @@ start:
     sta z_gameState
     jsr doLevelScreen
   ingame:
-    jsr doIngame 
+    jsr doIngame
     lda z_gameState
     cmp #GAME_STATE_GAME_OVER
     bne levelScreen
-
     jmp titleScreen
   gameFinished:
+    jsr fadeOutMusic
     lda #GAME_STATE_LIVE
     sta z_gameState
     jsr doEndGameScreen
@@ -103,6 +105,7 @@ doIngame: {
   jsr screenOff
   jsr configureIngameVic2
   jsr prepareIngameScreen
+  jsr updateDashboard
   jsr updateScoreOnDashboard
   jsr updateHiScoreOnDashboard
   jsr setUpWorld
@@ -129,12 +132,27 @@ doIngame: {
   brkInGame:
   mainMapLoop:
     // check death conditions
+    lda z_killedByActor
+    beq !+
+      lda #GAME_STATE_KILLED
+      sta z_gameState
+      lda #0
+      sta z_killedByActor
+    !:
     jsr checkBGCollisions
     jsr updateScore
     // check game state
     lda z_gameState
     cmp #GAME_STATE_KILLED
-    bne !+
+    beq !+
+    jmp notKilled
+    !:
+      lda z_bgDeath
+      beq alwaysJump
+      lda z_worldCounter
+      cmp #1
+      bne noJump
+      alwaysJump:
       {
         lda z_mode
         bne !+
@@ -144,9 +162,31 @@ doIngame: {
           sta z_jumpFrame
         !:
       }
+      noJump:
 
-      jsr spr_showDeath
-      jsr playDeath
+      lda z_worldCounter
+      cmp #1
+      beq goShowDeath
+      cmp #2
+      bne world3
+        lda z_bgDeath
+        bne goShowWaterDeath
+        jmp goShowDeath
+      world3:
+        lda z_bgDeath
+        bne goShowFireDeath
+      goShowDeath:
+        jsr spr_showDeath
+        jsr playDeath
+        jmp goAfterPlayDeath
+      goShowFireDeath:
+        jsr spr_showFireDeath
+        jsr playBurn
+        jmp goAfterPlayDeath
+      goShowWaterDeath:
+        jsr spr_showWaterDeath
+        jsr playSplash
+      goAfterPlayDeath:
 
       // remember death position
       lda z_x
@@ -154,15 +194,43 @@ doIngame: {
       lda z_x + 1
       sta z_hiScoreMark + 1
 
+      // check for combo death
+      lda #0
+      sta z_bgDeath
+      lda #100
+      sta z_delayCounter
+      checkDelay: {
+        jsr checkBGCollisions
+        lda z_bgDeath
+        beq noCombo
+          lda z_worldCounter
+          cmp #2
+          bne checkWorld3
+            jsr spr_showWaterDeath
+            jsr playSplash
+            jmp !+
+          checkWorld3:
+            cmp #3
+            bne noCombo
+              jsr spr_showFireDeath
+              jsr playBurn
+          !:
+          wait #100
+        noCombo:
+        lda z_delayCounter
+      }
+      bne checkDelay
+
       // decrement lives
       dec z_lives
       bne livesLeft
+        jsr updateDashboard
         lda #GAME_STATE_GAME_OVER
         sta z_gameState
         jmp displayGameOver
       livesLeft:
-      wait #100
-    !:
+
+    notKilled:
     lda z_gameState
     cmp #GAME_STATE_LIVE
     beq !+
@@ -182,13 +250,30 @@ doIngame: {
     sta z_doGameOver
     wait #255
     wait #80
+    jsr fadeOutMusic
+    wait #20
     // hack to fix #54
     lda #GAME_STATE_GAME_OVER
     sta z_gameState
   gameOver:
+    jsr fadeOutMusic
     jsr stopCopper
     jsr spr_hidePlayers
     rts
+}
+
+setNTSC: {
+  lda #1
+  sta z_ntsc
+  rts
+}
+
+detectNTSC: {
+  lda #0
+  sta z_ntsc
+  sta z_ntscMusicCtr
+  detectNtsc(0, setNTSC)
+  rts
 }
 
 initConfig: {
@@ -197,6 +282,10 @@ initConfig: {
   sta z_gameConfig
   lda #STARTING_LEVEL
   sta z_startingLevel
+  sta z_levelCounter
+  lda #STARTING_WORLD
+  sta z_worldCounter
+
   // hi score
   lda #0
   sta z_hiScore
@@ -211,19 +300,22 @@ initGame: {
   sta z_lives
 
   // set up start level
-  lda #STARTING_WORLD
-  sta z_worldCounter
-  lda z_startingLevel
-  sta z_levelCounter
-
-  lda #0
-  sta z_isDuck
+  lda z_godMode
+  bne !+
+    lda #STARTING_WORLD
+    sta z_worldCounter
+    lda z_startingLevel
+    sta z_levelCounter
+  !:
 
   // set score to 0
-  resetScore()
-
-  // zero hi-score counter
   lda #0
+  sta z_score
+  sta z_score + 1
+  sta z_score + 2
+  sta z_isDuck
+  sta z_extraLiveAwarded
+  // zero hi-score counter
   sta z_hiScoreMark
   sta z_hiScoreMark + 1
 
@@ -295,6 +387,9 @@ cfg_configureC64: {
 }
 
 unpackData: {
+  sei
+  // just in case sprites and music are below IO are after decrunching
+  configureMemory(RAM_RAM_RAM)
   // copy sprites
   pushParamW(beginOfSprites)
   pushParamW(SPRITE_ADDR)
@@ -305,6 +400,8 @@ unpackData: {
   pushParamW(musicLocation)
   pushParamW(musicSize)
   jsr copyLargeMemForward
+  configureMemory(RAM_IO_RAM)
+  cli
   rts
 }
 // ---- END: general configuration ----
@@ -317,7 +414,8 @@ configureIngameVic2: {
   configureTextMemory(SCREEN_PAGE_0, CHARGEN)
   // turn on 38 columns visible
   lda CONTROL_2
-  and #%11110111
+  and #%11110000
+  ora #%00000111
   sta CONTROL_2
   lda CONTROL_1
   and #%11110000
@@ -343,20 +441,78 @@ nextLevel: {
   sta z_hiScoreMark + 1
 
   lda z_worldCounter
-  // cmp #3
-  // cmp #2
+  cmp #3
+  beq world3
+  cmp #2
+  beq world2
   world1:
     lda z_levelCounter
     cmp #5
-    beq level1_end
-      inc z_levelCounter
-      jmp end
-    level1_end:
+    beq nextWorld
+    inc z_levelCounter
+    jmp end
+  world2:
+    lda z_levelCounter
+    cmp #5
+    beq nextWorld
+    inc z_levelCounter
+    jmp end
+  world3:
+    lda z_levelCounter
+    cmp #4
+    beq level3_end
+    inc z_levelCounter
+    jmp end
+    level3_end:
       lda #GAME_STATE_GAME_FINISHED
       sta z_gameState
       jmp end
-  rts
+  nextWorld:
+      inc z_worldCounter
+      inc z_lives
+      lda #1
+      sta z_levelCounter
+      sta z_extraLiveAwarded
   end:
+  rts
+}
+
+// TODO move it to text/text2x2/subs
+/*
+ * In: startAddress, targetAddress, X (TileSet size).
+ * Mod: A
+ */
+unpackTileSet: {
+  stx store
+  invokeStackBegin(returnPtr)
+  pullParamW(dest)
+  pullParamW(src)
+  ldy #4
+  loop:
+    ldx store
+    !:
+      dex
+      lda src: $ffff,x
+      sta dest: $ffff,x
+      cpx #0
+    bne !-
+    // increment src address base
+    clc
+    lda src
+    adc store
+    sta src
+    lda src + 1
+    adc #0
+    sta src + 1
+    // increment destination address base
+    inc dest + 1
+    dey
+  bne loop
+
+  invokeStackEnd(returnPtr)
+  rts
+  returnPtr: .word $0000
+  store: .byte $0 // <- tileset size
 }
 
 .macro setUpWorld(levelCfg) {
@@ -373,12 +529,11 @@ nextLevel: {
   // copy level chargen
   sei
   configureMemory(RAM_RAM_RAM)
+
   pushParamW(levelCfg.CHARSET_ADDRESS)
   pushParamW(CHARGEN_ADDR)
   pushParamW(levelCfg.CHARSET_SIZE*8)
   jsr copyLargeMemForward
-  configureMemory(RAM_IO_RAM)
-  cli
 
   // copy tiles colors
   pushParamW(levelCfg.TILES_COLORS_ADDRESS)
@@ -389,13 +544,33 @@ nextLevel: {
   // copy tiles
   pushParamW(levelCfg.TILES_ADDRESS)
   pushParamW(tileDefinition)
-  pushParamW(levelCfg.TILES_SIZE*4)
-  jsr copyLargeMemForward
+  ldx #levelCfg.TILES_SIZE
+  jsr unpackTileSet
+
+  configureMemory(RAM_IO_RAM)
+  cli
+
+  // set up materials pointer
+  lda #[<levelCfg.MATERIALS_ADDRESS]
+  sta z_materialsLo
+  lda #[>levelCfg.MATERIALS_ADDRESS]
+  sta z_materialsLo + 1
+
+  // set up bg animation
+  lda #<CHARGEN_ADDR
+  sta z_right_anim_char
+  sta z_bottom_anim_char
+  lda #>CHARGEN_ADDR
+  sta z_right_anim_char + 1
+  sta z_bottom_anim_char + 1
+
+  mulAndAdd(levelCfg.RIGHT_ANIM_CHAR, 8, z_right_anim_char)
+  mulAndAdd(levelCfg.BOTTOM_ANIM_CHAR, 8, z_bottom_anim_char)
 
   rts
 }
 
-.macro setUpMap(mapAddress, mapWidth, deltaX, wrappingMark, scrollingMark, obstaclesMark, mapActors) {
+.macro setUpMap(mapAddress, mapWidth, deltaX, wrappingMark, scrollingMark, mapActors) {
   // set map definition pointer
   lda #<mapAddress
   sta z_map
@@ -415,8 +590,6 @@ nextLevel: {
   sta z_wrappingMark
   lda #scrollingMark
   sta z_scrollingMark
-  lda #obstaclesMark
-  sta z_obstaclesMark
 
   // set actors base and pointer
   lda #<mapActors
@@ -428,6 +601,9 @@ nextLevel: {
 }
 
 setUpWorld1: setUpWorld(level1)
+setUpWorld2: setUpWorld(level2)
+setUpWorld3: setUpWorld(level3)
+
 /*
  * Mod: A
  */
@@ -441,8 +617,10 @@ setUpWorld: {
     jsr setUpWorld1
     jmp end
   world2:
+    jsr setUpWorld2
     jmp end
   world3:
+    jsr setUpWorld3
   end:
   rts
 }
@@ -482,21 +660,73 @@ setUpMap: {
       jsr setUpMap1_5
       jmp end
   world2:
-    jmp end
+    lda z_levelCounter
+    cmp #2
+    beq level2_2
+    cmp #3
+    beq level2_3
+    cmp #4
+    beq level2_4
+    cmp #5
+    beq level2_5
+    level2_1:
+      jsr setUpMap2_1
+      jmp end
+    level2_2:
+      jsr setUpMap2_2
+      jmp end
+    level2_3:
+      jsr setUpMap2_3
+      jmp end
+    level2_4:
+      jsr setUpMap2_4
+      jmp end
+    level2_5:
+      jsr setUpMap2_5
+      jmp end
   world3:
+    lda z_levelCounter
+    cmp #2
+    beq level3_2
+    cmp #3
+    beq level3_3
+    cmp #4
+    beq level3_4
+    level3_1:
+      jsr setUpMap3_1
+      jmp end
+    level3_2:
+      jsr setUpMap3_2
+      jmp end
+    level3_3:
+      jsr setUpMap3_3
+      jmp end
+    level3_4:
+      jsr setUpMap3_4
   end:
   rts
 }
 
-setUpMap1_1: setUpMap(level1.MAP_1_ADDRESS, level1.MAP_1_WIDTH, level1.MAP_1_DELTA_X, level1.MAP_1_WRAPPING_MARK, level1.MAP_1_SCROLLING_MARK, level1.MAP_1_OBSTACLES_MARK, level1.MAP_1_ACTORS)
-setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH, level1.MAP_2_DELTA_X, level1.MAP_2_WRAPPING_MARK, level1.MAP_2_SCROLLING_MARK, level1.MAP_2_OBSTACLES_MARK, level1.MAP_2_ACTORS)
-setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DELTA_X, level1.MAP_3_WRAPPING_MARK, level1.MAP_3_SCROLLING_MARK, level1.MAP_3_OBSTACLES_MARK, level1.MAP_3_ACTORS)
-setUpMap1_4: setUpMap(level1.MAP_4_ADDRESS, level1.MAP_4_WIDTH, level1.MAP_4_DELTA_X, level1.MAP_4_WRAPPING_MARK, level1.MAP_4_SCROLLING_MARK, level1.MAP_4_OBSTACLES_MARK, level1.MAP_4_ACTORS)
-setUpMap1_5: setUpMap(level1.MAP_5_ADDRESS, level1.MAP_5_WIDTH, level1.MAP_5_DELTA_X, level1.MAP_5_WRAPPING_MARK, level1.MAP_5_SCROLLING_MARK, level1.MAP_5_OBSTACLES_MARK, level1.MAP_5_ACTORS)
+setUpMap1_1: setUpMap(level1.MAP_1_ADDRESS, level1.MAP_1_WIDTH, level1.MAP_1_DELTA_X, level1.MAP_1_WRAPPING_MARK, level1.MAP_1_SCROLLING_MARK, level1.MAP_1_ACTORS)
+setUpMap1_2: setUpMap(level1.MAP_2_ADDRESS, level1.MAP_2_WIDTH, level1.MAP_2_DELTA_X, level1.MAP_2_WRAPPING_MARK, level1.MAP_2_SCROLLING_MARK, level1.MAP_2_ACTORS)
+setUpMap1_3: setUpMap(level1.MAP_3_ADDRESS, level1.MAP_3_WIDTH, level1.MAP_3_DELTA_X, level1.MAP_3_WRAPPING_MARK, level1.MAP_3_SCROLLING_MARK, level1.MAP_3_ACTORS)
+setUpMap1_4: setUpMap(level1.MAP_4_ADDRESS, level1.MAP_4_WIDTH, level1.MAP_4_DELTA_X, level1.MAP_4_WRAPPING_MARK, level1.MAP_4_SCROLLING_MARK, level1.MAP_4_ACTORS)
+setUpMap1_5: setUpMap(level1.MAP_5_ADDRESS, level1.MAP_5_WIDTH, level1.MAP_5_DELTA_X, level1.MAP_5_WRAPPING_MARK, level1.MAP_5_SCROLLING_MARK, level1.MAP_5_ACTORS)
 
+setUpMap2_1: setUpMap(level2.MAP_1_ADDRESS, level2.MAP_1_WIDTH, level2.MAP_1_DELTA_X, level2.MAP_1_WRAPPING_MARK, level2.MAP_1_SCROLLING_MARK, level2.MAP_1_ACTORS)
+setUpMap2_2: setUpMap(level2.MAP_2_ADDRESS, level2.MAP_2_WIDTH, level2.MAP_2_DELTA_X, level2.MAP_2_WRAPPING_MARK, level2.MAP_2_SCROLLING_MARK, level2.MAP_2_ACTORS)
+setUpMap2_3: setUpMap(level2.MAP_3_ADDRESS, level2.MAP_3_WIDTH, level2.MAP_3_DELTA_X, level2.MAP_3_WRAPPING_MARK, level2.MAP_3_SCROLLING_MARK, level2.MAP_3_ACTORS)
+setUpMap2_4: setUpMap(level2.MAP_4_ADDRESS, level2.MAP_4_WIDTH, level2.MAP_4_DELTA_X, level2.MAP_4_WRAPPING_MARK, level2.MAP_4_SCROLLING_MARK, level2.MAP_4_ACTORS)
+setUpMap2_5: setUpMap(level2.MAP_5_ADDRESS, level2.MAP_5_WIDTH, level2.MAP_5_DELTA_X, level2.MAP_5_WRAPPING_MARK, level2.MAP_5_SCROLLING_MARK, level2.MAP_5_ACTORS)
+
+setUpMap3_1: setUpMap(level3.MAP_1_ADDRESS, level3.MAP_1_WIDTH, level3.MAP_1_DELTA_X, level3.MAP_1_WRAPPING_MARK, level3.MAP_1_SCROLLING_MARK, level3.MAP_1_ACTORS)
+setUpMap3_2: setUpMap(level3.MAP_2_ADDRESS, level3.MAP_2_WIDTH, level3.MAP_2_DELTA_X, level3.MAP_2_WRAPPING_MARK, level3.MAP_2_SCROLLING_MARK, level3.MAP_2_ACTORS)
+setUpMap3_3: setUpMap(level3.MAP_3_ADDRESS, level3.MAP_3_WIDTH, level3.MAP_3_DELTA_X, level3.MAP_3_WRAPPING_MARK, level3.MAP_3_SCROLLING_MARK, level3.MAP_3_ACTORS)
+setUpMap3_4: setUpMap(level3.MAP_4_ADDRESS, level3.MAP_4_WIDTH, level3.MAP_4_DELTA_X, level3.MAP_4_WRAPPING_MARK, level3.MAP_4_SCROLLING_MARK, level3.MAP_4_ACTORS)
 // ---- END: level handling ----
 
 // ---- import modules ----
+
 // library modules
 #import "game-field.asm"
 #import "data.asm"
@@ -515,53 +745,53 @@ setUpMap1_5: setUpMap(level1.MAP_5_ADDRESS, level1.MAP_5_WIDTH, level1.MAP_5_DEL
 .segment Music
 endOfTRex:
 
-.assert "Code and music overlap", sfxEnd <= music.location, true
-
 // print memory map summary
-.print "header="+music.header
 .macro memSummary(name, address) {
-.print name + " = " + address + " ($" + toHexString(address, 4) + ")"
+  .print name + " = " + address + " ($" + toHexString(address, 4) + ")"
+}
+.macro memSummaryWithSize(name, address, size) {
+  .print name + " = $" + toHexString(address, 4) + " - $" + toHexString(address + size - 1, 4) + " (" + size + " bytes)"
 }
 
-.print "copyright="+music.copyright
-.print "copyright="+music.copyright
-.print "--------"
-.print "init=$"+toHexString(music.init)
-.print "play=$"+toHexString(music.play)
-.print "songs="+music.songs
-.print "startSong="+music.startSong
-.print "size=$"+toHexString(music.size)
-.print "name="+music.name
-.print "author="+music.author
-.print "copyright="+music.copyright
-.print "header="+music.header
-.print "header version="+music.version
-.print "flags="+toBinaryString(music.flags)
-.print "speed="+toBinaryString(music.speed)
-.print "startpage="+music.startpage
-.print "pagelength="+music.pagelength
 .print ""
-.print "Memory summary"
-.print "--------------"
-memSummary("        total size", (endOfTRex - start))
-memSummary("       tile colors", tileColors)
-memSummary("      mapOffsetsLo", mapOffsetsLo)
-memSummary("      mapOffsetsHi", mapOffsetsHi)
+.print "Memory summary:"
+.print "---------------"
 
-memSummary("tiles definition 0", tileDefinition)
+memSummary("     Start address", start)
 
-memSummary("SCREEN_PAGE_ADDR_0", SCREEN_PAGE_ADDR_0)
-memSummary("SCREEN_PAGE_ADDR_1", SCREEN_PAGE_ADDR_1)
-memSummary("      CHARGEN_ADDR", CHARGEN_ADDR)
-memSummary("       SPRITE_ADDR", SPRITE_ADDR)
+memSummaryWithSize("    total PRG size", start, endOfTRex - start)
+memSummaryWithSize("PRG size w/o music", start, sfxEnd - start)
+memSummaryWithSize("       BG gfx size", sfxEnd, beginOfSprites - sfxEnd)
 
-memSummary("TITLE SCR ATTR ST:", beginOfTitleAttr)
-memSummary("TITLE SCR MAP ST: ", beginOfTitleMap)
+memSummaryWithSize("      video page 0", SCREEN_PAGE_ADDR_0, 1024)
+memSummaryWithSize("      video page 1", SCREEN_PAGE_ADDR_1, 1024)
+memSummaryWithSize("     level chargen", CHARGEN_ADDR, 2048)
+memSummaryWithSize("           sprites", SPRITE_ADDR, endOfSprites - beginOfSprites)
+
+
+memSummaryWithSize("       tile colors", tileColors, 256)
+memSummaryWithSize("      mapOffsetsLo", mapOffsetsLo, 12)
+memSummaryWithSize("      mapOffsetsHi", mapOffsetsHi, 12)
+memSummaryWithSize("  tiles definition", tileDefinition, 4*256)
+
+memSummaryWithSize(" music player&data", music.init, music.size)
 
 .print ""
-.print "BREAKPOINTS"
+.print "Free memory summary:"
+.print "--------------------"
+
+.print "free memory for uncrunched PRG left:   " + ($CFFF - endOfTRex) + " bytes"
+.print "free memory for bg graphics data left: " + (SCREEN_PAGE_ADDR_0 - beginOfSprites) + " bytes"
+.print "free memory for PRG left:              " + (SCREEN_PAGE_ADDR_0 - beginOfSprites) + " bytes"
+.print "free memory for music left:            " + ($FFFF - 6 - (music.init + music.size)) + " bytes"
+.print "free memory for sprites left:          " + (tileColors - (SPRITE_ADDR + endOfSprites - beginOfSprites)) + " bytes"
+
+.print ""
+.print "Assertions:"
 .print "-----------"
-.print "inGame.brkInGame = $" + toHexString(doIngame.mainMapLoop, 4)
-.print "scrollBackground = $" + toHexString(scrollBackground, 4)
-.print "  scrollColorRAM = $" + toHexString(scrollColorRam, 4)
-.print "     switchPages = $" + toHexString(switchPages, 4)
+
+.assert "Code and video ram does not overlap", sfxEnd <= SCREEN_PAGE_ADDR_0, true
+.assert "Sprites and tiles data does not overlap", tileColors >= SPRITE_ADDR + endOfSprites - beginOfSprites, true
+.assert "Music start address mismatch", music.init, MUSIC_START_ADDR
+
+.print ""

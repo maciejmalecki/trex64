@@ -24,18 +24,17 @@
 #import "../../_segments.asm"
 #import "../../_constants.asm"
 #import "../../_level-utils.asm"
-#import "levels/level1/meta.asm"
-.filenamespace level1
+#import "levels/level3/meta.asm"
+.filenamespace level3
 
-.var _charsetData = LoadBinary("levels/level1/charset.bin")
-.var _materialsData = LoadBinary("levels/level1/materials.bin")
-.var _tileData = LoadBinary("levels/level1/tiles.bin")
-.var _tileColorsData = LoadBinary("levels/level1/colors.bin")
-.var _map1Data = LoadBinary("levels/level1/map-1.bin")
-.var _map2Data = LoadBinary("levels/level1/map-2.bin")
-.var _map3Data = LoadBinary("levels/level1/map-3.bin")
-.var _map4Data = LoadBinary("levels/level1/map-4.bin")
-.var _map5Data = LoadBinary("levels/level1/map-5.bin")
+.var _charsetData = LoadBinary("levels/level3/charset.bin")
+.var _materialsData = LoadBinary("levels/level3/materials.bin")
+.var _tileData = LoadBinary("levels/level3/tiles.bin")
+.var _tileColorsData = LoadBinary("levels/level3/colors.bin")
+.var _map1Data = LoadBinary("levels/level3/map-1.bin")
+.var _map2Data = LoadBinary("levels/level3/map-2.bin")
+.var _map3Data = LoadBinary("levels/level3/map-3.bin")
+.var _map4Data = LoadBinary("levels/level3/map-4.bin")
 
 // level meta data
 .label MAP_1_WIDTH = _map1Data.getSize() / c64lib.MAP_HEIGHT
@@ -61,17 +60,10 @@
 
 .label MAP_4_WIDTH = _map4Data.getSize() / c64lib.MAP_HEIGHT
 .label MAP_4_ADDRESS = _map4
-.label MAP_4_DELTA_X = 1<<5 // x2
+.label MAP_4_DELTA_X = 1<<6 // x2
 .label MAP_4_WRAPPING_MARK = 0
-.label MAP_4_SCROLLING_MARK = 6 // (x4 = 4)
+.label MAP_4_SCROLLING_MARK = 4 // (x4 = 4)
 .label MAP_4_ACTORS = _map4Actors
-
-.label MAP_5_WIDTH = _map5Data.getSize() / c64lib.MAP_HEIGHT
-.label MAP_5_ADDRESS = _map5
-.label MAP_5_DELTA_X = 1<<6 // x4 (x4 = 1<<6)
-.label MAP_5_WRAPPING_MARK = 0
-.label MAP_5_SCROLLING_MARK = 4 // (x4 = 4)
-.label MAP_5_ACTORS = _map5Actors
 
 .label CHARSET_SIZE = _charsetData.getSize()/8
 .label CHARSET_ADDRESS = _charset
@@ -110,54 +102,41 @@ _charset: .fill _charsetData.getSize(), _charsetData.get(i)
 _materials: .fill _materialsData.getSize(), _materialsData.get(i)
 
 .segment LevelData
-// level 1-1
+// level 3-1
 _map1: .fill _map1Data.getSize(), _map1Data.get(i)
 _map1Actors:
-  actorDef(c64lib.EN_VOGEL, 80, 76, $40, BLACK)
+  actorDef(c64lib.EN_VOGEL, 23, 80, $40, LIGHT_RED)
+  actorDef(c64lib.EN_VOGEL, 52, 130, $50, LIGHT_RED)
+  actorDef(c64lib.EN_VOGEL, 77, 160, $50, LIGHT_RED)
+  actorDef(c64lib.EN_VOGEL, 89, 150, $60, LIGHT_RED)
+  actorDef(c64lib.EN_SNAKE, 105, 182, $30, LIGHT_GREEN)
   actorDefEnd()
-// level 1-2
+// level 3-2
 _map2: .fill _map2Data.getSize(), _map2Data.get(i)
 _map2Actors:
-  actorDef(c64lib.EN_VOGEL, 43, 76, $40, WHITE)
-  actorDef(c64lib.EN_SNAKE, 70, 182, $30, LIGHT_GREEN)
-  actorDef(c64lib.EN_VOGEL, 91, 141, $40, WHITE)
+  actorDef(c64lib.EN_VOGEL, 23, 100, $40, LIGHT_GREEN)
+  actorDef(c64lib.EN_VOGEL, 38, 120, $60, LIGHT_RED)
+  actorDef(c64lib.EN_VOGEL, 65, 130, $60, LIGHT_RED)
+  actorDef(c64lib.EN_VOGEL, 80, 150, $70, LIGHT_GREEN)
+  actorDef(c64lib.EN_SNAKE, 97, 182, $30, LIGHT_GREEN)
   actorDefEnd()
-// level 1-3
+// level 3-3
 _map3: .fill _map3Data.getSize(), _map3Data.get(i)
 _map3Actors:
-  actorDef(c64lib.EN_VOGEL, 25, 76, $40, WHITE)
-  actorDef(c64lib.EN_SCORPIO, 43, 182, $30, BLACK)
-  actorDef(c64lib.EN_SCORPIO, 80, 182, $30, BLACK)
-  actorDef(c64lib.EN_SCORPIO, 99, 182, $30, BLACK)
-  actorDef(c64lib.EN_VOGEL, 100, 76, $40, WHITE)
+  actorDef(c64lib.EN_VOGEL, 19, 150, $60, LIGHT_GREEN)
+  actorDef(c64lib.EN_VOGEL, 38, 135, $54, LIGHT_GREEN)
+  actorDef(c64lib.EN_VOGEL, 88, 120, $48, LIGHT_GREEN)
+  actorDef(c64lib.EN_VOGEL, 105, 130, $55, LIGHT_GREEN)
   actorDefEnd()
-// level 1-4
+// level 3-4
 _map4: .fill _map4Data.getSize(), _map4Data.get(i)
 _map4Actors:
-  actorDef(c64lib.EN_VOGEL, 30, 76, $40, WHITE)
-  actorDef(c64lib.EN_VOGEL, 32, 110, $40, WHITE)
-  actorDef(c64lib.EN_VOGEL, 35, 140, $40, WHITE)
-  actorDef(c64lib.EN_VOGEL, 38, 120, $40, WHITE)
-  actorDef(c64lib.EN_SCORPIO, 60, 182, $30, BLACK)
-  actorDef(c64lib.EN_SCORPIO, 65, 182, $30, BLACK)
-  actorDef(c64lib.EN_SNAKE, 80, 182, $30, BLACK)
-  actorDef(c64lib.EN_VOGEL, 120, 76, $50, WHITE)
-  actorDef(c64lib.EN_VOGEL, 122, 110, $50, WHITE)
-  actorDef(c64lib.EN_VOGEL, 123, 140, $50, WHITE)
-  actorDef(c64lib.EN_VOGEL, 124, 162, $50, WHITE)
-  actorDefEnd()
-// level 1-5
-_map5: .fill _map5Data.getSize(), _map5Data.get(i)
-_map5Actors:
-  actorDef(c64lib.EN_VOGEL, 30, 76, $70, WHITE)
-  actorDef(c64lib.EN_SCORPIO, 60, 182, $50, BLACK)
-  actorDef(c64lib.EN_VOGEL, 75, 140, $70, WHITE)
-  actorDef(c64lib.EN_SNAKE, 90, 182, $50, BLACK)
-  actorDef(c64lib.EN_SCORPIO, 120, 182, $50, BLACK)
-  actorDef(c64lib.EN_VOGEL, 149, 145, $70, BLACK)
-  actorDef(c64lib.EN_VOGEL, 180, 162, $70, BLACK)
-  actorDef(c64lib.EN_SCORPIO, 205, 182, $50, BLACK)
-  actorDef(c64lib.EN_VOGEL, 215, 140, $60, WHITE)
+  actorDef(c64lib.EN_VOGEL, 50, 76, $70, WHITE)
+  actorDef(c64lib.EN_VOGEL, 70, 96, $70, LIGHT_RED)
+  actorDef(c64lib.EN_VOGEL, 100, 130, $70, YELLOW)
+  actorDef(c64lib.EN_VOGEL, 150, 110, $70, LIGHT_RED)
+  actorDef(c64lib.EN_VOGEL, 181, 120, $70, LIGHT_RED)
+  actorDef(c64lib.EN_SNAKE, 220, 182, $60, LIGHT_GREEN)
   actorDefEnd()
 _colors: .fill _tileColorsData.getSize(), _tileColorsData.get(i)
 _tiles:

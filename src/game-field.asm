@@ -1,18 +1,18 @@
 /*
   MIT License
-  
-  Copyright (c) 2021 Maciej Malecki
-  
+
+  Copyright (c) 2022 Maciej Malecki
+
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
   copies of the Software, and to permit persons to whom the Software is
   furnished to do so, subject to the following conditions:
-  
+
   The above copyright notice and this permission notice shall be included in all
   copies or substantial portions of the Software.
-  
+
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,6 +21,7 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
 */
+#import "chipset/lib/vic2.asm"
 #import "text/lib/tiles-2x2.asm"
 #import "copper64/lib/copper64.asm"
 
@@ -71,13 +72,16 @@
 .label PHASE_WRAP_1_TO_0    = %11000000
 .label PHASE_SWITCH_1_TO_0  = %10000001
 
+// copper raster lines (NTSC)
+.label SWITCH_RASTER_NTSC   = 10
+
 .segment Code
 
 startCopper: {
   startCopper(
     z_displayListPtr,
     z_listPtr,
-    List().add(c64lib.IRQH_HSCROLL, c64lib.IRQH_JSR, c64lib.IRQH_BG_RASTER_BAR, c64lib.IRQH_BG_COL_0).lock())
+    List().add(c64lib.IRQH_JSR, c64lib.IRQH_BG_RASTER_BAR, c64lib.IRQH_BG_COL_0).lock())
   rts
 }
 
@@ -87,7 +91,7 @@ stopCopper: {
 }
 
 scrollColorCycle2: {
-  dec z_colorCycleDelay2 
+  dec z_colorCycleDelay2
   bne !+
     lda #COLOR_CYCLE_DELAY
     sta z_colorCycleDelay2
@@ -115,7 +119,20 @@ startIngameCopper: {
   sta z_displayListPtr
   lda #>ingameCopperList
   sta z_displayListPtr + 1
-  jsr startCopper
+
+  lda z_ntsc
+  bne ntsc
+  jmp !+
+  ntsc: {
+    // for NTSC we want to change raster counter for last IRQ handler (switch pages)
+    lda #SWITCH_RASTER_NTSC
+    sta switchPagesCode + 1
+    lda switchPagesCode
+    and #%01111111
+    sta switchPagesCode
+  }
+  !:
+    jsr startCopper
   rts
 }
 
@@ -145,20 +162,47 @@ startEndGameScreenCopper: {
   jsr startCopper
   rts
 }
-// ---- END: Copper handling ----
 
+playMusicIrq: {
+  jsr playMusic
+  debugBorderEnd()
+  lda z_anim_delay
+  bne scrollBottom
+
+  rotateCharRight(z_right_anim_char)
+  jmp !+
+  scrollBottom:
+    rotateCharBottom(z_bottom_anim_char, store)
+  !:
+  inc z_anim_delay
+  lda z_anim_delay
+  cmp #2
+  bne !+
+    lda #0
+    sta z_anim_delay
+  !:
+  debugBorderStart()
+  rts
+  store: .byte 0
+}
+
+// ---- END: Copper handling ----
+beforeAlign:
 .align $100
 _copperListStart:
+.print "wasted space because of Copper align $100: " + (_copperListStart - beforeAlign)
 // here we define layout of raster interrupt handlers
 ingameCopperList:
     // play music
-    copperEntry(32, IRQH_JSR, <playMusic, >playMusic)
-    copperEntry(DASHBOARD_Y + 20, IRQH_JSR, <upperMultiplex, >upperMultiplex)
+    copperEntry(DASHBOARD_Y + 20, IRQH_JSR, <upperMultiplex, >upperMultiplex) // 50 + 20 = 70
+    copperEntry(77, IRQH_JSR, <playMusicIrq, >playMusicIrq)
   scrollCode:
     // here we do the actual scrolling
-    copperEntry(88, IRQH_JSR, <scrollBackground, >scrollBackground)
+    // add 1 (103, 279) here and below to revert
+    copperEntry(104, IRQH_JSR, <scrollBackground, >scrollBackground)
     // here we do the page switching when it's time for this
-    copperEntry(288, IRQH_JSR, <switchPages, >switchPages)
+  switchPagesCode:
+    copperEntry(280, IRQH_JSR, <switchPages, >switchPages)
     // here we loop and so on, so on, for each frame
     copperLoop()
 
@@ -169,16 +213,19 @@ titleScreenCopperList:
       copperEntry(166, IRQH_BG_COL_0, BLACK, 0)
       copperEntry(190, IRQH_JSR, <rotateColors, >rotateColors)
       copperEntry(206, IRQH_BG_COL_0, BLACK, 0)
-      copperEntry(236, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
+      copperEntry(235, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
       copperEntry(250, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
-      copperEntry(270, IRQH_JSR, <handleCredits, >handleCredits)
+      copperEntry(261, IRQH_JSR, <handleCredits, >handleCredits)
       copperLoop()
 
 levelScreenCopperList:
     copperEntry(10, IRQH_JSR, <playMusic, >playMusic)
     copperEntry(80, IRQH_JSR, <scrollColorCycle2, >scrollColorCycle2)
-    copperEntry(124, IRQH_BG_RASTER_BAR, <colorCycle1, >colorCycle1)
-    copperEntry(140, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
+    copperEntry(123, IRQH_BG_RASTER_BAR, <colorCycle1, >colorCycle1)
+    copperEntry(139, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
+    copperEntry(155, IRQH_BG_RASTER_BAR, <colorCycle1, >colorCycle1)
+    // this skip solves problem with black next level screen on 65 cycle NTSC machine. It seems Copper64 does not work properly with NTSC.
+    //copperEntry(175, IRQH_SKIP, <scrollColorCycle2, >scrollColorCycle2)
     copperEntry(245, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
     copperLoop()
 
@@ -193,22 +240,24 @@ endGameScreenCopperList:
 
 _copperListEnd:
 .assert "Copper list must fit into single 256b page.", (_copperListEnd - _copperListStart)<256, true
+.print "Copper list size: " + (_copperListEnd - _copperListStart)
 // ---- END: Copper Tables ----
 
 
 // ---- Scrollable background handling ----
 
 .segment Code
+screen0RowOffsetsLo:  .fill 25, <(SCREEN_PAGE_ADDR_0 + i*40)
+screen0RowOffsetsHi:  .fill 25, >(SCREEN_PAGE_ADDR_0 + i*40)
+screen1RowOffsetsLo:  .fill 25, <(SCREEN_PAGE_ADDR_1 + i*40)
+screen1RowOffsetsHi:  .fill 25, >(SCREEN_PAGE_ADDR_1 + i*40)
 
-.align $100
-tileColors:
-  .fill 256, $0
-mapOffsetsLo:
-  .fill 256, 0
-mapOffsetsHi:
-  .fill 256, 0
-tileDefinition:
-  .fill 256*4, $0
+.label FREE_MEMORY_START = SPRITE_ADDR
+
+.label tileDefinition = MUSIC_START_ADDR - 1024
+.label mapOffsetsHi = tileDefinition - 12
+.label mapOffsetsLo = mapOffsetsHi - 12
+.label tileColors = mapOffsetsLo - 256
 
 .var tilesCfg = Tile2Config()
 .eval tilesCfg.bank = VIC_BANK
@@ -227,47 +276,87 @@ tileDefinition:
 .eval tilesCfg.tileDefinition = tileDefinition
 .eval tilesCfg.lock()
 
+// material based collision detection
 checkBGCollisions: {
-  cld
-  lda #(PLAYER_Y + Y_COLLISION_OFFSET)
-  sec
-  sbc z_yPos
-  lsr
-  lsr
-  lsr
-  lsr
-  tay
-  lda #(PLAYER_X + X_COLLISION_OFFSET)
-  lsr
-  lsr
-  lsr
-  lsr
-  tax
-  decodeTile(tilesCfg)
-  and z_obstaclesMark
-  cmp z_obstaclesMark
-  bne !+
-    lda #GAME_STATE_KILLED
-    .if (INVINCIBLE == 0) {
-      sta z_gameState
-    }
+    lda #(PLAYER_Y + Y_COLLISION_OFFSET)
+    sec
+    sbc z_yPos
+    lsr
+    lsr
+    lsr
+    tay
+    sta storeY
+    lda #(PLAYER_X + X_COLLISION_OFFSET + X_COLLISION_OFFSET_RIGHT)
+    lsr
+    lsr
+    lsr
+    tax
+    sta storeX
+    jsr checkBGMaterialCollision
+    beq !+
+      jmp killPlayer
+    !:
+    ldy storeY
+    iny
+    ldx storeX
+    jsr checkBGMaterialCollision
+    beq !+
+      jmp killPlayer
+    !:
+
+    ldy storeY
+    lda #(PLAYER_X + X_COLLISION_OFFSET + X_COLLISION_OFFSET_LEFT)
+    lsr
+    lsr
+    lsr
+    tax
+    sta storeX
+    jsr checkBGMaterialCollision
+    beq !+
+      jmp killPlayer
+    !:
+    ldy storeY
+    iny
+    ldx storeX
+    jsr checkBGMaterialCollision
+    beq !+
+      jmp killPlayer
+    !:
+
     rts
-  !:
-  lda #(PLAYER_X + X_COLLISION_OFFSET - 8)
-  lsr
-  lsr
-  lsr
-  lsr
-  tax
-  decodeTile(tilesCfg)
-  and z_obstaclesMark
-  cmp z_obstaclesMark
-  bne !+
-    lda #GAME_STATE_KILLED
-    .if (INVINCIBLE == 0) {
-      sta z_gameState
-    }
-  !:
+    killPlayer:
+      lda #GAME_STATE_KILLED
+      .if (INVINCIBLE == 0) {
+        sta z_gameState
+        lda #1
+        sta z_bgDeath
+        sta z_bgDeathCopy
+      }
+      rts
+    storeX: .byte 0
+    storeY: .byte 0
+}
+
+checkBGMaterialCollision: {
+      lda z_phase
+    and #PHASE_SHOW_1
+    bne checkPage12
+    checkPage02:
+      lda screen0RowOffsetsLo, y
+      sta checkAddress2
+      lda screen0RowOffsetsHi, y
+      sta checkAddress2 + 1
+      jmp doTheCheckActually2
+    checkPage12:
+      lda screen1RowOffsetsLo, y
+      sta checkAddress2
+      lda screen1RowOffsetsHi, y
+      sta checkAddress2 + 1
+    doTheCheckActually2:
+      lda checkAddress2: $ffff, x // <-- A: intersecting background char code
+      tay
+      lda (z_materialsLo), y // <-- A: intersecting materials code
+      and #MAT_KILLS
   rts
 }
 
@@ -275,9 +364,9 @@ checkActorCollisions: {
   lda SPRITE_2S_COLLISION
   and #%11110000
   beq !+
-    lda #GAME_STATE_KILLED
+    lda #1
     .if (INVINCIBLE == 0) {
-      sta z_gameState
+      sta z_killedByActor
     }
   !:
   rts
@@ -296,13 +385,14 @@ initLevel: {
   lda #0
   sta z_spritesStashed
   sta z_doGameOver
-
-  // set sprite enable ghost reg to 0
-  lda #0
+  sta z_bgDeath
+  sta z_bgDeathCopy
   sta z_spriteEnable
-
-  lda #0
   sta z_colorRAMShifted
+  sta z_anim_delay
+  sta z_scrollReg
+  sta z_acc0
+  sta z_killedByActor
 
   // set [x,y] = [0,0]
   lda #$ff
@@ -330,6 +420,7 @@ initLevel: {
   lda #$00
   sta z_mode
   sta z_prevMode
+  sta z_duckAfterLanding
 
   // set max delay
   lda #MAX_DELAY
@@ -362,7 +453,6 @@ initLevel: {
 }
 
 incrementX: {
-  cld
   clc
   lda z_x
   adc z_deltaX
@@ -400,6 +490,8 @@ detectPhases: {
 
 scrollBackground: {
   debugBorderStart()
+
+  cld
 
   jsr detectPhases
 
@@ -445,10 +537,10 @@ scrollBackground: {
   jmp end
   // do the screen shifting
   page0To1:
-    _t2_shiftScreenLeft(tilesCfg, 0, 1)
+    shiftScreenLeft(tilesCfg, 0)
     jmp end
   page1To0:
-    _t2_shiftScreenLeft(tilesCfg, 1, 0)
+    shiftScreenLeft(tilesCfg, 1)
 
   end:
     // setup IRQ handler back to scrollColorRam
@@ -465,6 +557,8 @@ scrollBackground: {
 scrollColorRam: {
   debugBorderEnd()
 
+  cld
+
   jsr detectPhases
 
   // are we actually moving?
@@ -478,8 +572,8 @@ scrollColorRam: {
   lda #1
   sta z_colorRAMShifted
 
-  _t2_shiftColorRamLeft(tilesCfg, 2)
-  _t2_decodeColorRight(tilesCfg, COLOR_RAM)
+  shiftColorRamLeft(tilesCfg)
+  decodeColorRight(tilesCfg)
   switchBackIrq:
   // setup IRQ handler back to scrollBackground
   lda #<scrollBackground
@@ -487,12 +581,16 @@ scrollColorRam: {
   lda #>scrollBackground
   sta scrollCode + 3
   end:
+
   debugBorderStart()
   rts
 }
 
 switchPages: {
   debugBorderStart()
+
+  cld
+
   doSwitching:
   // are we actually moving?
   lda z_x
@@ -533,14 +631,14 @@ switchPages: {
   endSwitch:
     jmp end
   switch0To1:
-    _t2_decodeScreenRight(tilesCfg, 1)
+    decodeScreenRight(tilesCfg, 1)
     lda MEMORY_CONTROL
     and #%00001111
     ora #(SCREEN_PAGE_1 << 4)
     sta MEMORY_CONTROL
     jmp end
   switch1To0:
-    _t2_decodeScreenRight(tilesCfg, 0)
+    decodeScreenRight(tilesCfg, 0)
     lda MEMORY_CONTROL
     and #%00001111
     ora #(SCREEN_PAGE_0 << 4)
@@ -592,9 +690,8 @@ switchPages: {
 
   // check end of level condition
   clc
-  cld
   lda z_x + 1
-  adc #20
+  adc #19
   cmp z_width
   bne dontReset
     lda z_gameState
@@ -606,30 +703,36 @@ switchPages: {
     !:
   dontReset:
 
-  jsr updateDashboard
-  jsr io_scanControls
-  jsr handleControls
-  jsr animate
-  jsr phy_performProgressiveJump
-  jsr phy_updateSpriteY
-  jsr dly_handleDelay
-
-  jsr disposeActors
-  jsr checkForNewActors
-  jsr drawActors
-  jsr act_animate
-  jsr enableActors
-  jsr checkActorCollisions
-  jsr doGameOver
-
-  decrementScoreDelay()
-
-  stashSprites(z_stashArea)
+  jsr runEndOfFrameLogic
 
   lda #0
   sta z_colorRAMShifted
 
   debugBorderEnd()
+  rts
+}
+
+runEndOfFrameLogic: {
+  jsr io_scanControls
+  jsr handleControls
+  jsr animate
+
+  jsr disposeActors
+  jsr checkForNewActors
+  jsr drawActors
+  jsr enableActors
+  jsr checkActorCollisions
+  jsr doGameOver
+
+  stashSprites(z_stashArea)
+
+  jsr act_animate
+
+  jsr phy_performProgressiveJump
+  jsr phy_updateSpriteY
+  jsr dly_handleDelay
+  decrementScoreDelay()
+
   rts
 }
 
@@ -660,6 +763,9 @@ handleControls: {
   }
   !:
   // handle ducking
+
+  lda z_mode
+  bne inAir
   jsr io_checkUnduck
   beq !+
     jsr spr_showPlayerWalkLeft
@@ -670,17 +776,36 @@ handleControls: {
     jsr playDuck
     jsr spr_showPlayerDuck
   !:
-
+  jmp afterDuck
+  // --->
+  inAir:
+    jsr io_checkDoduck
+    beq !+
+      lda #1
+      sta z_duckAfterLanding
+    !:
+    jsr io_checkUnduck
+    beq !+
+      lda #0
+      sta z_duckAfterLanding
+    !:
+  // <---
   afterDuck:
   // if back on earth -> switch to walk left again
   lda z_prevMode
-  beq !+
+  beq stillInAir
     lda z_mode
     bne stillInAir
       playSfx(playLanding)
+      lda z_duckAfterLanding
+      beq !+
+        jsr spr_showPlayerDuck
+        lda #0
+        sta z_duckAfterLanding
+        jmp stillInAir
+      !:
       jsr spr_showPlayerWalkLeft
-    stillInAir:
-  !:
+  stillInAir:
 
   rts
 }
@@ -940,7 +1065,7 @@ handleCredits: {
   cmp #$00
   bne !+
     jmp displayPage0
-  !:  
+  !:
   cmp #$10
   bne !+
     jmp displayPage1
@@ -980,13 +1105,20 @@ handleCredits: {
   }
   displayPage2: {
     jsr clearCredits
-    pushParamW(txt_page_2_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 1) + 15); jsr outText
-    pushParamW(txt_page_2_1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 3) + 16); jsr outText
+    pushParamW(txt_page_2_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 1) + 16); jsr outText
+
+    lda z_ntsc
+    beq !+
+      pushParamW(txt_page_2_2)
+      pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 3) + 18)
+      jsr outText
+    !:
+
     jmp initFadeIn
   }
   displayPage3: {
     jsr clearCredits
-    pushParamW(txt_page_3_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 3); jsr outText
+    pushParamW(txt_page_3_0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*(CREDITS_TOP + 2) + 2); jsr outText
     jmp initFadeIn
   }
   displayPage4: {
@@ -1100,9 +1232,9 @@ initCredits: {
 }
 
 clearCredits: {
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*CREDITS_TOP); 
-  lda #(32 + 64); 
-  ldx #(CREDITS_SIZE*40); 
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*CREDITS_TOP);
+  lda #(32 + 64);
+  ldx #(CREDITS_SIZE*40);
   jsr fillMem
   rts
 }

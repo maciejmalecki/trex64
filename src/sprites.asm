@@ -1,3 +1,26 @@
+/*
+  MIT License
+
+  Copyright (c) 2022 Maciej Malecki
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+*/
 #import "chipset/lib/sprites.asm"
 #import "chipset/lib/vic2.asm"
 #import "common/lib/invoke.asm"
@@ -15,11 +38,14 @@
 .label SPR_DINO_JUMP = SPR_DINO + 8
 .label SPR_DINO_DUCK = SPR_DINO_JUMP + 4
 .label SPR_DEATH = SPR_DINO_DUCK + 8
-.label SPR_GAME_OVER = SPR_DEATH + 4
+.label SPR_DEATH_WATER = SPR_DEATH + 4
+.label SPR_DEATH_FIRE = SPR_DEATH_WATER + 4
+.label SPR_GAME_OVER = SPR_DEATH_FIRE + 4
 .label SPR_VOGEL = SPR_GAME_OVER + (_b_vogel - _b_gameOver)/64
 .label SPR_SCORPIO = SPR_VOGEL + (_b_scorpio - _b_vogel)/64
 .label SPR_SNAKE = SPR_SCORPIO + (_b_snake - _b_scorpio)/64
 .label SPR_DASHBOARD = SPR_SNAKE + (_b_dashboard - _b_snake)/64
+.label SPR_EMPTY = SPR_DASHBOARD + 4
 
 .macro _setSpriteShape(spriteNum, shapeNum) {
   lda #shapeNum
@@ -86,7 +112,6 @@ _spr_setNormalPosition: {
   sta spriteXReg(PLAYER_SPRITE_BOTTOM)
   sta spriteXReg(PLAYER_SPRITE_BOTTOM_OVL)
   // set Y coord
-  cld
   lda #PLAYER_Y
   sta z_yPosTop
   sbc z_yPos
@@ -263,6 +288,66 @@ spr_showDeath: {
   rts
 }
 
+spr_showWaterDeath: {
+
+  jsr _spr_setNormalPosition
+
+  lda #WATER_DEATH_COL
+  sta spriteColorReg(PLAYER_SPRITE_BOTTOM_OVL)
+
+  pushParamW(empty)
+  ldx #PLAYER_SPRITE_TOP
+  lda #$43
+  jsr setAnimation
+
+  pushParamW(empty)
+  ldx #PLAYER_SPRITE_TOP_OVL
+  lda #$43
+  jsr setAnimation
+
+  pushParamW(empty)
+  ldx #PLAYER_SPRITE_BOTTOM
+  lda #$43
+  jsr setAnimation
+
+  pushParamW(dinoDeathWater)
+  ldx #PLAYER_SPRITE_BOTTOM_OVL
+  lda #$F3
+  jsr setAnimation
+
+  rts
+}
+
+spr_showFireDeath: {
+
+  jsr _spr_setNormalPosition
+
+  lda #FIRE_DEATH_COL
+  sta spriteColorReg(PLAYER_SPRITE_TOP_OVL)
+
+  pushParamW(empty)
+  ldx #PLAYER_SPRITE_TOP
+  lda #$43
+  jsr setAnimation
+
+  pushParamW(dinoDeathFire)
+  ldx #PLAYER_SPRITE_TOP_OVL
+  lda #$A3
+  jsr setAnimation
+
+  pushParamW(empty)
+  ldx #PLAYER_SPRITE_BOTTOM
+  lda #$43
+  jsr setAnimation
+
+  pushParamW(empty)
+  ldx #PLAYER_SPRITE_BOTTOM_OVL
+  lda #$43
+  jsr setAnimation
+
+  rts
+}
+
 spr_showGameOver: {
 
   .label _GAME_OVER_X = 130
@@ -305,20 +390,21 @@ spr_hidePlayers: {
 .segment Sprites
 beginOfSprites:
   _b_dino:
-  .import binary "sprites/dino.bin"
+  .import binary "dino.bin"
   _b_gameOver:
-  .import binary "sprites/game-over.bin"
+  .import binary "game-over.bin"
   _b_vogel:
-  .import binary "sprites/vogel.bin"
+  .import binary "vogel.bin"
   _b_scorpio:
-  .import binary "sprites/scorpio.bin"
+  .import binary "scorpio.bin"
   _b_snake:
-  .import binary "sprites/snake.bin"
+  .import binary "snake.bin"
   _b_dashboard:
-  .import binary "sprites/dashboard.bin"
-  .fill 2*64, 0
+  .import binary "dashboard.bin"
+  .fill 1*64, 0
+  // empty
+  .fill 64, 0
 endOfSprites:
-.print "Sprites import size = " + (endOfSprites - beginOfSprites)
 // ---- END: Sprites definition ----
 
 .segment Data
@@ -383,6 +469,18 @@ dinoDuckBottomOvl:
   .byte SPRITE_SHAPES_START + SPR_DINO_DUCK + 3
   .byte SPRITE_SHAPES_START + SPR_DINO_DUCK + 4 + 3
   .byte $ff
+dinoDeathWater:
+  .byte SPRITE_SHAPES_START + SPR_DEATH_WATER
+  .byte SPRITE_SHAPES_START + SPR_DEATH_WATER + 1
+  .byte SPRITE_SHAPES_START + SPR_DEATH_WATER + 2
+  .byte SPRITE_SHAPES_START + SPR_DEATH_WATER + 3
+  .byte $ff
+dinoDeathFire:
+  .byte SPRITE_SHAPES_START + SPR_DEATH_FIRE
+  .byte SPRITE_SHAPES_START + SPR_DEATH_FIRE + 1
+  .byte SPRITE_SHAPES_START + SPR_DEATH_FIRE + 2
+  .byte SPRITE_SHAPES_START + SPR_DEATH_FIRE + 3
+  .byte $ff
 vogel:
   .byte SPRITE_SHAPES_START + SPR_VOGEL
   .byte SPRITE_SHAPES_START + SPR_VOGEL + 1
@@ -404,5 +502,8 @@ snake:
   .byte SPRITE_SHAPES_START + SPR_SNAKE + 1
   .byte SPRITE_SHAPES_START + SPR_SNAKE + 2
   .byte SPRITE_SHAPES_START + SPR_SNAKE + 1
+  .byte $ff
+empty:
+  .byte SPRITE_SHAPES_START + SPR_EMPTY
   .byte $ff
 // ----- END: Animation sequences -----

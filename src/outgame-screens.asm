@@ -1,7 +1,7 @@
 /*
   MIT License
 
-  Copyright (c) 2021 Maciej Malecki
+  Copyright (c) 2022 Maciej Malecki
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -22,6 +22,7 @@
   SOFTWARE.
 */
 #import "chipset/lib/mos6510.asm"
+#import "common/lib/math.asm"
 
 #import "_segments.asm"
 #import "_zero_page.asm"
@@ -56,7 +57,7 @@ configureTitleVic2: {
   and #%11110000
   ora #%00001000
   sta CONTROL_1
-  
+
   jsr unpackChargen
   // copy inversed charset
   sei
@@ -75,20 +76,22 @@ doTitleScreen: {
   lda #0
   sta z_previousKeys
   sta z_currentKeys
+  sta z_godMode
   lda #TITLE_COLOR_CYCLE_DELAY
   sta z_colorCycleDelay
   sta z_colorCycleDelay2
+
+  jsr screenOff
 
   lda #32
   ldx #BLACK
   jsr clearBothScreens
 
-  jsr screenOff
   jsr configureTitleVic2
   lda #TITLE_TUNE
   jsr initSound
-  jsr screenOn
   jsr prepareTitleScreen
+  jsr screenOn
   jsr startTitleCopper
   endlessTitle:
     // scan start game
@@ -124,12 +127,20 @@ doTitleScreen: {
       jsr toggleSound
       jmp storePreviousState
     !:
+    lda z_currentKeys
+    and #KEY_F7
+    beq !+
+      lda #1
+      sta z_godMode
+      jmp startIngame
+    !:
     storePreviousState:
     // copy current state to previous state
     lda z_currentKeys
     sta z_previousKeys
     jmp endlessTitle
   startIngame:
+  jsr fadeOutMusic
   jsr dly_wait10
   jsr stopCopper
   rts
@@ -146,10 +157,10 @@ doLevelScreen: {
   lda #NEXT_LEVEL_TUNE
   jsr initSound
 
-  jsr startLevelScreenCopper
   jsr prepareLevelScreen
   jsr screenOn
-  
+  jsr startLevelScreenCopper
+
   jsr io_resetControls
   jsr dly_wait10
 
@@ -159,6 +170,7 @@ doLevelScreen: {
     bne !+
     jmp !-
   !:
+  jsr fadeOutMusic
   jsr dly_wait10
   jsr stopCopper
   rts
@@ -175,10 +187,10 @@ doEndGameScreen: {
   jsr initSound
 
   jsr configureTitleVic2
-  jsr startEndGameScreenCopper
 
   jsr prepareEndGameScreen
   jsr screenOn
+  jsr startEndGameScreenCopper
 
   jsr io_resetControls
   jsr dly_wait10
@@ -222,18 +234,40 @@ toggleLevel: {
 
 prepareTitleScreen: {
   // decode coloring for logo
-  .for (var line = 0; line < 10; line++) {
+    lda #0
+    pha
+
+    lda #<beginOfTitleMap
+    sta sourceAddress
+    lda #>beginOfTitleMap
+    sta sourceAddress + 1
+    lda #<(COLOR_RAM + 40*LOGO_TOP)
+    sta destAddress
+    lda #>(COLOR_RAM + 40*LOGO_TOP)
+    sta destAddress + 1
+    nextLine:
     ldx #0
     nextChar:
-      lda (beginOfTitleMap + line*40),x
+      lda sourceAddress:$FFFF,x
       and #$7F
       tay
       lda beginOfTitleAttr,y
-      sta COLOR_RAM + 40*(LOGO_TOP + line),x
+      sta destAddress:$FFFF,x
       inx
       cpx #40
     bne nextChar
-  }
+
+    pla
+    tax
+    inx
+    cpx #10
+    beq end
+    txa
+    pha
+    add16(40, sourceAddress)
+    add16(40, destAddress)
+    jmp nextLine
+    end:
 
   // set up colors for title
   {
@@ -258,13 +292,13 @@ prepareTitleScreen: {
   jsr copyLargeMemForward
 
   pushParamW(txt_author)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*AUTHOR_TOP)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*AUTHOR_TOP + 2)
   jsr outText
 
   pushParamW(COLOR_RAM + 40*MENU_TOP); lda #WHITE; ldx #40; jsr fillMem
 
   pushParamW(txt_menu)
-  pushParamW(SCREEN_PAGE_ADDR_0 + 40*MENU_TOP)
+  pushParamW(SCREEN_PAGE_ADDR_0 + 40*MENU_TOP + 4)
   jsr outText
 
   // prepare credits
@@ -303,6 +337,18 @@ prepareLevelScreen: {
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*10 + 24)
   jsr outHexNibbleInversed
 
+  lda z_extraLiveAwarded
+  beq !+
+
+    pushParamW(txt_extraLive)
+    pushParamW(SCREEN_PAGE_ADDR_0 + 40*14 + 13)
+    jsr outText
+
+    lda #0
+    sta z_extraLiveAwarded
+
+  !:
+
   rts
 }
 
@@ -321,18 +367,14 @@ prepareEndGameScreen: {
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*8 + 7)
   jsr outText
 
-  pushParamW(COLOR_RAM + 40*11 + 11); lda #YELLOW; ldx #17; jsr fillMem
-  pushParamW(txt_fullGame0); pushParamW(SCREEN_PAGE_ADDR_0 + 40*11 + 11); jsr outText
-  pushParamW(COLOR_RAM + 40*13 + 11); lda #YELLOW; ldx #11; jsr fillMem
-  pushParamW(txt_fullGame1); pushParamW(SCREEN_PAGE_ADDR_0 + 40*13 + 11); jsr outText
-  pushParamW(COLOR_RAM + 40*14 + 11); lda #YELLOW; ldx #11; jsr fillMem
-  pushParamW(txt_fullGame2); pushParamW(SCREEN_PAGE_ADDR_0 + 40*14 + 11); jsr outText
-  pushParamW(COLOR_RAM + 40*15 + 11); lda #YELLOW; ldx #12; jsr fillMem
-  pushParamW(txt_fullGame3); pushParamW(SCREEN_PAGE_ADDR_0 + 40*15 + 11); jsr outText
-  pushParamW(COLOR_RAM + 40*16 + 11); lda #YELLOW; ldx #12; jsr fillMem
-  pushParamW(txt_fullGame4); pushParamW(SCREEN_PAGE_ADDR_0 + 40*16 + 11); jsr outText
-  pushParamW(COLOR_RAM + 40*17 + 11); lda #WHITE; ldx #19; jsr fillMem
-  pushParamW(txt_fullGame5); pushParamW(SCREEN_PAGE_ADDR_0 + 40*17 + 11); jsr outText
+  pushParamW(COLOR_RAM + 40*11 + 10); lda #LIGHT_GRAY; ldx #20; jsr fillMem
+  pushParamW(txt_endGame3); pushParamW(SCREEN_PAGE_ADDR_0 + 40*11 + 10); jsr outText
+  pushParamW(COLOR_RAM + 40*13 + 10); lda #LIGHT_GRAY; ldx #20; jsr fillMem
+  pushParamW(txt_endGame4); pushParamW(SCREEN_PAGE_ADDR_0 + 40*13 + 10); jsr outText
+  pushParamW(COLOR_RAM + 40*15 + 10); lda #LIGHT_BLUE; ldx #19; jsr fillMem
+  pushParamW(txt_endGame5); pushParamW(SCREEN_PAGE_ADDR_0 + 40*15 + 10); jsr outText
+  pushParamW(COLOR_RAM + 40*17 + 10); lda #LIGHT_BLUE; ldx #14; jsr fillMem
+  pushParamW(txt_endGame6); pushParamW(SCREEN_PAGE_ADDR_0 + 40*17 + 10); jsr outText
 
   pushParamW(txt_pressAnyKey)
   pushParamW(SCREEN_PAGE_ADDR_0 + 40*20 + 13)

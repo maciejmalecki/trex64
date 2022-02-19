@@ -1,18 +1,18 @@
 /*
     MIT License
-    
-    Copyright (c) 2021 Maciej Malecki
-    
+
+    Copyright (c) 2022 Maciej Malecki
+
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
     in the Software without restriction, including without limitation the rights
     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
     copies of the Software, and to permit persons to whom the Software is
     furnished to do so, subject to the following conditions:
-    
+
     The above copyright notice and this permission notice shall be included in all
     copies or substantial portions of the Software.
-    
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -54,13 +54,20 @@
 
 // collision detection
 .label X_COLLISION_OFFSET = 12 - 24
+.label X_COLLISION_OFFSET_LEFT = -1
+.label X_COLLISION_OFFSET_RIGHT = 1
 .label Y_COLLISION_OFFSET = 29 - 50 - 6
+
+// material codes
+.label MAT_KILLS         = %1000
+.label MAT_ANIMATE       = %0100
+.label MAT_ANIMATE_RIGHT = %0010
 
 // ---- dashboard ----
 .label DASHBOARD_Y = 50
 .label DASHBOARD_LEFT_X = 34
 .label DASHBOARD_RIGHT_X = 4
-.label DASHBOARD_RIGHT_SPC = 2
+.label DASHBOARD_RIGHT_SPC = 0
 
 // visual effects
 .label COLOR_CYCLE_DELAY = 4
@@ -88,12 +95,23 @@
 .label MAX_DELAY = 10
 
 // ---- music ----
-.label TITLE_TUNE = 4
-.label INGAME_TUNE = 0
+// trex2.sid
+.label TITLE_TUNE = 0
+.label INGAME_TUNE = 1
 .label INGAME_SFX_TUNE = 2
 .label NEXT_LEVEL_TUNE = 3
-.label GAME_OVER_TUNE = 1
-.label END_GAME_TUNE = 4
+.label GAME_OVER_TUNE = 4
+.label END_GAME_TUNE = 5
+.label FADE_OUT_TUNE = 6
+// trex.sid
+// .label TITLE_TUNE = 5
+// .label INGAME_TUNE = 0
+// .label INGAME_SFX_TUNE = 2
+// .label NEXT_LEVEL_TUNE = 3
+// .label GAME_OVER_TUNE = 1
+// .label END_GAME_TUNE = 4
+// .label FADE_OUT_TUNE = 2
+.label MUSIC_START_ADDR = $f500
 
 // ---- keyboard ----
 // title screen
