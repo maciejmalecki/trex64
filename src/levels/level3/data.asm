@@ -114,13 +114,19 @@ _map1Actors:
 // level 3-2
 _map2: .fill _map2Data.getSize(), _map2Data.get(i)
 _map2Actors:
-  actorDef(c64lib.EN_VOGEL, 23, 80, $40, WHITE)
-  actorDef(c64lib.EN_VOGEL, 15, 85, $42, LIGHT_GREEN)
+  actorDef(c64lib.EN_VOGEL, 23, 100, $40, LIGHT_GREEN)
+  actorDef(c64lib.EN_VOGEL, 38, 120, $60, LIGHT_RED)
+  actorDef(c64lib.EN_VOGEL, 65, 130, $60, LIGHT_RED)
+  actorDef(c64lib.EN_VOGEL, 80, 150, $70, LIGHT_GREEN)
+  actorDef(c64lib.EN_SNAKE, 97, 182, $30, LIGHT_GREEN)
   actorDefEnd()
 // level 3-3
 _map3: .fill _map3Data.getSize(), _map3Data.get(i)
 _map3Actors:
-  actorDef(c64lib.EN_VOGEL, 87, 90, $48, WHITE)
+  actorDef(c64lib.EN_VOGEL, 19, 150, $60, LIGHT_GREEN)
+  actorDef(c64lib.EN_VOGEL, 38, 140, $53, LIGHT_GREEN)
+  actorDef(c64lib.EN_VOGEL, 88, 120, $48, LIGHT_GREEN)
+  actorDef(c64lib.EN_VOGEL, 105, 130, $55, LIGHT_GREEN)
   actorDefEnd()
 // level 3-4
 _map4: .fill _map4Data.getSize(), _map4Data.get(i)
