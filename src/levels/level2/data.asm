@@ -140,7 +140,7 @@ _map3Actors:
 // level 2-4
 _map4: .fill _map4Data.getSize(), _map4Data.get(i)
 _map4Actors:
-  actorDef(c64lib.EN_SCORPIO, 38, 182, $40, BLACK)
+  actorDef(c64lib.EN_SCORPIO, 39, 182, $40, BLACK)
   actorDef(c64lib.EN_VOGEL, 48, 120, $60, WHITE)
   actorDef(c64lib.EN_VOGEL, 59, 170, $90, WHITE)
   actorDef(c64lib.EN_VOGEL, 94, 140, $90, BLACK)
