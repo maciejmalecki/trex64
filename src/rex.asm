@@ -224,6 +224,7 @@ doIngame: {
       // decrement lives
       dec z_lives
       bne livesLeft
+        jsr updateDashboard
         lda #GAME_STATE_GAME_OVER
         sta z_gameState
         jmp displayGameOver
