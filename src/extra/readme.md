@@ -25,20 +25,21 @@ Title screen options
 Once game is run, there are few options that can be configured on title screen:
 
 - control method (F1) - can be choosen between Joystick in port 2 or Keyboard,
-- music or effects only (F3) - whether in-game music should be played or effects only,
+- music or effects only (F3) - whether in-game music should be played or effects
+    only,
 - starting level (F5) - one can select between levels 1-1, 1-2 and 1-3 to start
     the game with.
 
 No matter of control method, game can be started with either FIRE in Joy 2
 or SPACE.
 
-There is also a trainer mode available directly from the title screen. If you press F7, the
-game will be restarted from the last level you have died recently.
+There is also a practice mode available directly from the title screen. If you
+press F7, the game will be restarted from the last level you have died recently.
 
 Playing the game
 ----------------
 There are only two commands that can be used to control T-REX in her journey
-thru the levels: jump and duck. Use these commands to avoid enemies (birds, 
+thru the levels: jump and duck. Use these commands to avoid enemies (birds,
 snakes and scorpios) and jump over cactuses, lava and water.
 
 If joystick control method is selected, use FIRE or UP for jumping and DOWN for
