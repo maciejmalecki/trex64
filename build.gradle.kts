@@ -13,7 +13,7 @@ retroProject {
     libFromGitHub("c64lib/common", "0.3.0")
     libFromGitHub("c64lib/chipset", "0.3.0")
     libFromGitHub("c64lib/text", "0.3.0")
-    libFromGitHub("c64lib/copper64", "develop")
+    libFromGitHub("c64lib/copper64", "0.3.0")
 }
 
 preprocess {
