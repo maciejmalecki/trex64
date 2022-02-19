@@ -44,7 +44,6 @@ preprocess {
     charpad {
       getInput().set(file("src/charset/charset.ctm"))
       getUseBuildDir().set(true)
-      getCtm8PrototypeCompatibility().set(true)
       outputs {
         meta {
           dialect = AssemblerType.KickAssembler
