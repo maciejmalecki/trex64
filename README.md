@@ -53,3 +53,10 @@ The build system itself including Kick Assembler requires Java version 11 or new
 * [Kick Assembler](http://theweb.dk/KickAssembler/Main.html#frontpage)
 * [C64 Debugger](https://sourceforge.net/projects/c64-debugger/)
 * [Gradle Retro Assembler Plugin](https://c64lib.github.io/gradle-retro-assembler-plugin/)
+
+## Release notes
+
+### 1.0.1
+
+* Fixes in World 3 background graphics.
+* Fixes cycling error in rainbow font at next level screen.
