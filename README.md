@@ -60,3 +60,4 @@ The build system itself including Kick Assembler requires Java version 11 or new
 
 * Fixes in World 3 background graphics.
 * Fixes cycling error in rainbow font at next level screen.
+* Слава Україні!
