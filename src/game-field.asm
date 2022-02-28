@@ -73,7 +73,7 @@
 .label PHASE_SWITCH_1_TO_0  = %10000001
 
 // copper raster lines (NTSC)
-.label SWITCH_RASTER_NTSC   = 10
+.label SWITCH_RASTER_NTSC   = 8
 
 .segment Code
 
@@ -199,7 +199,7 @@ ingameCopperList:
   scrollCode:
     // here we do the actual scrolling
     // add 1 (103, 279) here and below to revert
-    copperEntry(104, IRQH_JSR, <scrollBackground, >scrollBackground)
+    copperEntry(103, IRQH_JSR, <scrollBackground, >scrollBackground)
     // here we do the page switching when it's time for this
   switchPagesCode:
     copperEntry(280, IRQH_JSR, <switchPages, >switchPages)

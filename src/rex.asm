@@ -419,7 +419,7 @@ configureIngameVic2: {
   sta CONTROL_2
   lda CONTROL_1
   and #%11110000
-  ora #%00000110
+  ora #%00000111
   sta CONTROL_1
   rts
 }

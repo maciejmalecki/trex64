@@ -56,6 +56,11 @@ The build system itself including Kick Assembler requires Java version 11 or new
 
 ## Release notes
 
+### 1.0.2
+
+* Fixes in NTSC: dashboard is no longer disappearing.
+* Fixes one raster shift in Y during ingame.
+
 ### 1.0.1
 
 * Fixes in World 3 background graphics.
