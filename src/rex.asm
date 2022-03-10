@@ -128,6 +128,7 @@ doIngame: {
   jsr act_reset
   jsr io_resetControls
   jsr spr_showPlayer
+  jsr phy_updateSpriteY
   jsr startIngameCopper
   brkInGame:
   mainMapLoop:
