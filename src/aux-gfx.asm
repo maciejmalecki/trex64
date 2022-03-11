@@ -36,9 +36,6 @@ endOfTitleAttr:
 beginOfTitleMap:
   .fill titleMap.getSize(), titleMap.get(i) + 128
 endOfTitleMap:
-beginOfAuthorColorRainbow:
-  .byte LIGHT_BLUE, BLUE, LIGHT_BLUE, LIGHT_BLUE, LIGHT_BLUE, WHITE, WHITE, WHITE, WHITE, LIGHT_BLUE, LIGHT_BLUE
-endOfAuthorColorRainbow:
 beginOfAuthor2ColorRainbow:
-  .byte BLACK, DARK_GREY, DARK_GREY, GREY, GREY, LIGHT_GREY, LIGHT_GREY, WHITE, LIGHT_GREY, GREY,DARK_GREY
+  .byte DARK_GREY, DARK_GREY, DARK_GREY, GREY, GREY, LIGHT_GREY, LIGHT_GREY, WHITE, LIGHT_GREY, GREY, DARK_GREY
 endOfAuthor2ColorRainbow:
