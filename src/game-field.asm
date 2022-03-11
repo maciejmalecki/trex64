@@ -213,7 +213,7 @@ titleScreenCopperList:
       copperEntry(166, IRQH_BG_COL_0, BLACK, 0)
       copperEntry(190, IRQH_JSR, <rotateColors, >rotateColors)
       copperEntry(206, IRQH_BG_COL_0, BLACK, 0)
-      copperEntry(235, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
+      copperEntry(236, IRQH_BG_RASTER_BAR, <colorCycle2, >colorCycle2)
       copperEntry(250, IRQH_JSR, <dly_handleDelay, >dly_handleDelay)
       copperEntry(261, IRQH_JSR, <handleCredits, >handleCredits)
       copperLoop()
