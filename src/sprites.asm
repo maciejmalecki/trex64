@@ -112,12 +112,13 @@ _spr_setNormalPosition: {
   sta spriteXReg(PLAYER_SPRITE_BOTTOM)
   sta spriteXReg(PLAYER_SPRITE_BOTTOM_OVL)
   // set Y coord
+  sec
   lda #PLAYER_Y
   sta z_yPosTop
   sbc z_yPos
   sta spriteYReg(PLAYER_SPRITE_TOP)
   sta spriteYReg(PLAYER_SPRITE_TOP_OVL)
-  clc
+  sec
   lda #PLAYER_BOTTOM_Y
   sta z_yPosBottom
   sbc z_yPos
