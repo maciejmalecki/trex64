@@ -319,6 +319,18 @@ initGame: {
   sta z_hiScoreMark
   sta z_hiScoreMark + 1
 
+  // somewhat needed to solve instant death problem
+  // lda #0
+  // sta z_yPos
+  // lda #PLAYER_Y
+  // sta z_yPosTop
+  // sta spriteYReg(PLAYER_SPRITE_TOP)
+  // sta spriteYReg(PLAYER_SPRITE_TOP_OVL)
+  // lda #PLAYER_BOTTOM_Y
+  // sta z_yPosBottom
+  // sta spriteYReg(PLAYER_SPRITE_BOTTOM)
+  // sta spriteYReg(PLAYER_SPRITE_BOTTOM_OVL)
+
   rts
 }
 
