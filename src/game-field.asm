@@ -362,11 +362,13 @@ checkActorCollisions: {
   lda SPRITE_2S_COLLISION
   and #%11110000
   beq !+
-  lsr
-  lsr
-  lsr
-  lsr
-  sta BORDER_COL
+
+  // lsr
+  // lsr
+  // lsr
+  // lsr
+  // sta BORDER_COL
+
     lda #1
     .if (INVINCIBLE == 0) {
       sta z_killedByActor
