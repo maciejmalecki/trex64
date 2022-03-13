@@ -273,7 +273,7 @@ prepareTitleScreen: {
   {
     ldy #0
     nextChar:
-      ldx #(endOfAuthorColorRainbow - beginOfAuthorColorRainbow)
+      ldx #(endOfAuthor2ColorRainbow - beginOfAuthor2ColorRainbow)
       nextColor:
         lda beginOfAuthor2ColorRainbow - 1, x
         sta COLOR_RAM + (40*AUTHOR_TOP), y
