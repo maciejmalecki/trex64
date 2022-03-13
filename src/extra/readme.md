@@ -71,19 +71,6 @@ the software.
 Please note, that the gameplay on NTSC is somewhat faster but this just makes
 the game more challenging. The gameplay has been tuned for NTSC speed.
 
-Known bugs
-----------
-Sadly, the game contains a few and difficult to reproduce bugs:
-
-* On NTSC, dashboard sometimes disappears for a brief moment.
-    I am very tight on raster time in NTSC, most likely I would need to
-    optimize some more code as it seems not to "fit" into a frame.
-* On rare occasions, TRex will die right after starting first level.
-    As this usually happens on real hardware, I suspect something is not
-    properly initialized as memory is never zeroed on real C64.
-
-I will do my best to fix them asap.
-
 Authors
 -------
 Code, graphics, music and sound effects: *Maciej Małecki*;
