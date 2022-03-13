@@ -362,6 +362,11 @@ checkActorCollisions: {
   lda SPRITE_2S_COLLISION
   and #%11110000
   beq !+
+  lsr
+  lsr
+  lsr
+  lsr
+  sta BORDER_COL
     lda #1
     .if (INVINCIBLE == 0) {
       sta z_killedByActor
@@ -812,6 +817,8 @@ handleControls: {
 upperMultiplex: {
   debugBorderStart()
   popSprites(z_stashArea)
+    // clear sprite collision reg
+  lda SPRITE_2S_COLLISION
   debugBorderEnd()
   rts
 }

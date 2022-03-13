@@ -117,7 +117,9 @@ doIngame: {
   bne !+
     lda #INGAME_SFX_TUNE
     jmp snd
-  !:
+  !:  // clear sprite collision reg
+  lda SPRITE_2S_COLLISION
+
   lda #INGAME_TUNE
   snd:
   jsr initSound
