@@ -36,11 +36,6 @@ for Unix-like systems.
 I have nothing against that you crack this title and publish your work on sites like csdb as long as you use any of officially released commits (the ones with semver tag on it: `x.y.z`).
 Anything that is published on releases except alpha and beta releases is generally a good choice.
 
-## Known bugs
-
-* On NTSC dashboard sometimes dissapears for a brief moment.
-* On rare occasions, TRex will die right after starting first level.
-
 ## Tools
 
 The following tools are used to develop T-Rex 64.
